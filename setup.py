@@ -30,17 +30,32 @@ packages = [
     'pymfony.component.dependency',
 ];
 
+classifiers = [
+    'Framework :: Pymfony',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: MIT',
+    'Operating System :: OS Independent',
+    'Programming Language :: Python',
+    'Programming Language :: Python 2.6',
+    'Programming Language :: Python 2.7',
+];
+
 setup(
-    name='pymfony',
+    name='Pymfony',
     packages=packages,
     package_dir = {'': 'src'},
     version="0.1.0",
     long_description=long_description,
     description="The Symfony2 PHP Framework with Python language",
     license="MIT",
-    url="https://github.com/alquerci/pymfony",
+    url="http://alquerci.github.com/pymfony",
+    download_url="https://github.com/alquerci/pymfony/tarball/master",
     author="Alexandre Quercia",
     author_email="alquerci@email.com",
     maintainer="Alexandre Quercia",
     maintainer_email="alquerci@email.com",
+    platforms="all",
+    provides=packages,
+    keywords="framework",
+    classifiers=classifiers,
 );

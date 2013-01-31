@@ -15,6 +15,7 @@ import os.path;
 
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.kernel import Kernel;
+from pymfony.component.kernel import FileLocator
 from pymfony.component.kernel import ConfigurableExtension;
 from pymfony.component.config import ConfigurationInterface;
 from pymfony.component.config import TreeBuilder;
@@ -45,7 +46,7 @@ class Configuration(ConfigurationInterface):
 
 class AppKernel(Kernel):
     def registerContainerConfiguration(self, loader):
-        loader.load("{0}/config/config_{1}.ini".format(
+        loader.load("{0}/Resources/config/config_{1}.ini".format(
             os.path.dirname(__file__),
             self.getEnvironment(),
         ));
@@ -77,19 +78,19 @@ class Test(unittest.TestCase):
 
 
     def testLocateResource(self):
+        currdir = op.realpath(op.dirname(__file__));
+        formater = lambda v: op.normpath(op.normcase(op.realpath(v)));
+        values = {
+            "@App/Resources/config/services.json": op.join(currdir, "Resources/config/services.json"),
+            "../__init__.py": op.join(currdir, "../__init__.py"),
+        };
+
         locator = self.container.get('file_locator');
-        self.assertEqual(
-            op.join(op.realpath(op.dirname(__file__)), "config/services.json").replace('\\', '/').lower(),
-            self._kernel.locateResource("@App/config/services.json").replace('\\', '/').lower()
-        );
-        self.assertEqual(
-            op.join(op.realpath(op.dirname(__file__)), "config/services.json").replace('\\', '/').lower(),
-            locator.locate("@App/config/services.json").replace('\\', '/').lower()
-        );
-        self.assertEqual(
-            op.join(op.realpath(op.dirname(__file__)), "config/services.json").replace('\\', '/').lower(),
-            locator.locate("@App/config/services.json").replace('\\', '/').lower()
-        );
+        self.assertTrue(isinstance(locator, FileLocator), repr(locator));
+
+        for value, expected in values.items():
+            result = locator.locate(value, currdir);
+            self.assertEqual(formater(result), formater(expected));
 
 
     def testExtensionConfig(self):
