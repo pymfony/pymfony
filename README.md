@@ -1,6 +1,8 @@
 pymfony
 =======
 
+[![Build Status][0]][7]
+
 What is Pymfony?
 ----------------
 
@@ -34,10 +36,11 @@ You can also contribute to the Symfony2 PHP framework, please read the
 [Contributing Code][5] part of the documentation.
 
 
-
 [1]: https://github.com/alquerci/pymfony/blob/master/CONVENTIONS.md
 [2]: http://symfony.com/doc/current/contributing/code/patches.html#check-list
 [3]: http://symfony.com/doc/current/contributing/code/patches.html#make-a-pull-request
 [4]: https://github.com/alquerci/pymfony
 [5]: http://symfony.com/doc/current/contributing/code/index.html
 [6]: http://symfony.com
+[0]: https://travis-ci.org/alquerci/pymfony.png?branch=master
+[7]: https://travis-ci.org/alquerci/pymfony
