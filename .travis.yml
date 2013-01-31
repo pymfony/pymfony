@@ -1,18 +1,22 @@
 language: python
 python:
-    - "2.5"
     - "2.6"
     - "2.7"
     - "3.2"
     - "3.3"
 
+matix:
+    - allow_failures
+        - python: "3.2"
+        - python: "3.3"
+    	
+
 # command to install dependencies
 install:
-    - python setup.py install
+    - python setup.py -q install
 
 # command to run tests
 script:
-    - python --version
     - python src/pymfony/component/system/test/test_system.py
     - python src/pymfony/component/kernel/test/test_functional.py
 

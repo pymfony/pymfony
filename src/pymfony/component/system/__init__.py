@@ -13,6 +13,7 @@ from __future__ import absolute_import;
 import abc;
 import inspect;
 import pickle;
+import sys;
 
 __all__ = [
     'abstract',
@@ -48,7 +49,11 @@ def abstract(obj):
     return obj;
 
 def interface(obj):
-    methods = inspect.getmembers(obj, inspect.ismethod);
+    if sys.version_info[0] >= 3:
+        methods = inspect.getmembers(obj, inspect.isfunction);
+    else:
+        methods = inspect.getmembers(obj, inspect.ismethod);
+    
     absMethods = set();
 
     def func(*a, **ka):
@@ -73,11 +78,19 @@ class Abstract():
         return NotImplemented;
 
 
-@abstract
-class Object(object, Abstract):
-    __metaclass__ = MetaClass;
-    def __copy__(self):
-        return CloneBuilder.build(self);
+if sys.version_info[0] <= 2:
+    @abstract
+    class Object(object, Abstract):
+        __metaclass__ = MetaClass;
+        def __copy__(self):
+            return CloneBuilder.build(self);
+else:
+    @abstract
+    class Object(Abstract):
+        __metaclass__ = MetaClass;
+        def __copy__(self):
+            return CloneBuilder.build(self);
+
 
 
 
@@ -85,22 +98,25 @@ class CloneBuilder(Object):
     TYPES_MAP = {
         'int': int,
         'float': float,
-        'long': long, # @deprecated: python3
         'complex': complex,
         'str': str,
-        'unicode': unicode,  # @deprecated: python3
         'list': list,
         'tuple': tuple,
         'bytes': bytes,
         'bytearray': bytearray,
-        'buffer': buffer,
-        'xrange': lambda o: xrange(len(o)), # @deprecated: python3
         'range': lambda o: range(len(o)),
         'set': lambda o: o.copy(),
         'frozenset': lambda o: o.copy(),
         'dict': dict,
         'bool': bool,
     };
+    if sys.version_info[0] <= 2:
+        TYPES_MAP.update({
+            'unicode': unicode,
+            'long': long,
+            'xrange': lambda o: xrange(len(o)),
+            'buffer': buffer,
+        });
     @classmethod
     def build(cls, instance):
         """Build the clone
@@ -198,7 +214,7 @@ class Array(Object):
                 result[k] = v;
 
         pairs = list();
-        for (k, v) in d.iteritems():
+        for k, v in d.items():
             pairs.append((k, v));
         seen = {};
         for k, v in pairs:

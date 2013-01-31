@@ -17,7 +17,7 @@ productivity on stetorids for the development of Web Applications.
 Requirements
 ------------
 
-Pymfony is only supported on Python 2.6 and up.
+Pymfony is only supported on Python 2.6.8 but less than 3.0.
 
 
 Installation
