@@ -1,0 +1,13 @@
+{
+	"parameters": {
+		"file_locator.class": "pymfony.component.kernel.FileLocator"
+	},
+	"services": {
+		"file_locator": {
+			"class": "%file_locator.class%",
+			"arguments": [
+				"@kernel"
+			]
+		}
+	}
+}
