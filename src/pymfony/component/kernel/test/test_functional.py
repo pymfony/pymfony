@@ -11,14 +11,17 @@
 
 from __future__ import absolute_import;
 
-import os.path;
+from os.path import dirname;
 
 from pymfony.component.dependency import ContainerBuilder;
+from pymfony.component.dependency import JsonFileLoader
 from pymfony.component.kernel import Kernel;
-from pymfony.component.kernel import FileLocator
+from pymfony.component.kernel import Bundle;
 from pymfony.component.kernel import ConfigurableExtension;
+from pymfony.component.kernel import Extension;
 from pymfony.component.config import ConfigurationInterface;
 from pymfony.component.config import TreeBuilder;
+from pymfony.component.config import FileLocator;
 
 class AppExtension(ConfigurableExtension):
     def _loadInternal(self, mergedConfig, container):
@@ -45,19 +48,31 @@ class Configuration(ConfigurationInterface):
         return treeBuilder;
 
 class AppKernel(Kernel):
+    def registerBundles(self):
+        return [
+            FrameworkBundle(),
+        ];
+
     def registerContainerConfiguration(self, loader):
-        loader.load("{0}/Resources/config/config_{1}.ini".format(
-            os.path.dirname(__file__),
-            self.getEnvironment(),
+        path = self.locateResource("@/Resources/config/config_{0}.ini".format(
+            self.getEnvironment()
+        ));
+        loader.load(path);
+
+
+class FrameworkBundle(Bundle):
+    pass;
+
+class FrameworkExtension(Extension):
+    def load(self, configs, container):
+        loader = JsonFileLoader(container, FileLocator(
+            dirname(__file__)+"/Resources/config"
         ));
 
+        loader.load("services.json");
 
-
-
-
-
-
-
+        configuration = self.getConfiguration(configs, container);
+        config = self._processConfiguration(configuration, configs);
 
 
 
@@ -81,7 +96,7 @@ class Test(unittest.TestCase):
         currdir = op.realpath(op.dirname(__file__));
         formater = lambda v: op.normpath(op.normcase(op.realpath(v)));
         values = {
-            "@App/Resources/config/services.json": op.join(currdir, "Resources/config/services.json"),
+            "@/Resources/config/services.json": op.join(currdir, "Resources/config/services.json"),
             "../__init__.py": op.join(currdir, "../__init__.py"),
         };
 

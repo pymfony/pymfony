@@ -2220,10 +2220,10 @@ class TreeBuilder(NodeParentInterface):
 
 class FileResource(ResourceInterface, SerializableInterface):
     def __init__(self, resource):
-        self.__resource = os.path.realpath(str(resource));
+        self.__resource = str(os.path.realpath(str(resource)));
 
-    def __str__(self):
-        return str(self.__resource);
+    def toString(self):
+        return self.__resource;
 
     def getResource(self):
         return self.__resource;

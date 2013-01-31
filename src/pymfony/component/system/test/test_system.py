@@ -17,6 +17,7 @@ import inspect;
 from pymfony.component.system import Array;
 from pymfony.component.system import Tool;
 from pymfony.component.system import Object, abstract;
+from pymfony.component.system import interface
 import pymfony.component.system as system;
 
 class TestArray(unittest.TestCase):
@@ -37,6 +38,14 @@ class TestArray(unittest.TestCase):
         result = Array.uniq(in_lst);
         self.assertEqual(result, expected);
 
+@interface
+class ClassInterface(Object):
+    def method(self):
+        pass;
+
+class CommonClass(ClassInterface):
+    pass;
+
 @abstract
 class AbstractClass(Object):
     def method(self):
@@ -46,6 +55,7 @@ class AbstractMethod(AbstractClass):
     @abstract
     def method(self):
         pass;
+
 
 class RegularClass(AbstractMethod):
     def method(self):
@@ -80,6 +90,11 @@ class TestMetaclass(unittest.TestCase):
         self.assertTrue(isinstance(inst, AbstractClass));
         self.assertTrue(isinstance(inst, Object));
         self.assertTrue(isinstance(inst, object));
+
+    def testInterface(self):
+        expected = frozenset(['method']);
+        self.assertEqual(CommonClass.__interfacemethods__, expected);
+        self.assertRaises(TypeError, lambda:CommonClass().method());
 
 class TestReflextion(unittest.TestCase, Object):
     def setUp(self):

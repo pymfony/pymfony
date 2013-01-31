@@ -12,6 +12,7 @@ from __future__ import absolute_import;
 
 import abc;
 import inspect;
+import pickle;
 
 __all__ = [
     'abstract',
@@ -20,7 +21,20 @@ __all__ = [
 ];
 
 class MetaClass(abc.ABCMeta):
-    pass;
+    def __new__(cls, name, bases, namespace):
+        cls = abc.ABCMeta.__new__(cls, name, bases, namespace);
+        abstracts = set(cls.__abstractmethods__);
+        # Compute set of abstract method names
+        for name, value in namespace.items():
+            if getattr(value, "__isabstractmethod__", False):
+                abstracts.add(name);
+        for base in bases:
+            for name in getattr(base, "__interfacemethods__", set()):
+                value = getattr(cls, name, None);
+                if getattr(value, "__isabstractmethod__", False):
+                    abstracts.add(name);
+        cls.__abstractmethods__ = frozenset(abstracts);
+        return cls
 
 def abstractclass(obj):
     obj.__abstractclass__ = obj;
@@ -34,34 +48,87 @@ def abstract(obj):
     return obj;
 
 def interface(obj):
+    methods = inspect.getmembers(obj, inspect.ismethod);
+    absMethods = set();
+
+    def func(*a, **ka):
+        pass;
+
+    for name, method in methods:
+        if not name.endswith('__'):
+            absMethods.add(name);
+            setattr(obj, name, abc.abstractmethod(func));
+
+    obj.__interfacemethods__ = frozenset(absMethods);
+
     return abstractclass(obj);
 
 class Abstract():
     __abstractclass__ = None;
     @classmethod
     def __subclasshook__(cls, subclass):
-        if cls is Object:
+        if issubclass(cls, Object):
             if cls is cls.__abstractclass__:
                 return False;
         return NotImplemented;
+
 
 @abstract
 class Object(object, Abstract):
     __metaclass__ = MetaClass;
     def __copy__(self):
-        return CloneObject(self);
+        return CloneBuilder.build(self);
 
-class CloneObject(Object):
-    def __init__(self, instanceOrig):
-        typeOrig = type(instanceOrig);
-        for subclass in typeOrig.mro():
-            if subclass not in type(self).mro():
-                type(self).register(subclass);
-        for name in dir(instanceOrig):
-            try:
-                setattr(self, name, getattr(instanceOrig, name));
-            except AttributeError:
-                pass;
+
+
+class CloneBuilder(Object):
+    TYPES_MAP = {
+        'int': int,
+        'float': float,
+        'long': long, # @deprecated: python3
+        'complex': complex,
+        'str': str,
+        'unicode': unicode,  # @deprecated: python3
+        'list': list,
+        'tuple': tuple,
+        'bytes': bytes,
+        'bytearray': bytearray,
+        'buffer': buffer,
+        'xrange': lambda o: xrange(len(o)), # @deprecated: python3
+        'range': lambda o: range(len(o)),
+        'set': lambda o: o.copy(),
+        'frozenset': lambda o: o.copy(),
+        'dict': dict,
+        'bool': bool,
+    };
+    @classmethod
+    def build(cls, instance):
+        """Build the clone
+
+        @param instance: object The instance to clone
+        """
+        mro = type(instance).__mro__;
+
+        class CloneObject(Object):
+            __clone_mro__ = tuple(mro);
+            def __init__(self, instanceOrig):
+                properties = inspect.getmembers(instanceOrig);
+                for name, value in properties:
+                    typeName = type(value).__name__;
+                    if typeName in CloneBuilder.TYPES_MAP.keys():
+                        cloneValue = CloneBuilder.TYPES_MAP[typeName](value);
+                        setattr(self, name, cloneValue);
+                    else:
+                        try:
+                            setattr(self, name, value);
+                        except AttributeError:
+                            pass;
+
+                for classType in instance.__class__.__mro__:
+                    if classType not in self.__class__.__mro__:
+                        self.__class__.register(classType);
+
+        return CloneObject(instance);
 
 @abstract
 class Tool(Object):
@@ -142,33 +209,69 @@ class Array(Object):
 
         return result;
 
+    @classmethod
+    def diff(cls, leftSide, rightSide):
+        """Computes the difference of lists
+
+        @param leftSide: list The list to compare from
+        @param rightSide: list The list to compare against
+
+        @return: list
+        """
+        leftSide = list(leftSide);
+        rightSide = list(rightSide);
+        return [item for item in leftSide if item not in rightSide]
+
 
 class ReflectionClass(Object):
     def __init__(self, argument):
-        assert issubclass(argument, (object, Abstract));
+        assert issubclass(argument, object);
         self._class = argument;
 
-        self._filename = None;
+        self._fileName = None;
         self._mro = None;
+        self._namespaceName = None;
+        self._name = None;
+        self._parentClass = None;
 
     def getFileName(self):
-        if self._filename is not None:
-            return self._filename;
+        if self._fileName is not None:
+            return self._fileName;
 
         try:
-            self._filename = inspect.getabsfile(self._class);
+            self._fileName = inspect.getabsfile(self._class);
         except TypeError:
-            self._filename = False;
-        return self._filename;
+            self._fileName = False;
+        return self._fileName;
+
+    def getParentClass(self):
+        """
+        @return: ReflexionClass|False
+        """
+        if self._parentClass is None:
+            if len(self.getmro()) > 1:
+                self._parentClass = ReflectionClass(self.getmro()[1]);
+            else:
+                self._parentClass = False;
+        return self._parentClass;
+
 
     def getmro(self):
-        if self._mro is not None:
-            return self._mro;
-
-        self._mro = inspect.getmro(self._class);
+        if self._mro is None:
+            self._mro = inspect.getmro(self._class);
         return self._mro;
+
+    def getNamespaceName(self):
+        if self._namespaceName is None:
+            self._namespaceName = str(self._class.__module__);
+        return self._namespaceName;
+
+    def getName(self):
+        if self._name is None:
+            self._name = self.getNamespaceName()+'.'+str(self._class.__name__);
+        return self._name;
 
 class ReflectionObject(ReflectionClass):
     def __init__(self, argument):
-        assert isinstance(argument, (Object, type(Abstract)));
+        assert isinstance(argument, Object);
         ReflectionClass.__init__(self, argument.__class__);

@@ -217,7 +217,7 @@ class ConfigurationExtensionInterface(Object):
     def getConfiguration(self, configs, container):
         """Returns extension configuration
 
-        @param configs: dict An array of configuration values
+        @param configs: list A list of unmerge dict of configuration values
         @param container: ContainerBuilder A ContainerBuilder instance
 
         @return: ConfigurationInterface|null The configuration or null
@@ -284,7 +284,7 @@ class Extension(ExtensionInterface, ConfigurationExtensionInterface):
         return processor.processConfiguration(configuration, configs);
 
     def getConfiguration(self, configs, container):
-        assert isinstance(configs, dict);
+        assert isinstance(configs, list);
         assert isinstance(container, ContainerBuilder);
         moduleName = str(type(self).__module__);
         className = 'Configuration';
@@ -618,7 +618,8 @@ class ContainerAware(ContainerAwareInterface):
         self._container = None;
 
     def setContainer(self, container=None):
-        assert isinstance(container, ContainerInterface);
+        if container:
+            assert isinstance(container, ContainerInterface);
         self._container = container;
 
 class Container(ContainerInterface):
@@ -983,10 +984,10 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         if not self.__trackResources:
             return self;
 
-        mro = system.ReflectionObject(objectResource).getmro();
-        for parent in mro:
-            filename = system.ReflectionClass(parent).getFileName();
-            self.addResource(FileResource(filename));
+        parent = system.ReflectionObject(objectResource);
+        while parent:
+            self.addResource(FileResource(parent.getFileName()));
+            parent = parent.getParentClass();
 
         return self;
 
