@@ -13,6 +13,10 @@ other side, Python is gaining much market because of the simplicity and the
 productivity achieved. The combination of Python and Symfony would mean
 productivity on stetorids for the development of Web Applications.
 
+Symfony target version
+----------------------
+
+[symfony@v2.2.0-BETA2](https://github.com/symfony/symfony/tree/v2.2.0-BETA2)
 
 Requirements
 ------------
@@ -41,11 +45,12 @@ You can also contribute to the Symfony2 PHP framework, please read the
 [Contributing Code][5] part of the documentation.
 
 
-[1]: https://github.com/alquerci/pymfony/blob/master/CONVENTIONS.md
+[1]: ./CONVENTIONS.md
 [2]: http://symfony.com/doc/current/contributing/code/patches.html#check-list
 [3]: http://symfony.com/doc/current/contributing/code/patches.html#make-a-pull-request
-[4]: https://github.com/alquerci/pymfony
+[4]: ./
 [5]: http://symfony.com/doc/current/contributing/code/index.html
 [6]: http://symfony.com
+
 [0]: https://travis-ci.org/alquerci/pymfony.png?branch=master
 [7]: https://travis-ci.org/alquerci/pymfony

@@ -4,12 +4,10 @@ python:
     - "2.6"
     - "2.7"
     - "3.2"
-    - "3.3"
 
 matrix:
-    - allow_failures:
+    allow_failures:
         - python: "3.2"
-        - python: "3.3"
 
 install:
     - python setup.py install
