@@ -17,6 +17,7 @@ import inspect;
 from pymfony.component.system import Array;
 from pymfony.component.system import Tool;
 from pymfony.component.system import Object, abstract;
+from pymfony.component.system import final;
 from pymfony.component.system import interface
 import pymfony.component.system as system;
 
@@ -55,6 +56,22 @@ class AbstractMethod(AbstractClass):
     @abstract
     def method(self):
         pass;
+
+@final
+class FinalClass(Object):
+    def method(self):
+        pass;
+
+
+
+class FinalMethod(Object):
+    @final
+    def method(self):
+        pass;
+
+class ChildFinalMethod(FinalMethod):
+    pass;
+
 
 
 class RegularClass(AbstractMethod):
@@ -95,6 +112,24 @@ class TestMetaclass(unittest.TestCase):
         expected = frozenset(['method']);
         self.assertEqual(CommonClass.__interfacemethods__, expected);
         self.assertRaises(TypeError, lambda:CommonClass().method());
+
+    def testFinalClass(self):
+        instance = FinalClass();
+        self.assertTrue(isinstance(instance, FinalClass));
+        def badCall():
+            class ChildFinalClass(FinalClass):
+                pass;
+        self.assertRaises(TypeError, badCall);
+
+    def testFinalMethod(self):
+        instance = ChildFinalMethod();
+        self.assertTrue(isinstance(instance, ChildFinalMethod));
+        self.assertTrue(isinstance(instance, FinalMethod));
+        def badCall():
+            class BadChildFinalMethod(FinalMethod):
+                def method(self):
+                    pass;
+        self.assertRaises(TypeError, badCall);
 
 class TestReflextion(unittest.TestCase, Object):
     def setUp(self):

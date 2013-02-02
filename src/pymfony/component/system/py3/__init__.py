@@ -28,6 +28,29 @@ class MetaClass(abc.ABCMeta):
                 if getattr(value, "__isabstractmethod__", False):
                     abstracts.add(name);
         cls.__abstractmethods__ = frozenset(abstracts);
+
+        finals = set();
+        for name, value in namespace.items():
+            if getattr(value, "__isfinalmethod__", False):
+                finals.add(name);
+        for base in bases:
+            if getattr(base, "__isfinalclass__", False):
+                raise TypeError(
+                    "Class {0} may not inherit from final class ({1})"
+                    "".format(
+                        cls.__module__+'.'+cls.__name__,
+                        base.__module__+'.'+base.__name__
+                    )
+                );
+            for name in getattr(base, "__finalmethods__", set()):
+                if name in namespace:
+                    raise TypeError(
+                        "Cannot override final method {0}.{1}()"
+                        "".format(base.__module__+'.'+base.__name__, name)
+                    );
+
+        cls.__finalmethods__ = frozenset(finals);
+
         return cls
 
 def abstractclass(obj):
@@ -39,6 +62,21 @@ def abstract(obj):
         return  abc.abstractmethod(obj);
     elif isinstance(obj, type(MetaClass)):
         return abstractclass(obj);
+    return obj;
+
+def finalclass(obj):
+    obj.__isfinalclass__ = True;
+    return obj;
+
+def finalmethod(obj):
+    obj.__isfinalmethod__ = True;
+    return obj;
+
+def final(obj):
+    if inspect.isfunction(obj):
+        return  finalmethod(obj);
+    elif isinstance(obj, type(MetaClass)):
+        return finalclass(obj);
     return obj;
 
 def interface(obj):
@@ -62,6 +100,8 @@ def interface(obj):
 
 class Abstract():
     __abstractclass__ = False;
+    __isfinalclass__ = False;
+    __finalmethods__ = frozenset();
     @classmethod
     def __subclasshook__(cls, subclass):
         if subclass is cls.__abstractclass__:
