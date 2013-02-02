@@ -11,18 +11,82 @@
 from __future__ import absolute_import;
 
 import re;
-import ConfigParser;
-import os.path;
-import json;
 
-from pymfony.component.system import Object, abstract, interface;
-import pymfony.component.system as system;
-from pymfony.component.system import Tool;
-from pymfony.component.system import Array;
-from pymfony.component.config import FileLoader as BaseFileLoader;
-from pymfony.component.config import FileResource;
-from pymfony.component.config import ResourceInterface;
-from pymfony.component.config import Processor;
+from pymfony.component.system import (
+    Object,
+    abstract,
+    interface,
+    ReflectionObject,
+    Tool,
+    Array,
+);
+from pymfony.component.config.loader import FileLoader as BaseFileLoader;
+from pymfony.component.config.resource import FileResource;
+from pymfony.component.config.resource import ResourceInterface;
+from pymfony.component.config.definition import Processor;
+
+from pymfony.component.dependency.exception import (
+    BadMethodCallException,
+    ServiceNotFoundException,
+    InvalidArgumentException,
+    LogicException,
+    RuntimeException,
+    OutOfBoundsException,
+);
+
+from pymfony.component.dependency.parameterbag import (
+    ParameterBag,
+    ParameterBagInterface,
+    FrozenParameterBag,
+);
+
+from pymfony.component.dependency.compiler import (
+    PassConfig,
+    CompilerPassInterface,
+    Compiler,
+);
+
+@interface
+class ExtensionInterface(Object):
+    """ExtensionInterface is the interface implemented
+    by container extension classes.
+    """
+    def load(self, configs, container):
+        """Loads a specific configuration.
+
+        @param configs: list An array of configuration values
+        @param container: ContainerBuilder A ContainerBuilder instance
+
+        @raise AttributeError: When provided tag is not defined
+            in this extension
+        """
+        pass;
+
+
+    def getNamespace(self):
+        """Returns the namespace to be used for this extension (XML namespace).
+
+        @return: string The XSD base path
+        """
+        pass;
+
+
+    def getXsdValidationBasePath(self):
+        """Returns the base path for the XSD files.
+
+        @return: string The XSD base path
+        """
+        pass;
+
+
+    def getAlias(self):
+        """Returns the recommended alias to use in XML.
+
+        This alias is also the mandatory prefix to use when using YAML.
+
+        @return: string The alias
+        """
+        pass;
 
 @interface
 class ContainerInterface(Object):
@@ -77,87 +141,6 @@ class ContainerInterface(Object):
         pass;
 
 @interface
-class ParameterBagInterface(Object):
-
-    def clear(self):
-        """Clears all parameters."""
-        pass;
-
-    def add(self, parameters):
-        """Adds parameters to the service container parameters.
-
-        @param parameters: dict An array of parameters
-        """
-        pass;
-
-    def all(self):
-        """Gets the service container parameters.
-        
-        @return: dict An array of parameters
-        """
-        pass;
-
-    def get(self, name):
-        """Gets a service container parameter.
-        
-        @param name: string The parameter name
-
-        @return: mixed The parameter value
-
-        @raise ParameterNotFoundException: if the parameter is not defined
-        """
-
-    def set(self, name, value):
-        """Sets a service container parameter.
-
-        @param name: string The parameter name
-        @param value: mixed The parameter value
-        """
-        pass;
-
-    def has(self, name):
-        """Returns true if a parameter name is defined.
-        
-        @param name: string The parameter name
-        @return: Boolean true if the parameter name is defined, false otherwise
-        """
-        pass;
-
-    def resolve(self):
-        """Replaces parameter placeholders (%name%)
-        by their values for all parameters.
-        """
-        pass;
-
-    def resolveValue(self, value):
-        """Replaces parameter placeholders (%name%) by their values.
-
-        @param value: mixed A value
-
-        @raise ParameterNotFoundException: 
-        if a placeholder references a parameter that does not exist 
-        """
-        pass;
-
-    def escapeValue(self, value):
-        """Escape parameter placeholders %
-
-        @param mixed $value
-
-        @return: mixed
-        """
-        pass;
-
-    def unescapeValue(self, value):
-        """Unescape parameter placeholders %
-
-        @param value:  mixed
-
-        @return: mixed
-        """
-        pass;
-
-@interface
 class ContainerAwareInterface(Object):
     def setContainer(self, container):
         """Sets the Container.
@@ -166,71 +149,7 @@ class ContainerAwareInterface(Object):
         """
         pass;
 
-@interface
-class ExtensionInterface(Object):
-    """ExtensionInterface is the interface implemented
-    by container extension classes.
-    """
-    def load(self, configs, container):
-        """Loads a specific configuration.
 
-        @param configs: list An array of configuration values
-        @param container: ContainerBuilder A ContainerBuilder instance
-
-        @raise AttributeError: When provided tag is not defined
-            in this extension
-        """
-        pass;
-
-
-    def getNamespace(self):
-        """Returns the namespace to be used for this extension (XML namespace).
-
-        @return: string The XSD base path
-        """
-        pass;
-
-
-    def getXsdValidationBasePath(self):
-        """Returns the base path for the XSD files.
-
-        @return: string The XSD base path
-        """
-        pass;
-
-
-    def getAlias(self):
-        """Returns the recommended alias to use in XML.
-
-        This alias is also the mandatory prefix to use when using YAML.
-
-        @return: string The alias
-        """
-        pass;
-
-@interface
-class ConfigurationExtensionInterface(Object):
-    """ConfigurationExtensionInterface is the interface implemented
-    by container extension classes.
-    """
-
-    def getConfiguration(self, configs, container):
-        """Returns extension configuration
-
-        @param configs: list A list of unmerge dict of configuration values
-        @param container: ContainerBuilder A ContainerBuilder instance
-
-        @return: ConfigurationInterface|null The configuration or null
-        """
-
-@interface
-class PrependExtensionInterface(Object):
-    def prepend(self, container):
-        """Allow an extension to prepend the extension configurations.
-
-        @param container: ContainerBuilder
-        """
-        pass;
 
 @interface
 class TaggedContainerInterface(ContainerInterface):
@@ -248,65 +167,6 @@ class TaggedContainerInterface(ContainerInterface):
         """
         pass;
 
-@interface
-class CompilerPassInterface(Object):
-    """Interface that must be implemented by compilation passes
-    """
-    def process(self, container):
-        """You can modify the container here before it is dumped to PHP code.
-
-        @param container: ContainerBuilder
-        """
-        pass;
-
-class Extension(ExtensionInterface, ConfigurationExtensionInterface):
-    def getXsdValidationBasePath(self):
-        return False;
-
-    def getNamespace(self):
-        return 'http://example.org/schema/dic/{0}'.format(self.getAlias());
-
-    def getAlias(self):
-        className = str(type(self).__name__);
-        if not className.endswith("Extension"):
-            raise BadMethodCallException(
-                'This extension does not follow the naming convention; '
-                'you must overwrite the getAlias() method.'
-            );
-        classBaseName = className[:-9];
-        return Container.underscore(classBaseName);
-
-    def _processConfiguration(self, configuration, configs):
-        """@final
-        """
-        assert isinstance(configs, list);
-        processor = Processor();
-        return processor.processConfiguration(configuration, configs);
-
-    def getConfiguration(self, configs, container):
-        assert isinstance(configs, list);
-        assert isinstance(container, ContainerBuilder);
-        moduleName = str(type(self).__module__);
-        className = 'Configuration';
-        try:
-            module = __import__(moduleName, globals(), {}, [className], 0);
-        except TypeError:
-            module = __import__(moduleName, globals(), {}, ['__init__'], 0);
-
-        if hasattr(module, 'Configuration'):
-            configuration = getattr(module, 'Configuration')();
-            path = system.ReflectionObject(configuration).getFileName();
-            container.addResource(FileResource(path));
-            return configuration;
-
-        return None;
-
-class FileLoader(BaseFileLoader):
-    def __init__(self, container, locator):
-        assert isinstance(container, ContainerBuilder);
-        self._container = container;
-        BaseFileLoader.__init__(self, locator);
-
 class Alias(Object):
     def __init__(self, identifier, public=True):
         self.__id = str(identifier).lower();
@@ -321,296 +181,6 @@ class Alias(Object):
     def __str__(self):
         return self.__id;
 
-
-class PassConfig(Object):
-    """Compiler Pass Configuration
-
-    This class has a default configuration embedded.
-    """
-    TYPE_BEFORE_OPTIMIZATION = 'BeforeOptimization';
-
-    def __init__(self):
-        self.__mergePass = MergeExtensionConfigurationPass();
-
-        self.__beforeOptimizationPasses = list();
-
-    def getPasses(self):
-        """Returns all passes in order to be processed.
-
-        @return: list An list of all passes to process
-        """
-
-        passes = [self.__mergePass];
-        passes.extend(self.__beforeOptimizationPasses);
-
-        return passes;
-
-    def addPass(self, cPass, cType=TYPE_BEFORE_OPTIMIZATION):
-        """Adds a pass.
-
-        @param cPass: CompilerPassInterface A Compiler pass
-        @param cType: string The pass type
-
-        @raise InvalidArgumentException: when a pass type doesn't exist
-        """
-        assert isinstance(cPass, CompilerPassInterface);
-
-        propertyName = "get{0}Passes".format(cType);
-
-        if not hasattr(self, propertyName):
-            raise InvalidArgumentException(
-                'Invalid type "{0}".'.format(cType)
-            );
-
-        getattr(self, propertyName)().append(cPass);
-
-    def getMergePass(self):
-        """Gets the Merge Pass.
-
-        @return: CompilerPassInterface A merge pass
-        """
-        return self.__mergePass;
-
-    def setMergePass(self, mergePass):
-        """Sets the Merge Pass.
-
-        @param mergePass: CompilerPassInterface A merge pass
-        """
-        assert isinstance(mergePass, CompilerPassInterface);
-
-        self.__mergePass = mergePass;
-
-    def getBeforeOptimizationPasses(self):
-        """
-        @return: list
-        """
-        return self.__beforeOptimizationPasses;
-
-class IniFileLoader(FileLoader):
-    """IniFileLoader loads parameters from INI files."""
-
-    def load(self, resource, resourceType=None):
-        path = self._locator.locate(resource);
-
-        self._container.addResource(FileResource(path));
-
-        content = self._parseFile(path);
-
-        if not content:
-            return;
-
-        self.__parseImports(content, path);
-
-        self.__parseParameters(content);
-
-    def supports(self, resource, resourceType=None):
-        if isinstance(resource, basestring):
-            if os.path.basename(resource).endswith(".ini"):
-                return True;
-        return False;
-
-    def _parseFile(self, filename):
-        """Parses a INI file.
-
-        @param filename: string The path file
-
-        @return: dict The file content
-
-        @raise InvalidArgumentException: When INI file is not valid
-        """
-        content = dict();
-        cfgParser = ConfigParser.ConfigParser();
-        result = cfgParser.read(filename);
-        if not result:
-            raise InvalidArgumentException(
-                'The "%s" file is not valid.'.format(filename)
-            );
-
-        for section in cfgParser.sections():
-            content[section] = dict();
-            for key, value in cfgParser.items(section):
-                content[section][key] = value;
-        return content;
-
-    def __parseImports(self, content, path):
-        if 'imports' not in content:
-            return;
-
-        for imports in content['imports']:
-            self.setCurrentDir(os.path.dirname(path));
-            self.imports(imports, None, 'ignore_error' in imports, path);
-
-
-    def __parseParameters(self, content):
-        if 'parameters' in content:
-            for key, value in dict(content['parameters']).items():
-                self._container.setParameter(key, value);
-
-
-class JsonFileLoader(FileLoader):
-    """JsonFileLoader loads parameters from JSON files."""
-
-    def load(self, resource, resourceType=None):
-        path = self._locator.locate(resource);
-
-        self._container.addResource(FileResource(path));
-
-        content = self._parseFile(path);
-
-        if not content:
-            return;
-
-        self.__parseImports(content, path);
-
-        self.__parseParameters(content);
-
-        # services
-        self.__parseDefinitions(content, path);
-
-    def supports(self, resource, resourceType=None):
-        if isinstance(resource, basestring):
-            if os.path.basename(resource).endswith(".json"):
-                return True;
-        return False;
-
-    def _parseFile(self, filename):
-        """Parses a JSON file.
-
-        @param filename: string The path file
-
-        @return: dict The file content
-
-        @raise InvalidArgumentException: When JSON file is not valid
-        """
-        f = open(filename);
-        s = f.read();
-        f.close();
-        del f;
-        result = json.loads(s);
-
-        return self.__validate(result, filename);
-
-    def __validate(self, content, path):
-        if content is None:
-            return;
-
-        if not isinstance(content, dict):
-            raise InvalidArgumentException(
-                'The "{0}" file is not valid.'
-                ''.format(path)
-            );
-
-        return content;
-
-    def __parseImports(self, content, path):
-        if 'imports' not in content:
-            return;
-
-        for imports in content['imports']:
-            self.setCurrentDir(os.path.dirname(path));
-            self.imports(imports, None, 'ignore_error' in imports, path);
-
-
-    def __parseParameters(self, content):
-        if 'parameters' in content:
-            for key, value in dict(content['parameters']).items():
-                self._container.setParameter(key, value);
-
-
-    def __parseDefinitions(self, content, path):
-        if not 'services' in content:
-            return;
-
-        for identifier, service in content['services'].items():
-            self.__parseDefinition(identifier, service, path);
-
-    def __parseDefinition(self, identifier, service, path):
-        definition = Definition();
-
-        if 'class' in service:
-            definition.setClass(service['class']);
-        if 'arguments' in service:
-            definition.setArguments(
-                self.__resolveServices(service['arguments'])
-            );
-        if 'synthetic' in service:
-            definition.setSynthetic(service['synthetic']);
-        if 'public' in service:
-            definition.setPublic(service['public']);
-        if 'abstract' in service:
-            definition.setAbstract(service['abstract']);
-        if 'factory_class' in service:
-            definition.setFactoryClass(service['factory_class']);
-        if 'factory_method' in service:
-            definition.setFactoryMethod(service['factory_method']);
-        if 'factory_service' in service:
-            definition.setFactoryService(service['factory_service']);
-        if 'file' in service:
-            definition.setFile(service['file']);
-        if 'properties' in service:
-            definition.setProperties(
-                self.__resolveServices(service['properties'])
-            );
-        if 'configurator' in service:
-            if isinstance(service['configurator'], basestring):
-                definition.setConfigurator(service['configurator']);
-            else:
-                definition.setConfigurator([
-                    self.__resolveServices(service['configurator'])[0],
-                    service['configurator'][1]
-                ]);
-        if 'calls' in service:
-            for call in service['calls']:
-                if len(call) == 2:
-                    args = self.__resolveServices(call[1]);
-                else:
-                    args = list();
-                definition.addMethodCall(call[0], args);
-        if 'tags' in service:
-            if not isinstance(service['tags'], list):
-                raise InvalidArgumentException(
-                    'Parameter "tags" must be an array for service '
-                    '"{0}" in {1}.'.format(identifier, path)
-                );
-
-            for tag in service['tags']:
-                if not isinstance(service['tags'], dict):
-                    raise InvalidArgumentException(
-                        'A "tags" entry is missing a "name" key for service '
-                        '"{0}" in {1}.'.format(identifier, path)
-                    );
-
-                name = tag['name'];
-                del tag['name'];
-
-                for attributes, value in tag.items():
-                    if not isinstance(
-                        value,
-                        (type(None),basestring,int,float,bool)
-                        ):
-                        raise InvalidArgumentException(
-                            'A "tags" attribute must be of a scalar-type '
-                            'for service "{0}", tag "{1}" in {2}.'
-                            ''.format(identifier, name, path)
-                        );
-
-                definition.addTag(name, attributes);
-
-        self._container.setDefinition(identifier, definition);
-
-    def __resolveServices(self, value):
-        if isinstance(value, list):
-            value = map(self.__resolveServices, value);
-        if isinstance(value, basestring) and value.startswith("@"):
-            value = value[1:];
-            if value.endswith("="):
-                value = value[:-1];
-                strict = False;
-            else:
-                strict = True;
-            value = Reference(value, strict);
-
-        return value;
 
 
 class ContainerAware(ContainerAwareInterface):
@@ -984,7 +554,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         if not self.__trackResources:
             return self;
 
-        parent = system.ReflectionObject(objectResource);
+        parent = ReflectionObject(objectResource);
         while parent:
             self.addResource(FileResource(parent.getFileName()));
             parent = parent.getParentClass();
@@ -1540,422 +1110,3 @@ class Definition(Object):
     def getConfigurator(self):
         return self.__configurator;
 
-
-class ParameterBag(ParameterBagInterface):
-    def __init__(self, parameters=None):
-        if parameters is None:
-            parameters = dict();
-        else:
-            assert isinstance(parameters, dict);
-
-        self._parameters = dict();
-        self._resolved = False;
-
-        self.add(parameters);
-
-    def _formatName(self, name):
-        return str(name).lower();
-
-    def clear(self):
-        self._parameters = dict();
-
-    def add(self, parameters):
-        assert isinstance(parameters, dict);
-
-        for name, value in parameters.items():
-            name = self._formatName(name);
-            self._parameters[name] = value;
-
-    def all(self):
-        return self._parameters;
-
-    def get(self, name):
-        name = self._formatName(name);
-
-        if not self.has(name):
-            raise ParameterNotFoundException(name);
-
-        return self._parameters[name];
-
-    def set(self, name, value):
-        name = self._formatName(name);
-        self._parameters[name] = value;
-
-    def has(self, name):
-        name = self._formatName(name);
-        return name in self._parameters.keys();
-
-    def remove(self, name):
-        name = self._formatName(name);
-        del self._parameters[name];
-
-    def resolve(self):
-        if self._resolved:
-            return;
-
-        params = dict();
-        for name, value in self._parameters.items():
-            try:
-                value = self.resolveValue(value);
-                params[name] = self.unescapeValue(value);
-            except ParameterNotFoundException as e:
-                e.setSourceKey(name);
-                raise e;
-
-        self._parameters = params;
-        self._resolved = True;
-
-    def resolveValue(self, value, resolving=None):
-        if resolving is None:
-            resolving = dict();
-        assert isinstance(resolving, dict);
-
-        if isinstance(value, dict):
-            args = dict();
-            for k, v in value.items():
-                k = self.resolveValue(k, resolving);
-                args[k] = self.resolveValue(v, resolving);
-            return args;
-
-        if not isinstance(value, basestring):
-            return value;
-
-        return self.resolveString(value, resolving);
-
-    def resolveString(self, value, resolving=None):
-        if resolving is None:
-            resolving = dict();
-        assert isinstance(resolving, dict);
-
-        match = re.search(r"^%([^%\s]+)%$", value);
-        if match:
-            key = match.group(1).lower();
-            if key in resolving.keys():
-                raise ParameterCircularReferenceException(resolving.keys());
-            resolving[key] = True;
-            if self._resolved:
-                return self.get(key);
-            else:
-                return self.resolveValue(self.get(key), resolving);
-
-        def callback(match):
-            key = match.group(1);
-            if key is None:
-                return "%%";
-            key = key.lower();
-            if key in resolving.keys():
-                raise ParameterCircularReferenceException(resolving.keys());
-            resolved = self.get(key);
-            if not isinstance(resolved, (str, float, int)):
-                raise RuntimeException(
-                    'A string value must be composed of strings and/or '
-                    'numbers, but found parameter "{0}" of type {1} inside '
-                    'string value "{2}".'
-                    "".format(key, type(resolved), value)
-                );
-            resolved = str(resolved);
-            resolving[key] = True;
-            if self.isResolved():
-                return resolved;
-            else:
-                return self.resolveString(resolved, resolving);
-
-        return re.sub(r"%%|%([^%\s]+)%", callback, value);
-
-    def isResolved(self):
-        return self._resolved;
-
-    def escapeValue(self, value):
-        if isinstance(value, basestring):
-            return value.replace("%", "%%");
-
-        if isinstance(value, dict):
-            result = dict();
-            for k, v in value.items():
-                result[k] = self.escapeValue(v);
-            return result;
-
-        return value;
-
-    def unescapeValue(self, value):
-        if isinstance(value, basestring):
-            return value.replace("%%", "%");
-
-        if isinstance(value, dict):
-            result = dict();
-            for k, v in value.items():
-                result[k] = self.unescapeValue(v);
-            return result;
-
-        return value;
-
-class FrozenParameterBag(ParameterBag):
-    def __init__(self, parameters=None):
-        if parameters is None:
-            parameters = dict();
-        else:
-            assert isinstance(parameters, dict);
-
-        self._parameters = parameters;
-        self._resolved = True;
-
-    def clear(self):
-        raise LogicException(
-            'Impossible to call clear() on a frozen ParameterBag.'
-        );
-
-    def add(self, parameters):
-        raise LogicException(
-            'Impossible to call add() on a frozen ParameterBag.'
-        );
-
-    def set(self, name, value):
-        raise LogicException(
-            'Impossible to call set() on a frozen ParameterBag.'
-        );
-
-class Compiler(Object):
-    """This class is used to remove circular dependencies between individual
-    passes.
-    """
-    def __init__(self):
-        """Constructor.
-        """
-        self.__passConfig = PassConfig();
-
-    def getPassConfig(self):
-        """Returns the PassConfig.
-
-        @return: PassConfig The PassConfig instance
-        """
-        return self.__passConfig;
-
-    def addPass(self, cPass, cType=PassConfig.TYPE_BEFORE_OPTIMIZATION):
-        """Adds a pass to the PassConfig.
-
-        @param cPass: CompilerPassInterface A compiler pass
-        @param cType: string The type of the pass
-        """
-        assert isinstance(cPass, CompilerPassInterface);
-
-        self.__passConfig.addPass(cPass, cType);
-
-    def compile(self, container):
-        """Run the Compiler and process all Passes.
-
-        @param container: ContainerBuilder
-        """
-        assert isinstance(container, ContainerBuilder);
-
-        for cPass in self.__passConfig.getPasses():
-            cPass.process(container);
-
-
-
-
-class ServiceReferenceGraph():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class LoggingFormatter():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-
-
-class MergeExtensionConfigurationPass(CompilerPassInterface):
-    """Merges extension configs into the container builder"""
-    def process(self, container):
-        assert isinstance(container, ContainerBuilder);
-
-        parameters = container.getParameterBag().all();
-        definitions = container.getDefinitions();
-        aliases = container.getAliases();
-
-        for extension in container.getExtensions().values():
-            if isinstance(extension, PrependExtensionInterface):
-                extension.prepend(container);
-
-        for name, extension in container.getExtensions().items():
-            config = container.getExtensionConfig(name);
-            if not config:
-                # this extension was not called
-                continue;
-
-            config = container.getParameterBag().resolveValue(config);
-
-            tmpContainer = ContainerBuilder(container.getParameterBag());
-            tmpContainer.setResourceTracking(container.isTrackingResources());
-            tmpContainer.addObjectResource(extension);
-            tmpContainer.set('kernel', container.get('kernel'));
-
-            extension.load(config, tmpContainer);
-
-            container.merge(tmpContainer);
-
-        container.addDefinitions(definitions);
-        container.addAliases(aliases);
-        container.getParameterBag().add(parameters);
-
-
-class ResolveDefinitionTemplatesPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-
-class ResolveParameterPlaceHoldersPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-
-class CheckDefinitionValidityPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-
-class ResolveReferencesToAliasesPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-
-class ResolveInvalidReferencesPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-
-class AnalyzeServiceReferencesPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class CheckCircularReferencesPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class CheckReferenceValidityPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class RemovePrivateAliasesPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class RemoveAbstractDefinitionsPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class ReplaceAliasByActualDefinitionPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class RepeatedPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class InlineServiceDefinitionsPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class RemoveUnusedDefinitionsPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-class CheckExceptionOnInvalidReferenceBehaviorPass():
-    # TODO: class
-    def __init__(self):
-        raise NotImplementedError(self);
-
-
-
-class ExceptionInterface(Object, Exception):
-    pass;
-
-class OutOfBoundsException(ExceptionInterface):
-    pass;
-
-class LogicException(ExceptionInterface):
-    pass;
-
-class BadMethodCallException(LogicException):
-    pass;
-
-class InvalidArgumentException(ExceptionInterface):
-    pass;
-
-
-class ServiceNotFoundException(InvalidArgumentException):
-    def __init__(self, identifier, sourceId=None):
-        self.__id = identifier;
-        self.__sourceId = sourceId;
-
-        self.updateRepr();
-
-    def updateRepr(self):
-        if self.__sourceId is None:
-            self.message = (
-                'You have requested a non-existent parameter "{0}".'
-                "".format(self.__id)
-            );
-        else:
-            self.message = (
-                'The service "{1}" has a dependency '
-                'on a non-existent service "{0}".'
-                "".format(self.__id, self.__sourceId)
-            );
-
-    def getKey(self):
-        return self.__key;
-
-    def setSourceId(self, key):
-        self.__sourceId = key;
-
-    def getSourceId(self):
-        return self.__sourceId;
-
-
-class ParameterNotFoundException(InvalidArgumentException):
-    def __init__(self, key, sourceId=None, sourceKey=None):
-        self.__key = key;
-        self.__sourceKey = sourceKey;
-        self.__sourceId = sourceId;
-
-        self.updateRepr();
-
-    def updateRepr(self):
-        if not self.__sourceId is None:
-            self.message = (
-                'The service "{1}" has a dependency '
-                'on a non-existent parameter "{0}".'
-                "".format(self.__key, self.__sourceId)
-            );
-        elif not self.__sourceKey is None:
-            self.message = (
-                'The parameter "{1}" has a dependency '
-                'on a non-existent parameter "{0}".'
-                "".format(self.__key, self.__sourceKey)
-            );
-        else:
-            self.message = (
-                'You have requested a non-existent parameter "{0}".'
-                "".format(self.__key)
-            );
-
-    def getKey(self):
-        return self.__key;
-
-    def setSourceKey(self, key):
-        self.__sourceKey = key;
-
-    def getSourceKey(self):
-        return self.__sourceKey;
-
-    def setSourceId(self, key):
-        self.__sourceId = key;
-
-    def getSourceId(self):
-        return self.__sourceId;
-
-class RuntimeException(ExceptionInterface):
-    pass;
-
-class ParameterCircularReferenceException(RuntimeException):
-    pass;

@@ -291,3 +291,13 @@ class ReflectionObject(ReflectionClass):
     def __init__(self, argument):
         assert isinstance(argument, Object);
         ReflectionClass.__init__(self, argument.__class__);
+
+
+
+@interface
+class SerializableInterface(Object):
+    def serialize(self):
+        pass;
+
+    def unserialize(self, serialized):
+        pass;

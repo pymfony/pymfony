@@ -19,26 +19,31 @@ import re;
 from pymfony.component.system import Object, abstract, interface;
 from pymfony.component.system import Array;
 from pymfony.component.system import ReflectionObject;
+from pymfony.component.system.exception import LogicException;
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.exception import RuntimeException;
 from pymfony.component.dependency import Container;
 from pymfony.component.dependency import ContainerInterface;
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency import ParameterBag;
-from pymfony.component.dependency import IniFileLoader;
-from pymfony.component.dependency import JsonFileLoader;
 from pymfony.component.dependency import CompilerPassInterface;
-from pymfony.component.dependency import MergeExtensionConfigurationPass as\
-BaseMergeExtensionConfigurationPass;
-from pymfony.component.dependency import Extension as BaseExtension;
 from pymfony.component.dependency import ContainerAwareInterface;
 from pymfony.component.dependency import ExtensionInterface;
 from pymfony.component.dependency import ContainerAware;
+from pymfony.component.dependency.loader import IniFileLoader;
+from pymfony.component.dependency.loader import JsonFileLoader;
+from pymfony.component.dependency.extension import Extension as BaseExtension;
 from pymfony.component.config import FileLocator as BaseFileLocator;
-from pymfony.component.config import LoaderResolver;
-from pymfony.component.config import DelegatingLoader;
+from pymfony.component.config.loader import LoaderResolver;
+from pymfony.component.config.loader import DelegatingLoader;
+
+from pymfony.component.kernel.bundle import BundleInterface;
+from pymfony.component.kernel.config import FileLocator;
+from pymfony.component.kernel.config import FileResourceLocatorInterface;
+from pymfony.component.kernel.dependency import MergeExtensionConfigurationPass;
 
 @interface
-class KernelInterface(Object):
-
+class KernelInterface(FileResourceLocatorInterface):
     def registerContainerConfiguration(self, loader):
         """Loads the container configuration
 
@@ -86,33 +91,6 @@ class KernelInterface(Object):
         """Gets the request start time (not available if debug is disabled).
 
         @return: float The request start timestamp
-        """
-        pass;
-
-    def locateResource(self, name, directory=None, first=True):
-        """Returns the file path for a given resource.
-
-        A Resource can be a file or a directory.
-        The resource name must follow the following pattern:
-            @<package>/path/to/a/file.something
-        where package is the name of the package
-        and the remaining part is the relative path in the package.
-
-        If directory is passed, and the first segment of the path is Resources,
-        this method will look for a file named:
-            directory/<package>/path/without/Resources
-
-        @param name: string A resource name to locate
-        @param path: string A directory where to look for the resource first
-        @param first: Boolean Whether to return the first path
-            or paths for all matching bundles
-
-        @return: string|array The absolute path of the resource
-            or an array if $first is false
-
-        @raise InvalidArgumentException: if the file cannot be found or
-            the name is not valid
-        @raise RuntimeException: if the name contains invalid/unsafe characters
         """
         pass;
 
@@ -197,70 +175,6 @@ class KernelInterface(Object):
         @return: string The application root dir
         """
         pass;
-
-@interface
-class BundleInterface(ContainerAwareInterface):
-    def boot(self):
-        """Boots the Bundle.
-        """
-        pass;
-
-    def shutdown(self):
-        """Shutdowns the Bundle.
-        """
-        pass;
-
-    def build(self, container):
-        """Builds the bundle.
-
-        It is only ever called once when the cache is empty.
-
-        @param container: ContainerBuilder A ContainerBuilder instance
-        """
-        pass;
-
-    def getContainerExtension(self):
-        """Returns the container extension that should be implicitly loaded.
-
-        @return: ExtensionInterface|null The default extension or null
-            if there is none
-        """
-        pass;
-
-    def getParent(self):
-        """Returns the bundle name that this bundle overrides.
-
-        Despite its name, this method does not imply any parent/child
-        relationship between the bundles, just a way to extend and override
-        an existing Bundle.
-
-        @return: string The Bundle name it overrides or null if no parent
-        """
-        pass;
-
-    def getName(self):
-        """Returns the bundle name (the class short name).
-
-        @return: string The Bundle name
-        """
-        pass;
-
-    def getNamespace(self):
-        """Gets the Bundle namespace.
-
-        @return: string The Bundle namespace
-        """
-        pass;
-
-    def getPath(self):
-        """Gets the Bundle directory path.
-
-        The path should always be returned as a Unix path (with /).
-
-        @return: string The Bundle absolute path
-        """
-        pass;
-
 
 
 class Kernel(KernelInterface):
@@ -460,8 +374,6 @@ class Kernel(KernelInterface):
         if not cont is None:
             container.merge(cont);
 
-        container.addCompilerPass(AddClassesToCachePass(self));
-
         container.set('kernel', self);
         container.compile();
 
@@ -576,6 +488,33 @@ class Kernel(KernelInterface):
         return self._debug;
 
     def locateResource(self, name, directory=None, first=True):
+        """Returns the file path for a given resource.
+
+        A Resource can be a file or a directory.
+        The resource name must follow the following pattern:
+            @BundleName/path/to/a/file.something
+        where package is the name of the package
+        and the remaining part is the relative path in the package.
+
+        If directory is passed, and the first segment of the path is Resources,
+        this method will look for a file named:
+            directory/BundleName/path/without/Resources
+
+        If BundleName is empty the application root directory is use.
+            %kernel.root_dir%/path/to/a/file.something
+
+        @param name: string A resource name to locate
+        @param path: string A directory where to look for the resource first
+        @param first: Boolean Whether to return the first path
+            or paths for all matching bundles
+
+        @return: string|array The absolute path of the resource
+            or an array if $first is false
+
+        @raise InvalidArgumentException: if the file cannot be found or
+            the name is not valid
+        @raise RuntimeException: if the name contains invalid/unsafe characters
+        """
         name = str(name);
         isResource = False;
 
@@ -665,204 +604,3 @@ class Kernel(KernelInterface):
 
     def getCharset(self):
         return 'UTF-8';
-
-    def setClassCache(self, classes):
-        pass;
-#        f = open(os.path.join(self.getCacheDir(), 'classes.map'), 'w');
-#        f.write(pickle.dumps(classes));
-#        f.close();
-
-
-
-@abstract
-class Bundle(ContainerAware, BundleInterface):
-    """An implementation of BundleInterface that adds a few conventions
-
-    for DependencyInjection extensions.
-    """
-
-    def __init__(self):
-        self._name = None;
-        self._reflected = None;
-        self._extension = None;
-
-    def boot(self):
-        pass;
-
-    def shutdown(self):
-        pass;
-
-    def build(self, container):
-        assert isinstance(container, ContainerBuilder);
-
-    def getContainerExtension(self):
-        """Returns the bundle's container extension.
-
-        @return: ExtensionInterface|null The container extension
-
-        @raise LogicException: When alias not respect the naming convention
-        """
-        if self._extension is None:
-            basename = re.sub(r"Bundle$", "", self.getName());
-
-            className = "{0}Extension".format(basename);
-            moduleName = self.getNamespace();
-            try:
-                module = __import__(moduleName, globals(), {}, [className], 0);
-            except TypeError:
-                module = __import__(moduleName, globals(), {}, ['__init__'], 0);
-
-            if hasattr(module, className):
-                extension = getattr(module, className)();
-                # check naming convention
-                expectedAlias = Container.underscore(basename);
-                if expectedAlias != extension.getAlias():
-                    raise LogicException(
-                        'The extension alias for the default extension of a '
-                        'bundle must be the underscored version of the '
-                        'bundle name ("{0}" instead of "{1}")'
-                        ''.format(expectedAlias, extension.getAlias())
-                    );
-
-                self._extension = extension;
-            else:
-                self._extension = False;
-
-        if self._extension:
-            return self._extension;
-
-    def getNamespace(self):
-        if self._reflected is None:
-            self._reflected = ReflectionObject(self);
-        return self._reflected.getNamespaceName();
-
-    def getPath(self):
-        if self._reflected is None:
-            self._reflected = ReflectionObject(self);
-        return self._reflected.getFileName();
-
-    def getName(self):
-        if self._name is None:
-            self._name = str(type(self).__name__);
-        return self._name;
-
-    def getParent(self):
-        return None;
-
-class FileLocator(BaseFileLocator):
-    """FileLocator uses the KernelInterface to locate resources in packages.
-    """
-    def __init__(self, kernel, path=None, paths=[]):
-        """
-        """
-        assert isinstance(kernel, KernelInterface);
-        self.__kernel = kernel;
-        self.__path = path;
-
-        if path:
-            paths.append(path);
-
-        BaseFileLocator.__init__(self, paths=paths);
-
-    def locate(self, name, currentPath=None, first=True):
-        if name.startswith("@"):
-            return self.__kernel.locateResource(name, self.__path, first);
-
-        return BaseFileLocator.locate(
-            self,
-            name,
-            currentPath=currentPath,
-            first=first
-        );
-
-class MergeExtensionConfigurationPass(BaseMergeExtensionConfigurationPass):
-    """Ensures certain extensions are always loaded.
-    """
-    def __init__(self, extensions):
-        """Constructor.
-
-        @param extensions: list A list of extension name
-        """
-        assert isinstance(extensions, list);
-
-        self.__extensions = extensions;
-
-    def process(self, container):
-        assert isinstance(container, ContainerBuilder);
-
-        for extension in self.__extensions:
-            if not container.getExtensionConfig(extension):
-                container.loadFromExtension(extension, dict());
-
-        BaseMergeExtensionConfigurationPass.process(self, container);
-
-class AddClassesToCachePass(CompilerPassInterface):
-    """Sets the classes to compile in the cache for the container."""
-    def __init__(self, kernel):
-        assert isinstance(kernel, Kernel);
-
-        self.__kernel = kernel;
-
-    def process(self, container):
-        assert isinstance(container, ContainerBuilder);
-
-        classes = list();
-        for extension in container.getExtensions().values():
-            if isinstance(extension, Extension):
-                classes.extend(extension.getClassesToCompile());
-
-        classes = Array.uniq(container.getParameterBag().resolveValue(classes));
-        self.__kernel.setClassCache(classes);
-
-@abstract
-class Extension(BaseExtension):
-    """Allow adding classes to the class cache."""
-
-    def __init__(self, *args, **kwargs):
-        BaseExtension.__init__(self, *args, **kwargs);
-        self.__classes = list();
-
-    def getClassesToCompile(self):
-        """Gets the classes to cache.
-
-        @return: dict A dict of classes
-        """
-        return self.__classes;
-
-    def addClassesToCompile(self, classes):
-        """Adds classes to the class cache.
-
-        @param classes: list A list of classes
-        """
-        assert isinstance(classes, list);
-
-        self.__classes.extend(classes);
-
-class ErrorHandler(Object):
-    """TODO: use http://docs.python.org/2/library/sys.html#sys.excepthook"""
-    pass;
-
-@abstract
-class ConfigurableExtension(Extension):
-    def load(self, configs, container):
-        """@final:"""
-        self._loadInternal(self._processConfiguration(self.getConfiguration(list(), container), configs), container);
-
-    @abstract
-    def _loadInternal(self, mergedConfig, container):
-        """Configures the passed container according to the merged
-        configuration.
-
-        @param mergedConfig: dict
-        @param container: ContainerBuilder
-        """
-        pass;
-
-class LogicException(Exception):
-    pass;
-
-class InvalidArgumentException(LogicException):
-    pass;
-
-class RuntimeException(Exception):
-    pass;

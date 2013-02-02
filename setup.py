@@ -25,9 +25,10 @@ packages = [
     'pymfony',
     'pymfony.component',
     'pymfony.component.config',
+    'pymfony.component.config.definition',
+    'pymfony.component.dependency',
     'pymfony.component.kernel',
     'pymfony.component.system',
-    'pymfony.component.dependency',
 ];
 
 classifiers = [

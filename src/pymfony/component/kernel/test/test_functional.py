@@ -14,13 +14,13 @@ from __future__ import absolute_import;
 from os.path import dirname;
 
 from pymfony.component.dependency import ContainerBuilder;
-from pymfony.component.dependency import JsonFileLoader
+from pymfony.component.dependency.loader import JsonFileLoader
 from pymfony.component.kernel import Kernel;
-from pymfony.component.kernel import Bundle;
-from pymfony.component.kernel import ConfigurableExtension;
-from pymfony.component.kernel import Extension;
-from pymfony.component.config import ConfigurationInterface;
-from pymfony.component.config import TreeBuilder;
+from pymfony.component.kernel.bundle import Bundle;
+from pymfony.component.kernel.dependency import ConfigurableExtension;
+from pymfony.component.kernel.dependency import Extension;
+from pymfony.component.config.definition import ConfigurationInterface;
+from pymfony.component.config.definition.builder import TreeBuilder;
 from pymfony.component.config import FileLocator;
 
 class AppExtension(ConfigurableExtension):
