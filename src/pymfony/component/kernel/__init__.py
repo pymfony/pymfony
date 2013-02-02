@@ -296,7 +296,10 @@ class Kernel(KernelInterface):
                 topMostBundles[name] = bundle;
 
             # look for orphans
-            diff = Array.diff(directChildren.keys(), self._bundles.keys());
+            diff = Array.diff(
+                list(directChildren.keys()),
+                list(self._bundles.keys()),
+            );
             if diff:
                 raise LogicException(
                     'Bundle "{0}" extends bundle "{1}", which is not registered.'

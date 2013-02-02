@@ -167,9 +167,11 @@ class JsonFileLoader(FileLoader):
 
 
     def __parseParameters(self, content):
-        if 'parameters' in content:
-            for key, value in dict(content['parameters']).items():
-                self._container.setParameter(key, value);
+        if not 'parameters' in content:
+            return;
+
+        for key, value in content['parameters'].items():
+            self._container.setParameter(key, value);
 
 
     def __parseDefinitions(self, content, path):
@@ -255,7 +257,7 @@ class JsonFileLoader(FileLoader):
 
     def __resolveServices(self, value):
         if isinstance(value, list):
-            value = map(self.__resolveServices, value);
+            value = list(map(self.__resolveServices, value));
         if isinstance(value, basestring) and value.startswith("@"):
             value = value[1:];
             if value.endswith("="):

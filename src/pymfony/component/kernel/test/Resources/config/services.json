@@ -1,6 +1,6 @@
 {
 	"parameters": {
-		"file_locator.class": "pymfony.component.kernel.FileLocator"
+		"file_locator.class": "pymfony.component.kernel.config.FileLocator"
 	},
 	"services": {
 		"file_locator": {

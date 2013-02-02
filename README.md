@@ -21,7 +21,7 @@ Symfony target version
 Requirements
 ------------
 
-Pymfony is only supported on Python 2.6.8 but less than 3.0.
+Pymfony is only supported on Python 2.6.8 and up.
 
 
 Installation

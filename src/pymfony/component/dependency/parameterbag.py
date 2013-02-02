@@ -194,7 +194,9 @@ class ParameterBag(ParameterBagInterface):
         if match:
             key = match.group(1).lower();
             if key in resolving.keys():
-                raise ParameterCircularReferenceException(resolving.keys());
+                raise ParameterCircularReferenceException(
+                    list(resolving.keys())
+                );
             resolving[key] = True;
             if self._resolved:
                 return self.get(key);
@@ -207,7 +209,9 @@ class ParameterBag(ParameterBagInterface):
                 return "%%";
             key = key.lower();
             if key in resolving.keys():
-                raise ParameterCircularReferenceException(resolving.keys());
+                raise ParameterCircularReferenceException(
+                    list(resolving.keys())
+                );
             resolved = self.get(key);
             if not isinstance(resolved, (str, float, int)):
                 raise RuntimeException(

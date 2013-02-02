@@ -637,8 +637,8 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
     def getServiceIds(self):
         return Array.uniq(
-            self.getDefinitions().keys() +\
-            self.getAliases().keys() +\
+            list(self.getDefinitions().keys()) +\
+            list(self.getAliases().keys()) +\
             Container.getServiceIds()
         );
 

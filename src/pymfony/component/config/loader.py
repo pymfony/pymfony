@@ -216,9 +216,9 @@ class FileLoader(Loader):
             if isinstance(loader, FileLoader) and \
                 not self.__currentDir is None:
                 resource = self._locator.locate(resource, self.__currentDir);
-            if resource in self._loading:
+            if resource in self._loading.keys():
                 raise FileLoaderImportCircularReferenceException(
-                    self._loading.keys()
+                    list(self._loading.keys())
                 );
 
             self._loading[resource] = True;

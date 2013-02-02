@@ -858,7 +858,7 @@ class PrototypedArrayNode(ArrayNode):
         if children is None:
             children = ['default'];
         elif isinstance(children, int) and children > 0:
-            children = range(1, children+1);
+            children = list(range(1, children+1));
         elif isinstance(children, basestring):
             children = [children];
 
@@ -950,7 +950,7 @@ class PrototypedArrayNode(ArrayNode):
 
         value = self._remapXml(value);
 
-        isAssoc = value.keys() != range(len(value));
+        isAssoc = list(value.keys()) != list(range(len(value)));
         normalized = dict();
 
         i = -1;
