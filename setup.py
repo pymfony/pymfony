@@ -23,6 +23,8 @@ f.close();
 
 packages = [
     'pymfony',
+    'pymfony.bundle',
+    'pymfony.bundle.framework',
     'pymfony.component',
     'pymfony.component.config',
     'pymfony.component.config.definition',
@@ -31,6 +33,10 @@ packages = [
     'pymfony.component.system',
     'pymfony.component.system.py2',
     'pymfony.component.system.py3',
+];
+
+resource_patterns = [
+    "Resources/config/services.*",
 ];
 
 classifiers = [
@@ -48,7 +54,8 @@ classifiers = [
 setup(
     name='Pymfony',
     packages=packages,
-    package_dir = {'': 'src'},
+    package_dir={'': 'src'},
+    package_data={'': resource_patterns},
     version="0.1.0",
     long_description=long_description,
     description="The Symfony2 PHP Framework with Python language",

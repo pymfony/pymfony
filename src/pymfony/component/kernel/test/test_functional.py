@@ -11,41 +11,13 @@
 
 from __future__ import absolute_import;
 
-from os.path import dirname;
+import unittest
+import os.path as op;
 
-from pymfony.component.dependency import ContainerBuilder;
-from pymfony.component.dependency.loader import JsonFileLoader
 from pymfony.component.kernel import Kernel;
-from pymfony.component.kernel.bundle import Bundle;
-from pymfony.component.kernel.dependency import ConfigurableExtension;
-from pymfony.component.kernel.dependency import Extension;
-from pymfony.component.config.definition import ConfigurationInterface;
-from pymfony.component.config.definition.builder import TreeBuilder;
 from pymfony.component.config import FileLocator;
+from pymfony.bundle.framework import FrameworkBundle;
 
-class AppExtension(ConfigurableExtension):
-    def _loadInternal(self, mergedConfig, container):
-        assert isinstance(mergedConfig, dict);
-        assert isinstance(container, ContainerBuilder);
-
-        for name, value in mergedConfig.items():
-            container.getParameterBag().set(self.getAlias()+'.'+name, value);
-
-    def getAlias(self):
-        return 'app';
-
-class Configuration(ConfigurationInterface):
-    def getConfigTreeBuilder(self):
-        treeBuilder = TreeBuilder();
-        rootNode = treeBuilder.root('app');
-
-        node =  rootNode.children();
-        node =      node.scalarNode('foo');
-        node =          node.defaultValue("bar");
-        node =      node.end();
-        node =  node.end();
-
-        return treeBuilder;
 
 class AppKernel(Kernel):
     def registerBundles(self):
@@ -60,25 +32,6 @@ class AppKernel(Kernel):
         loader.load(path);
 
 
-class FrameworkBundle(Bundle):
-    pass;
-
-class FrameworkExtension(Extension):
-    def load(self, configs, container):
-        loader = JsonFileLoader(container, FileLocator(
-            dirname(__file__)+"/Resources/config"
-        ));
-
-        loader.load("services.json");
-
-        configuration = self.getConfiguration(configs, container);
-        config = self._processConfiguration(configuration, configs);
-
-
-
-
-import unittest
-import os.path as op;
 
 
 class Test(unittest.TestCase):
@@ -96,8 +49,10 @@ class Test(unittest.TestCase):
         currdir = op.realpath(op.dirname(__file__));
         formater = lambda v: op.normpath(op.normcase(op.realpath(v)));
         values = {
-            "@/Resources/config/services.json": op.join(currdir, "Resources/config/services.json"),
-            "../__init__.py": op.join(currdir, "../__init__.py"),
+            "@/Resources/config/config.ini": op.join(
+                currdir, "Resources/config/config.ini"
+            ),
+            "Resources/config": op.join(currdir, "Resources/config"),
         };
 
         locator = self.container.get('file_locator');
@@ -110,8 +65,8 @@ class Test(unittest.TestCase):
 
     def testExtensionConfig(self):
         self.assertEqual(
-            self.container.getParameter('app.foo'),
-            'bar'
+            self.container.getParameter('framework.default_locale'),
+            'en'
         );
         self.assertEqual(
             self.container.getParameter('locale'),

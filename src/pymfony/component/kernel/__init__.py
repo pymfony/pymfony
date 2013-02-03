@@ -94,15 +94,6 @@ class KernelInterface(FileResourceLocatorInterface):
         """
         pass;
 
-    def getContainerExtension(self):
-        """Returns the container extension that should be implicitly loaded.
-
-        @return: ExtensionInterface|null The default extension
-                 or null if there is none
-        """
-        pass;
-
-
     def getNamespace(self):
         """Gets the Kernel namespace.
 
@@ -346,12 +337,6 @@ class Kernel(KernelInterface):
         container = self.getContainerBuilder();
         extensions = list();
 
-        # add this kernel as an extension
-        extension = self.getContainerExtension();
-        if extension:
-            container.registerExtension(extension);
-            extensions.append(extension.getAlias());
-
         container.addObjectResource(self);
 
         for bundle in self._bundles.values():
@@ -381,42 +366,6 @@ class Kernel(KernelInterface):
         container.compile();
 
         return container;
-
-    def getContainerExtension(self):
-        """Returns the bundle's container extension.
-
-        @return: ExtensionInterface|null The container extension
-
-        @raise LogicException: When alias not respect the naming convention
-        """
-        if self._extension is None:
-            basename = re.sub(r"Kernel$", "", self.getName());
-
-            className = "{0}Extension".format(basename);
-            moduleName = self.getNamespace();
-            try:
-                module = __import__(moduleName, globals(), {}, [className], 0);
-            except TypeError:
-                module = __import__(moduleName, globals(), {}, ['__init__'], 0);
-
-            if hasattr(module, className):
-                extension = getattr(module, className)();
-                # check naming convention
-                expectedAlias = Container.underscore(basename);
-                if expectedAlias != extension.getAlias():
-                    raise LogicException(
-                        'The extension alias for the default extension of a '
-                        'kernel must be the underscored version of the '
-                        'kernel name ("{0}" instead of "{1}")'
-                        ''.format(expectedAlias, extension.getAlias())
-                    );
-
-                self._extension = extension;
-            else:
-                self._extension = False;
-
-        if self._extension:
-            return self._extension;
 
     def getNamespace(self):
         return str(type(self).__module__);
@@ -600,10 +549,10 @@ class Kernel(KernelInterface):
         return self._rootDir;
 
     def getCacheDir(self):
-        return os.path.join(self._rootDir, 'cache', self._environment);
+        return self._rootDir+'/Resources/cache/'+self._environment;
 
     def getLogDir(self):
-        return os.path.join(self._rootDir, 'logs', self._environment);
+        return self._rootDir+'/Resources/logs/'+self._environment;
 
     def getCharset(self):
         return 'UTF-8';

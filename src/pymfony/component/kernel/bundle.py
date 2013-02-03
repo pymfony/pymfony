@@ -120,7 +120,7 @@ class Bundle(ContainerAware, BundleInterface):
             basename = re.sub(r"Bundle$", "", self.getName());
 
             className = "{0}Extension".format(basename);
-            moduleName = self.getNamespace();
+            moduleName = "{0}.dependency".format(self.getNamespace());
             try:
                 module = __import__(moduleName, globals(), {}, [className], 0);
             except TypeError:

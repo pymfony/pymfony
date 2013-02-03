@@ -19,7 +19,7 @@ from pymfony.component.system import Tool;
 from pymfony.component.system import Object, abstract;
 from pymfony.component.system import final;
 from pymfony.component.system import interface
-import pymfony.component.system as system;
+from pymfony.component.system import ReflectionObject;
 
 class TestArray(unittest.TestCase):
     def setUp(self):
@@ -133,7 +133,7 @@ class TestMetaclass(unittest.TestCase):
 
 class TestReflextion(unittest.TestCase, Object):
     def setUp(self):
-        self.subject = system.ReflectionObject(self);
+        self.subject = ReflectionObject(self);
 
     def testConstructor(self):
         self.assertEqual(self.subject._class, self.__class__);
