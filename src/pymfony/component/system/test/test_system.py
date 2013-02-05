@@ -20,6 +20,7 @@ from pymfony.component.system import Object, abstract;
 from pymfony.component.system import final;
 from pymfony.component.system import interface
 from pymfony.component.system import ReflectionObject;
+from pymfony.component.system.exception import StandardException;
 
 class TestArray(unittest.TestCase):
     def setUp(self):
@@ -146,6 +147,16 @@ class TestReflextion(unittest.TestCase, Object):
 
     def testGetmro(self):
         self.assertEqual(self.__class__.__mro__, self.subject.getmro());
+
+
+class testException(unittest.TestCase):
+    def testConstructor(self):
+        e = StandardException("message", 1);
+        self.assertEqual(e.getMessage(), "message");
+        self.assertEqual(e.getCode(), 1);
+        self.assertEqual(e.getLine(), 154);
+        self.assertEqual(e.getFile(), inspect.getsourcefile(self.__class__));
+
 
 if __name__ == "__main__":
     unittest.main();

@@ -393,7 +393,8 @@ class BaseNode(NodeInterface):
             except Exception as invalid:
                 raise InvalidConfigurationException(
                     'Invalid configuration for path "{0}": {1}'
-                    ''.format(self.getPath(), invalid.message)
+                    ''.format(self.getPath(), invalid.message),
+                    previous=invalid
                 );
         return value;
 

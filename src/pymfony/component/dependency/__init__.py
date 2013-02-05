@@ -332,7 +332,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
             if identifier in self._loading:
                 raise LogicException(
                     'The service "{0}" has a circular reference to itself.'
-                    ''.format(identifier)
+                    ''.format(identifier), 0, e
                 );
 
             if not self.hasDefinition(identifier) \
