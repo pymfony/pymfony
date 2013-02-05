@@ -21,18 +21,20 @@ from pymfony.component.config import FileLocator;
 
 
 class FrameworkExtension(ConfigurableExtension):
-    def _loadInternal(self, mergedConfig, container):
-        assert isinstance(mergedConfig, dict);
+    def _loadInternal(self, config, container):
+        assert isinstance(config, dict);
         assert isinstance(container, ContainerBuilder);
 
         loader = JsonFileLoader(container, FileLocator(
-            dirname(__file__)+"/Resources/config"
+            dirname(__file__)+"/../Resources/config"
         ));
 
         loader.load("services.json");
 
-        for name, value in mergedConfig.items():
+        for name, value in config.items():
             container.getParameterBag().set(self.getAlias()+'.'+name, value);
+
+        container.setParameter('kernel.default_locale', config['default_locale']);
 
     def getAlias(self):
         return 'framework';

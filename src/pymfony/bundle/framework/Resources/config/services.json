@@ -1,12 +1,19 @@
 {
 	"parameters": {
-		"file_locator.class": "pymfony.component.kernel.config.FileLocator"
+		"file_locator.class": "pymfony.component.kernel.config.FileLocator",
+		"event_dispatcher.class": "pymfony.component.dispatcher.ContainerAwareEventDispatcher"
 	},
 	"services": {
 		"file_locator": {
 			"class": "%file_locator.class%",
 			"arguments": [
 				"@kernel"
+			]
+		},
+		"event_dispatcher": {
+			"class": "%event_dispatcher.class%",
+			"arguments": [
+				"@service_container"
 			]
 		}
 	}

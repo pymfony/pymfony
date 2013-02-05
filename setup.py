@@ -25,6 +25,7 @@ packages = [
     'pymfony',
     'pymfony.bundle',
     'pymfony.bundle.framework',
+    'pymfony.bundle.framework.dependency',
     'pymfony.component',
     'pymfony.component.config',
     'pymfony.component.config.definition',

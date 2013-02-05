@@ -35,11 +35,13 @@ class PassConfig(Object):
     This class has a default configuration embedded.
     """
     TYPE_BEFORE_OPTIMIZATION = 'BeforeOptimization';
+    TYPE_AFTER_REMOVING = 'AfterRemoving'
 
     def __init__(self):
         self.__mergePass = None;
 
         self.__beforeOptimizationPasses = list();
+        self.__afterRemovingPasses = list();
 
     def getPasses(self):
         """Returns all passes in order to be processed.
@@ -51,6 +53,7 @@ class PassConfig(Object):
         if self.__mergePass:
             passes.append(self.__mergePass);
         passes.extend(self.__beforeOptimizationPasses);
+        passes.extend(self.__afterRemovingPasses);
 
         return passes;
 
@@ -64,14 +67,17 @@ class PassConfig(Object):
         """
         assert isinstance(cPass, CompilerPassInterface);
 
-        propertyName = "get{0}Passes".format(cType);
+        getPropertyName = "get{0}Passes".format(cType);
+        setPropertyName = "set{0}Passes".format(cType);
 
-        if not hasattr(self, propertyName):
+        if not hasattr(self, getPropertyName):
             raise InvalidArgumentException(
                 'Invalid type "{0}".'.format(cType)
             );
 
-        getattr(self, propertyName)().append(cPass);
+        passes = getattr(self, getPropertyName)();
+        passes.append(cPass);
+        getattr(self, setPropertyName)(passes);
 
     def getMergePass(self):
         """Gets the Merge Pass.
@@ -95,6 +101,23 @@ class PassConfig(Object):
         """
         return self.__beforeOptimizationPasses;
 
+    def setBeforeOptimizationPasses(self, passes):
+        """
+        @param passes: list
+        """
+        self.__beforeOptimizationPasses = passes;
+
+    def getAfterRemovingPasses(self):
+        """
+        @return: list
+        """
+        return self.__afterRemovingPasses;
+
+    def setAfterRemovingPasses(self, passes):
+        """
+        @param passes: list
+        """
+        self.__afterRemovingPasses = passes;
 
 class Compiler(Object):
     """This class is used to remove circular dependencies between individual

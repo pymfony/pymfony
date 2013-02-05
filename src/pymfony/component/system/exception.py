@@ -90,14 +90,14 @@ class StandardException(Exception, Object):
 
         @return: string The stack trace as string.
         """
-        return self._string;
+        return self.__string;
 
     def __str__(self):
         """Return the string representation of exception.
 
         @return: string representation of exception.
         """
-        return self._string;
+        return self._message;
 
     @final
     def __copy__(self):
