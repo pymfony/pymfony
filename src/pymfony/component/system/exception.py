@@ -99,13 +99,6 @@ class StandardException(Exception, Object):
         """
         return self._string;
 
-    def __repr__(self):
-        """Return the string representation of exception.
-
-        @return: string representation of exception.
-        """
-        return self._string;
-
     @final
     def __copy__(self):
         """Prevent clone.

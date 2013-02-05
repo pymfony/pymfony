@@ -18,6 +18,7 @@ import re;
 
 from pymfony.component.system import Object, abstract, interface;
 from pymfony.component.system import Array;
+from pymfony.component.system import final;
 from pymfony.component.system import ReflectionObject;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system.exception import InvalidArgumentException;
@@ -41,6 +42,7 @@ from pymfony.component.kernel.bundle import BundleInterface;
 from pymfony.component.kernel.config import FileLocator;
 from pymfony.component.kernel.config import FileResourceLocatorInterface;
 from pymfony.component.kernel.dependency import MergeExtensionConfigurationPass;
+from pymfony.component.kernel.debug import ExceptionHandler;
 
 @interface
 class KernelInterface(FileResourceLocatorInterface):
@@ -186,6 +188,20 @@ class Kernel(KernelInterface):
 
         if self._debug:
             self._startTime = time();
+
+        self.init();
+
+    def init(self):
+        if self._debug:
+            ExceptionHandler.register(self._debug);
+
+    def __copy__(self):
+        clone = Object.__copy__(self);
+        if self._debug:
+            clone._startTime = time();
+        clone._booted = False;
+        clone._container = None;
+        return clone;
 
     def getKernelParameters(self):
         bundles = dict();
