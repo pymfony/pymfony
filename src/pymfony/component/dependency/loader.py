@@ -231,7 +231,7 @@ class JsonFileLoader(FileLoader):
                 );
 
             for tag in service['tags']:
-                if not isinstance(service['tags'], dict):
+                if not isinstance(tag, dict) and 'name' in tag:
                     raise InvalidArgumentException(
                         'A "tags" entry is missing a "name" key for service '
                         '"{0}" in {1}.'.format(identifier, path)
@@ -251,7 +251,7 @@ class JsonFileLoader(FileLoader):
                             ''.format(identifier, name, path)
                         );
 
-                definition.addTag(name, attributes);
+                definition.addTag(name, tag);
 
         self._container.setDefinition(identifier, definition);
 

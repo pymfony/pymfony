@@ -40,11 +40,8 @@ from pymfony.component.dependency.parameterbag import (
     FrozenParameterBag,
 );
 
-from pymfony.component.dependency.compiler import (
-    PassConfig,
-    CompilerPassInterface,
-    Compiler,
-);
+from pymfony.component.dependency.compiler import PassConfig, Compiler;
+from pymfony.component.dependency.compiler import CompilerPassInterface;
 
 @interface
 class ExtensionInterface(Object):
@@ -900,7 +897,8 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         if isinstance(value, list):
             for v in value:
                 iterable = cls.getServiceConditionals(v);
-                services = Array.uniq(services.extend(iterable));
+                services.extend(iterable);
+                services = Array.uniq(services);
         elif isinstance(value, Reference):
             services.append(str(value));
 
@@ -1009,14 +1007,17 @@ class Definition(Object):
         return self._arguments[index];
 
     def setMethodCalls(self, calls):
+        """
+        @param calls: list of [methodName, [arg1, ...]]
+        """
+        assert isinstance(calls, list);
         self.__calls = list();
-        for call in list(calls):
+        for call in calls:
+            assert isinstance(call, list);
             self.addMethodCall(call[0], call[1]);
         return self;
 
-    def addMethodCall(self, method, arguments=None):
-        if arguments is None:
-            arguments = list();
+    def addMethodCall(self, method, arguments=[]):
         arguments = list(arguments);
         method = str(method);
         if not method:
@@ -1025,7 +1026,9 @@ class Definition(Object):
         return self;
 
     def removeMethodCall(self, method):
-        for i, call in dict(self.__calls).items():
+        i = -1;
+        for call in self.__calls:
+            i += 1;
             if call[0] == method:
                 del self.__calls[i];
                 break;
@@ -1054,11 +1057,10 @@ class Definition(Object):
         else:
             return list();
 
-    def addTag(self, name, attributes=None):
-        if attributes is None:
-            attributes = list();
+    def addTag(self, name, attributes=[]):
         attributes = list(attributes);
-        self.__tags[name] = list(self.__tags[name]);
+        if name not in self.__tags:
+            self.__tags[name] = list();
         self.__tags[name].append(attributes);
         return self;
 

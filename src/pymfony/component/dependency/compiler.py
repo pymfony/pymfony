@@ -10,10 +10,7 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.system import (
-    Object,
-    interface,
-);
+from pymfony.component.system import Object, interface;
 
 from pymfony.component.dependency.exception import InvalidArgumentException;
 
@@ -28,7 +25,6 @@ class CompilerPassInterface(Object):
         """
         pass;
 
-
 class PassConfig(Object):
     """Compiler Pass Configuration
 
@@ -36,12 +32,14 @@ class PassConfig(Object):
     """
     TYPE_BEFORE_OPTIMIZATION = 'BeforeOptimization';
     TYPE_AFTER_REMOVING = 'AfterRemoving'
+    TYPE_OPTIMIZE = 'Optimization'
 
     def __init__(self):
         self.__mergePass = None;
 
         self.__beforeOptimizationPasses = list();
         self.__afterRemovingPasses = list();
+        self.__optimizationPasses = list();
 
     def getPasses(self):
         """Returns all passes in order to be processed.
@@ -53,6 +51,7 @@ class PassConfig(Object):
         if self.__mergePass:
             passes.append(self.__mergePass);
         passes.extend(self.__beforeOptimizationPasses);
+        passes.extend(self.__optimizationPasses);
         passes.extend(self.__afterRemovingPasses);
 
         return passes;
@@ -106,6 +105,18 @@ class PassConfig(Object):
         @param passes: list
         """
         self.__beforeOptimizationPasses = passes;
+
+    def getOptimizationPasses(self):
+        """
+        @return: list
+        """
+        return self.__optimizationPasses;
+
+    def setOptimizationPasses(self, passes):
+        """
+        @param passes: list
+        """
+        self.__optimizationPasses = passes;
 
     def getAfterRemovingPasses(self):
         """

@@ -575,18 +575,13 @@ class ContainerAwareEventDispatcher(EventDispatcher):
         @param className: string The service's class name (which must
                                  implement EventSubscriberInterface)
         """
-        moduleName, className = Tool.split(className);
-        try:
-            module = __import__(moduleName, globals(), {}, [className], 0);
-        except TypeError:
-            module = __import__(moduleName, globals(), {}, ["__init__"], 0);
-        subscriber = getattr(module, className);
+        subscriber = self.__container.get(serviceId);
 
         assert isinstance(subscriber, EventSubscriberInterface);
 
-        for eventName, params in subscriber.getSubscribedEvents():
+        for eventName, params in subscriber.getSubscribedEvents().items():
             if eventName not in self.__listenerIds:
-                self.__listenerIds[eventName] = dict();
+                self.__listenerIds[eventName] = list();
 
             if isinstance(params, basestring):
                 self.__listenerIds[eventName].append([

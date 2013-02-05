@@ -15,7 +15,7 @@ import re;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system import Tool;
 from pymfony.component.dependency import ContainerBuilder;
-from pymfony.component.dependency.compiler import CompilerPassInterface;
+from pymfony.component.dependency.compilerpass import CompilerPassInterface;
 from pymfony.component.dispatcher import EventSubscriberInterface;
 
 class RegisterKernelListenersPass(CompilerPassInterface):
@@ -53,7 +53,7 @@ class RegisterKernelListenersPass(CompilerPassInterface):
                 ]);
 
         subscribers = container.findTaggedServiceIds('kernel.event_subscriber');
-        for identifier, events in subscribers:
+        for identifier, events in subscribers.items():
             # We must assume that the class value has been correctly filled,
             # even if the service is created by a factory
             qualClassName = container.getDefinition(identifier).getClass();
@@ -65,7 +65,7 @@ class RegisterKernelListenersPass(CompilerPassInterface):
                 module = __import__(moduleName, globals(), {}, ["__init__"], 0);
             classType = getattr(module, className);
 
-            if not isinstance(classType, EventSubscriberInterface):
+            if not issubclass(classType, EventSubscriberInterface):
                 raise InvalidArgumentException(
                     'Service "{0}" must implement interface "{1}".'
                     ''.format(identifier, repr(EventSubscriberInterface))

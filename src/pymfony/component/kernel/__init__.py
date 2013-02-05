@@ -27,10 +27,10 @@ from pymfony.component.dependency import Container;
 from pymfony.component.dependency import ContainerInterface;
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency import ParameterBag;
-from pymfony.component.dependency import CompilerPassInterface;
 from pymfony.component.dependency import ContainerAwareInterface;
 from pymfony.component.dependency import ExtensionInterface;
 from pymfony.component.dependency import ContainerAware;
+from pymfony.component.dependency.compilerpass import ResolveParameterPlaceHoldersPass
 from pymfony.component.dependency.loader import IniFileLoader;
 from pymfony.component.dependency.loader import JsonFileLoader;
 from pymfony.component.dependency.extension import Extension as BaseExtension;
@@ -371,6 +371,10 @@ class Kernel(KernelInterface):
         container.getCompilerPassConfig().setMergePass(
             MergeExtensionConfigurationPass(extensions)
         );
+
+        container.getCompilerPassConfig().setOptimizationPasses([
+            ResolveParameterPlaceHoldersPass()
+        ]);
 
         cont = self.registerContainerConfiguration(
             self.getContainerLoader(container)
