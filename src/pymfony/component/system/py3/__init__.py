@@ -202,56 +202,6 @@ class Tool(Object):
         head = head2 or head;
         return head, tail;
 
-@abstract
-class Array(Object):
-    @classmethod
-    def toDict(cls, l):
-        assert isinstance(l, list);
-        d = dict();
-        i = 0;
-        for i in range(len(l)):
-            d[i] = l[i];
-            i = i + 1;
-        return d;
-
-    @classmethod
-    def uniq(cls, iterable):
-        assert isinstance(iterable, (list, dict));
-        if isinstance(iterable, list):
-            d = cls.toDict(iterable);
-            result = [];
-            def append(k, v):
-                result.append(v);
-        else:
-            d = iterable;
-            result = {};
-            def append(k, v):
-                result[k] = v;
-
-        pairs = list();
-        for k, v in d.items():
-            pairs.append((k, v));
-        seen = {};
-        for k, v in pairs:
-            marker = v;
-            if marker not in seen.keys():
-                seen[marker] = 1;
-                append(k, v);
-
-        return result;
-
-    @classmethod
-    def diff(cls, leftSide, rightSide):
-        """Computes the difference of lists
-
-        @param leftSide: list The list to compare from
-        @param rightSide: list The list to compare against
-
-        @return: list
-        """
-        leftSide = list(leftSide);
-        rightSide = list(rightSide);
-        return [item for item in leftSide if item not in rightSide]
 
 
 class ReflectionClass(Object):

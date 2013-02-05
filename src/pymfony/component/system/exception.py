@@ -121,8 +121,9 @@ class InvalidArgumentException(LogicException):
 class BadMethodCallException(LogicException):
     pass;
 
-class OutOfBoundsException(LogicException):
-    pass;
+class OutOfBoundsException(LogicException, IndexError):
+    """Exception thrown if a value is not a valid key.
+    """
 
 class RuntimeException(StandardException):
     pass;

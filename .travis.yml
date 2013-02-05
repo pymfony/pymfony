@@ -13,6 +13,7 @@ install:
 script:
     - python src/pymfony/component/system/test/test_system.py
     - python src/pymfony/component/kernel/test/test_functional.py
+    - python src/pymfony/component/dispatcher/test/test_EventDispatcher.py
 
 notifications:
     email: false
