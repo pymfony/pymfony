@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definition>
+  <arguments>
+    <argument is_array="1" is_required="0" name="bar">
+      <description>The bar argument</description>
+      <defaults>
+        <default>bar</default>
+      </defaults>
+    </argument>
+    <argument is_array="0" is_required="0" name="foo">
+      <description>The foo argument</description>
+      <defaults/>
+    </argument>
+    <argument is_array="0" is_required="0" name="baz">
+      <description>The baz argument</description>
+      <defaults>
+        <default>True</default>
+      </defaults>
+    </argument>
+  </arguments>
+  <options>
+    <option accept_value="1" is_multiple="0" is_value_required="0" name="--bar" shortcut="-b">
+      <description>The bar option</description>
+      <defaults>
+        <default>bar</default>
+      </defaults>
+    </option>
+    <option accept_value="1" is_multiple="0" is_value_required="1" name="--foo" shortcut="-f">
+      <description>The foo option</description>
+      <defaults/>
+    </option>
+    <option accept_value="1" is_multiple="0" is_value_required="0" name="--baz" shortcut="">
+      <description>The baz option</description>
+      <defaults>
+        <default>False</default>
+      </defaults>
+    </option>
+  </options>
+</definition>

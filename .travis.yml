@@ -11,9 +11,7 @@ install:
     - python setup.py -q install
 
 script:
-    - python src/pymfony/component/system/test/test_system.py
-    - python src/pymfony/component/kernel/test/test_functional.py
-    - python src/pymfony/component/dispatcher/test/test_EventDispatcher.py
+    - find src/ -type f -wholename */test/test*.py -exec python {} \;
 
 notifications:
     email: false

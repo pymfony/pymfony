@@ -157,6 +157,12 @@ class testException(unittest.TestCase):
         self.assertEqual(e.getLine(), 154);
         self.assertEqual(e.getFile(), inspect.getsourcefile(self.__class__));
 
+class testTool(unittest.TestCase):
+    def testStripcslashes(self):
+        self.assertEqual(Tool.stripcslashes('\H\e\l\l\o \W\or\l\d'), "Hello World")
+        self.assertEqual(Tool.stripcslashes('Hello World\\r\\n'), 'Hello World\r\n')
+        self.assertEqual(Tool.stripcslashes('\x48\x65\x6c\x6c\x6f \x57\x6f\x72\x6c\x64'), "Hello World")
+        self.assertEqual(Tool.stripcslashes('\110\145\154\154\157 \127\157\162\154\144'), "Hello World")
 
 if __name__ == "__main__":
     unittest.main();

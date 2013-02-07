@@ -201,6 +201,76 @@ class Tool(Object):
             head2 = head2[:-1];
         head = head2 or head;
         return head, tail;
+    @classmethod
+    def split(cls, string, sep="."):
+        """Split a string.
+
+        Return tuple (head, tail) where tail is everything after
+        the final <sep>. Either part may be empty."""
+        # set i to index beyond p's last slash
+        i = len(string);
+        while i and string[i-1] not in sep:
+            i = i - 1;
+        head, tail = string[:i], string[i:]; # now tail has no "."
+        head2 = head;
+        while head2 and head2[-1] in sep:
+            head2 = head2[:-1];
+        head = head2 or head;
+        return head, tail;
+
+
+    @classmethod
+    def stripcslashes(cls, string):
+        HEXA = '0123456789abcdefABCDEF';
+        target = "";
+        nlen = len(string);
+        numtmp = dict();
+    
+        source = string[:];
+        end = nlen;
+        i = 0;
+        while(i < end):
+            if source[i] == '\\' and i+1 < end :
+                i+=1;
+                if source[i] == 'n': target+='\n'; nlen-=1; i+=1;continue;
+                elif source[i] == 'r': target+='\r'; nlen-=1; i+=1;continue;
+                elif source[i] == 'a': target+='\a'; nlen-=1; i+=1;continue;
+                elif source[i] == 't': target+='\t'; nlen-=1; i+=1;continue;
+                elif source[i] == 'v': target+='\v'; nlen-=1; i+=1;continue;
+                elif source[i] == 'b': target+='\b'; nlen-=1; i+=1;continue;
+                elif source[i] == 'f': target+='\f'; nlen-=1; i+=1;continue;
+                elif source[i] == '\\': target+='\\'; nlen-=1; i+=1;continue;
+                elif source[i] == 'x':
+                    if i+1 < end and source[i+1] in HEXA:
+                        i+=1;
+                        numtmp = source[i];
+                        if i+1 < end and source[i+1] in HEXA:
+                            i+=1;
+                            numtmp += source[i];
+                            nlen-=3;
+                        else:
+                            nlen-=2;
+                        target += numtmp.decode("hex");
+                        i+=1;continue;
+                    # break is left intentionally
+                y = 0;
+                while (i < end and source[i] in '01234567' and y<3):
+                    numtmp[y] = source[i];
+                    y+=1; i+=1;
+                
+                if y:
+                    target += str(hex(int(numtmp, 8)))[2:].decode("hex");
+                    nlen-=y;
+                    i-=1;
+                else:
+                    target+=source[i];
+                    nlen-=1;
+                
+            else:
+                target+=source[i];
+            i+=1;
+
+        return target;
 
 
 

@@ -29,6 +29,7 @@ packages = [
     'pymfony.component',
     'pymfony.component.config',
     'pymfony.component.config.definition',
+    'pymfony.component.console',
     'pymfony.component.clikernel',
     'pymfony.component.dependency',
     'pymfony.component.dispatcher',
