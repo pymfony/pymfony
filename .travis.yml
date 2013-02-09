@@ -11,7 +11,7 @@ install:
     - python setup.py -q install
 
 script:
-    - find src/ -type f -wholename */test/test*.py -exec python {} \;
+    - for path in "$(find src/ -type f -wholename '*/test/test*'.py)";do python $path || exit 1; done;
 
 notifications:
     email: false

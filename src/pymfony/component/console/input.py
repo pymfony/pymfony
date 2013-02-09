@@ -999,7 +999,7 @@ class InputDefinition(Object):
         if asDom:
             return dom;
         else:
-            return dom.toprettyxml(self.XML_INDENT, self.XML_NL, self.XML_CHARSET);
+            return str(dom.toprettyxml(self.XML_INDENT, self.XML_NL, self.XML_CHARSET));
 
 
     def __formatDefaultValue(self, default):
@@ -1162,7 +1162,7 @@ class InputOption(Object):
             if (None is default) :
                 default = list();
             elif isinstance(default, dict) :
-                default = default.values();
+                default = list(default.values());
             elif ( not isinstance(default, list)) :
                 raise LogicException('A default value for an array option must be a list or dict.');
 
