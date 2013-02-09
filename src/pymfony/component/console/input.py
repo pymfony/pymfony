@@ -594,7 +594,7 @@ class InputDefinition(Object):
         """
 
         if self.__hasAnArrayArgument:
-            return sys.maxint;
+            return sys.maxsize;
         else:
             return len(self.__arguments);
 
