@@ -244,3 +244,7 @@ class TestEventSubscriberWithMultipleListeners(EventSubscriberInterface):
             ['preFoo1'],
             ['preFoo2', 10],
         ]};
+
+
+if __name__ == '__main__':
+    unittest.main();
