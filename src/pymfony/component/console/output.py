@@ -371,7 +371,7 @@ class StreamOutput(Output):
 
         self.__stream = None;
 
-        for method in ['flush', 'write']:
+        for method in ['flush', 'write', 'isatty']:
             if not Tool.isCallable(getattr(stream, method, None)):
                 raise InvalidArgumentException(
                     'The StreamOutput class needs a stream as its first '
@@ -443,7 +443,7 @@ class StreamOutput(Output):
                 'ConEmuANSI' in os.environ and os.environ['ConEmuANSI'] == 'ON'
             );
 
-        return os.isatty(self.__stream);
+        return self.__stream.isatty();
         # @codeCoverageIgnoreEnd
 
 
