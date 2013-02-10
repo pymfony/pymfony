@@ -140,7 +140,7 @@ class ConsoleOutputInterface(OutputInterface):
 
 @abstract
 class Output(OutputInterface):
-    """Base class for(, output classes.):
+    """Base class for output classes.
  *
  * There are three levels of verbosity:
  *
@@ -255,11 +255,12 @@ class Output(OutputInterface):
         return self.__verbosity;
 
 
-    def writeln(self, messages, outputType = 0):
+    def writeln(self, messages, outputType = OutputInterface.OUTPUT_NORMAL):
         """Writes a message to the output and adds a newline at the end.
      *
-     * @param string|array messages The message as an array of lines of a single string
-     * @param integer      type     The type of output
+     * @param string|list messages    The message as an array of lines of a
+                                      single string
+     * @param integer     outputType  The type of output
      *
      * @api
 
@@ -268,7 +269,7 @@ class Output(OutputInterface):
         self.write(messages, True, outputType);
 
 
-    def write(self, messages, newline = False, outputType = 0):
+    def write(self, messages, newline = False, outputType = OutputInterface.OUTPUT_NORMAL):
         """Writes a message to the output.
      *
      * @param string|list messages The message as a list of lines of a single string

@@ -10,3 +10,276 @@
 
 from __future__ import absolute_import;
 
+from pymfony.component.system import Object;
+from pymfony.component.system import final;
+from pymfony.component.system.exception import LogicException;
+from pymfony.component.console import Response;
+from pymfony.component.console import Request;
+from pymfony.component.dispatcher import EventDispatcherInterface;
+from pymfony.component.clikernel.exception import CliExceptionInterface;
+from pymfony.component.clikernel.exception import NotFoundCliException;
+from pymfony.component.clikernel.controller import ControllerResolverInterface
+from pymfony.component.clikernel.event import PostResponseEvent
+from pymfony.component.clikernel.event import GetResponseEvent
+from pymfony.component.clikernel.event import FilterControllerEvent
+from pymfony.component.clikernel.event import GetResponseForControllerResultEvent
+from pymfony.component.clikernel.event import FilterResponseEvent
+from pymfony.component.clikernel.event import GetResponseForExceptionEvent
+from pymfony.component.clikernel.interface import CliTerminableInterface;
+from pymfony.component.clikernel.interface import CliKernelInterface;
+
+
+@final
+class CliKernelEvents(Object):
+    # The REQUEST event occurs at the very beginning of request dispatching
+    #
+    # This event allows you to create a response for a request before any
+    # other code in the framework is executed. The event listener method
+    # receives a pymfony.component.clikernel.event.GetResponseEvent instance.
+    REQUEST = 'cli_kernel.request';
+
+    # The EXCEPTION event occurs when an uncaught exception appears
+    #
+    # This event allows you to create a response for a raise exception or
+    # to modify the raise exception. The event listener method receives
+    # a pymfony.component.clikernel.event.GetResponseForExceptionEvent instance.
+    EXCEPTION = 'cli_kernel.exception';
+
+    # The CONTROLLER event occurs once a controller was found for
+    # handling a output
+    #
+    # This event allows you to change the controller that will handle the
+    # response. The event listener method receives a
+    # pymfony.component.clikernel.event.FilterControllerEvent instance.
+    CONTROLLER = 'cli_kernel.controller';
+
+    # The VIEW event occurs when the return value of a controller
+    # is not a Response instance.
+    #
+    # This event allows you to create a response for the return value of the
+    # controller. The event listener method receives a
+    # pymfony.component.clikernel.event.GetResponseForControllerResultEvent
+    # instance.
+    VIEW = 'cli_kernel.view';
+
+    # The RESPONSE event occurs once a response was created for
+    # replying to a response
+    #
+    # This event allows you to modify or replace the response that will be
+    # replied. The event listener method receives a
+    # pymfony.component.clikernel.event.FilterResponseEvent instance.
+    RESPONSE = 'cli_kernel.response';
+
+    # The TERMINATE event occurs once a response was sent
+    #
+    # This event allows you to run expensive post-response jobs.
+    # The event listener method receives a
+    # pymfony.component.clikernel.event.PostResponseEvent instance.
+    TERMINATE = 'cli_kernel.terminate';
+
+
+
+class CliKernel(CliKernelInterface, CliTerminableInterface):
+    """CliKernel notifies events to convert a Request object to a Response one.:
+ *
+ * @author Fabien Potencier <fabien@symfony.com>
+ *
+ * @api
+
+    """
+
+    def __init__(self, dispatcher, resolver):
+        """Constructor
+     *
+     * @param EventDispatcherInterface    dispatcher An EventDispatcherInterface instance
+     * @param ControllerResolverInterface resolver   A ControllerResolverInterface instance
+     *
+     * @api
+
+        """
+        assert isinstance(resolver, ControllerResolverInterface);
+        assert isinstance(dispatcher, EventDispatcherInterface);
+
+        self._dispatcher = None;
+        self._resolver = None;
+
+        self._dispatcher = dispatcher;
+        self._resolver = resolver;
+
+
+    def handle(self, request, requestType = CliKernelInterface.MASTER_REQUEST, catch = True):
+        """Handles a Request to convert it to a Response.
+     *
+     * When catch is True, the implementation must catch all exceptions
+     * and do its best to convert them to a Response instance.
+     *
+     * @param Request request   A Request instance
+     * @param integer   type      The type of the request
+     *                            (one of CliKernelInterface.MASTER_REQUEST
+                                  or CliKernelInterface.SUB_REQUEST)
+     * @param Boolean   catch     Whether to catch exceptions or not
+     *
+     * @return Response A Response instance
+     *
+     * @raise Exception When an Exception occurs during processing
+     *
+     * @api
+
+        """
+        assert isinstance(request, Request);
+
+        try:
+            return self.__handleRaw(request, requestType);
+        except Exception as e:
+            if (False is catch) :
+                raise e;
+
+
+            return self.__handleException(e, request, requestType);
+
+
+
+    def terminate(self, request, response):
+        """@inheritdoc
+     *
+     * @api
+
+        """
+        assert isinstance(response, Response);
+        assert isinstance(request, Request);
+
+        self._dispatcher.dispatch(
+            CliKernelEvents.TERMINATE,
+            PostResponseEvent(self, request, response)
+        );
+
+
+    def __handleRaw(self, request, requestType = CliKernelInterface.MASTER_REQUEST):
+        """Handles a request to convert it to a response.
+     *
+     * Exceptions are not caught.
+     *
+     * @param Request request A Request instance
+     * @param integer type    The type of the request (one of CliKernelInterface.MASTER_REQUEST or CliKernelInterface.SUB_REQUEST)
+     *
+     * @return Response A Response instance
+     *
+     * @raise LogicException If one of the listener does not behave as expected
+     * @raise NotFoundCliException When controller cannot be found
+
+        """
+        assert isinstance(request, Request);
+
+        # request
+        event = GetResponseEvent(self, request, requestType);
+        self._dispatcher.dispatch(CliKernelEvents.REQUEST, event);
+
+        if (event.hasResponse()) :
+            return self.__filterResponse(event.getResponse(), request, requestType);
+
+
+        # load controller
+        controller = self._resolver.getController(request);
+        if (False is controller) :
+            raise NotFoundCliException(
+                'Unable to find the controller for path "{0}". Maybe you '
+                'forgot to add the matching route in your routing '
+                'configuration?'.format(request.getCommand())
+            );
+
+
+        event = FilterControllerEvent(self, controller, request, requestType);
+        self._dispatcher.dispatch(CliKernelEvents.CONTROLLER, event);
+        controller = event.getController();
+
+        # controller arguments
+        arguments = self._resolver.getArguments(request, controller);
+
+        # call controller
+        response = controller(*arguments);
+
+        # view
+        if ( not isinstance(response, Response)) :
+            event = GetResponseForControllerResultEvent(self, request, requestType, response);
+            self._dispatcher.dispatch(CliKernelEvents.VIEW, event);
+
+            if (event.hasResponse()) :
+                response = event.getResponse();
+
+
+            if ( not isinstance(response, Response)) :
+                msg = 'The controller must return a response ({0} given).'
+                ''.format(repr(response));
+
+                # the user may have forgotten to return something
+                if (None is response) :
+                    msg += ' Did you forget to add a return statement '
+                    'somewhere in your controller?';
+
+                raise LogicException(msg);
+
+
+
+        return self.__filterResponse(response, request, requestType);
+
+
+    def __filterResponse(self, response, request, requestType):
+        """Filters a response object.
+     *
+     * @param Response   response   A Response instance
+     * @param Request  request  A error message in case the response is
+                                    not a Response object
+     * @param integer    requestType  The type of the input (one of
+                                    CliKernelInterface.MASTER_REQUEST or
+                                    CliKernelInterface.SUB_REQUEST)
+     *
+     * @return Response The filtered Response instance
+     *
+     * @raise RuntimeException if the passed object is not a Response instance:
+
+        """
+        assert isinstance(request, Request);
+        assert isinstance(response, Response);
+
+        event = FilterResponseEvent(self, request, requestType, response);
+
+        self._dispatcher.dispatch(CliKernelEvents.RESPONSE, event);
+
+        return event.getResponse();
+
+
+    def __handleException(self, e, request, requestType):
+        """Handles and exception by trying to convert it to a Response.
+     *
+     * @param Exception  e          An Exception instance
+     * @param Request    request  A Request instance
+     * @param integer    requestType  The type of the request
+     *
+     * @return Response A Response instance
+     *
+     * @raise Exception
+
+        """
+        assert isinstance(e, Exception);
+
+        event = GetResponseForExceptionEvent(self, request, requestType, e);
+        self._dispatcher.dispatch(CliKernelEvents.EXCEPTION, event);
+
+        # a listener might have replaced the exception
+        e = event.getException();
+
+        if ( not event.hasResponse()) :
+            raise e;
+
+        response = event.getResponse();
+
+        if (isinstance(e, CliExceptionInterface)) :
+            # keep the CLI status code
+            response.setStatusCode(e.getStatusCode());
+        else:
+            response.setStatusCode(1);
+
+        try:
+            return self.__filterResponse(response, request, requestType);
+        except Exception as e:
+            return response;

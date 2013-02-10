@@ -1,0 +1,30 @@
+{
+	"parameters": {
+		"cli_kernel.class": "pymfony.component.clikernel.CliKernel",
+		"cli.controller_resolver.class": "pymfony.component.clikernel.controller.ControllerResolver",
+		"cli.router_listener.class": "pymfony.component.clikernel.listener.RouterListener"
+	},
+	"services": {
+		"cli.controller_resolver": {
+			"class": "%cli.controller_resolver.class%",
+			"arguments": [
+			]
+		},
+		"cli_kernel": {
+			"class": "%cli_kernel.class%",
+			"arguments": [
+				"@event_dispatcher",
+				"@cli.controller_resolver"
+			]
+		},
+		"cli.router_listener": {
+			"class": "%cli.router_listener.class%",
+			"tags": [
+				{"name": "kernel.event_subscriber"}
+			],
+			"arguments": [
+				"@service_container"
+			]
+		}
+	}
+}

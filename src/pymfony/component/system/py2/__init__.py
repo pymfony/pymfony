@@ -208,7 +208,6 @@ class Tool(Object):
         head = head2 or head;
         return head, tail;
 
-
     @classmethod
     def stripcslashes(cls, string):
         HEXA = '0123456789abcdefABCDEF';
@@ -265,14 +264,28 @@ class Tool(Object):
 
 class ReflectionClass(Object):
     def __init__(self, argument):
-        assert issubclass(argument, object);
-        self._class = argument;
+        if isinstance(argument, basestring):
+            qualClassName = argument;
+            argument = ClassLoader.load(argument);
 
-        self._fileName = None;
-        self._mro = None;
-        self._namespaceName = None;
-        self._name = None;
-        self._parentClass = None;
+        if argument is not False:
+            assert issubclass(argument, object);
+            self.__exists = True;
+            self._class = argument;
+            self._fileName = None;
+            self._mro = None;
+            self._namespaceName = None;
+            self._parentClass = None;
+            self._name = None;
+        else:
+            self.__exists = False;
+            self._name = qualClassName;
+            self._fileName = '';
+            self._mro = tuple();
+            self._namespaceName = Tool.split(qualClassName)[0];
+            self._parentClass = False;
+            self._class = None;
+
 
     def getFileName(self):
         if self._fileName is not None:
@@ -311,8 +324,33 @@ class ReflectionClass(Object):
             self._name = self.getNamespaceName()+'.'+str(self._class.__name__);
         return self._name;
 
+    def exists(self):
+        return self.__exists;
+
+    def newInstance(self, *args, **kargs):
+        return self._class(*args, **kargs);
+
+
 class ReflectionObject(ReflectionClass):
     def __init__(self, argument):
         assert isinstance(argument, Object);
         ReflectionClass.__init__(self, argument.__class__);
 
+
+class ClassLoader(Object):
+    __classes = {};
+    @classmethod
+    def load(cls, qualClassName):
+        if qualClassName in cls.__classes:
+            return cls.__classes[qualClassName];
+
+        moduleName, className = Tool.split(qualClassName);
+        try:
+            module = __import__(moduleName, globals(), {}, [className], 0);
+        except TypeError:
+            module = __import__(moduleName, globals(), {}, ["__init__"], 0);
+        classType = getattr(module, className, False);
+
+        cls.__classes[qualClassName] = classType;
+
+        return classType;

@@ -17,6 +17,7 @@ import os.path as op;
 from pymfony.component.kernel import Kernel;
 from pymfony.component.config import FileLocator;
 from pymfony.bundle.framework import FrameworkBundle;
+from pymfony.component.console import Request
 
 
 class AppKernel(Kernel):
@@ -37,11 +38,13 @@ class AppKernel(Kernel):
 class Test(unittest.TestCase):
     def setUp(self):
         self._kernel = AppKernel("test", True);
-        self._kernel.boot();
+        self._request = Request.create(["script", "command"]);
+        self._response = self._kernel.getCliKernel().handle(self._request);
         self.container = self._kernel.getContainer();
 
-
     def tearDown(self):
+        self._response.send();
+        self._kernel.getCliKernel().terminate(self._request, self._response);
         self._kernel.shutdown();
 
 
@@ -49,8 +52,8 @@ class Test(unittest.TestCase):
         currdir = op.realpath(op.dirname(__file__));
         formater = lambda v: op.normpath(op.normcase(op.realpath(v)));
         values = {
-            "@/Resources/config/config.ini": op.join(
-                currdir, "Resources/config/config.ini"
+            "@/Resources/config/config.json": op.join(
+                currdir, "Resources/config/config.json"
             ),
             "Resources/config": op.join(currdir, "Resources/config"),
         };

@@ -259,7 +259,7 @@ class Input(InputInterface):
     def getArguments(self):
         """Returns the argument values.
      *
-     * @return array An array of argument values
+     * @return dict An array of argument values
 
         """
         args = dict();
@@ -325,7 +325,7 @@ class Input(InputInterface):
     def getOptions(self):
         """Returns the options values.
      *
-     * @return array An array of option values
+     * @return dict An array of option values
 
         """
         args = dict();

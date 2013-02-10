@@ -130,6 +130,7 @@ class StreamOutputTest(unittest.TestCase):
 
     def tearDown(self):
 
+        self.stream.close();
         self.stream = None;
 
 

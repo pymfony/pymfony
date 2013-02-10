@@ -148,15 +148,6 @@ class TestReflextion(unittest.TestCase, Object):
     def testGetmro(self):
         self.assertEqual(self.__class__.__mro__, self.subject.getmro());
 
-
-class testException(unittest.TestCase):
-    def testConstructor(self):
-        e = StandardException("message", 1);
-        self.assertEqual(e.getMessage(), "message");
-        self.assertEqual(e.getCode(), 1);
-        self.assertEqual(e.getLine(), 154);
-        self.assertEqual(e.getFile(), inspect.getsourcefile(self.__class__));
-
 class testTool(unittest.TestCase):
     def testStripcslashes(self):
         self.assertEqual(Tool.stripcslashes('\H\e\l\l\o \W\or\l\d'), "Hello World")

@@ -233,5 +233,5 @@ class FileLoader(Loader):
                 # prevent embedded imports from nesting multiple exceptions
                 if isinstance(e, FileLoaderLoadException):
                     raise e;
-                raise FileLoaderLoadException(resource, sourceResource, None, e);
+                raise FileLoaderLoadException(resource, sourceResource, 0, e);
 

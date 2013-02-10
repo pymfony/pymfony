@@ -20,6 +20,7 @@ __all__ = [
     'abstract',
     'interface',
     'Object',
+    'final',
 ];
 
 
@@ -142,12 +143,15 @@ class CountableInterface(Object):
 @abstract
 class Array(Object):
     @classmethod
-    def toDict(cls, l):
+    def toDict(cls, l, strKeys=False):
         assert isinstance(l, list);
         d = dict();
         i = 0;
         for i in range(len(l)):
-            d[i] = l[i];
+            if strKeys:
+                d[str(i)] = l[i];
+            else:
+                d[i] = l[i];
             i = i + 1;
         return d;
 

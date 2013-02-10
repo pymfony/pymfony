@@ -16,7 +16,7 @@ class FileLoaderLoadException(StandardException):
     """Exception class for when a resource cannot be loaded or imported.
     """
 
-    def __init__(self, resource, sourceResource=None, code=None, previous=None):
+    def __init__(self, resource, sourceResource=None, code=0, previous=None):
         if sourceResource is None:
             message = 'Cannot load resource "{0}".'.format(repr(resource));
         else:
@@ -43,7 +43,8 @@ class FileLoaderImportCircularReferenceException(FileLoaderLoadException):
         """
         assert isinstance(resources, list);
 
-        message = 'Circular reference detected in "%s" ("%s" > "%s").'
-        ''.format(repr(resources[0], " > ".join(resources), resources[0]));
+        message = ('Circular reference detected in "{0}" ("{1}" > "{2}").'
+        ''.format(repr(resources[0]), " > ".join(resources), repr(resources[0])
+        ));
 
         StandardException.__init__(self, message, code, previous);

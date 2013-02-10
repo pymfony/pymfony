@@ -141,7 +141,11 @@ class JsonFileLoader(FileLoader):
         s = f.read();
         f.close();
         del f;
-        result = json.loads(s);
+
+        try:
+            result = json.loads(s);
+        except ValueError as e:
+            raise InvalidArgumentException(e);
 
         return self.__validate(result, filename);
 

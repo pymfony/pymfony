@@ -41,7 +41,7 @@ packages = [
 ];
 
 resource_patterns = [
-    "Resources/config/services.*",
+    "Resources/config/*.*",
 ];
 
 classifiers = [

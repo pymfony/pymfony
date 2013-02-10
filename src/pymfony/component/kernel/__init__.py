@@ -325,7 +325,7 @@ class Kernel(KernelInterface):
                     hierarchy.append(name);
 
                 for name in hierarchy:
-                    self._bundleMap[name] = bundleMap;
+                    self._bundleMap[name] = list(bundleMap);
                     bundleMap.pop();
 
 
@@ -576,3 +576,8 @@ class Kernel(KernelInterface):
 
     def getCharset(self):
         return 'UTF-8';
+
+    def getCliKernel(self):
+        if not self._booted:
+            self.boot();
+        return self._container.get('cli_kernel');

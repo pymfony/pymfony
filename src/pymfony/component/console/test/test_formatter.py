@@ -131,8 +131,8 @@ class OutputFormatterStyleStackTest(unittest.TestCase):
         s3 = OutputFormatterStyle('green', 'red');
         stack.push(s3);
 
-        self.assertEquals(s2, stack.pop(s2));
-        self.assertEquals(s1, stack.pop());
+        self.assertEqual(s2, stack.pop(s2));
+        self.assertEqual(s1, stack.pop());
 
 
     def testInvalidPop(self):
