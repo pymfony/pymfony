@@ -393,7 +393,7 @@ class BaseNode(NodeInterface):
             except Exception as invalid:
                 raise InvalidConfigurationException(
                     'Invalid configuration for path "{0}": {1}'
-                    ''.format(self.getPath(), invalid.message),
+                    ''.format(self.getPath(), str(invalid)),
                     previous=invalid
                 );
         return value;
@@ -877,7 +877,7 @@ class PrototypedArrayNode(ArrayNode):
                 default = list();
 
             defaults = dict();
-            values = self._defaultChildren.values();
+            values = list(self._defaultChildren.values());
             for i in range(len(values)):
                 if self._keyAttribute is None:
                     key = i;
@@ -1034,3 +1034,362 @@ class PrototypedArrayNode(ArrayNode):
             leftSide[k] = self._prototype.merge(leftSide[k], v);
 
         return leftSide;
+
+
+
+class EnumNode(ScalarNode):
+    """Node which only allows a finite set of values.
+ *
+ * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
+
+
+    def __init__(self, name, parent = None, values = list()):
+        assert isinstance(values, list);
+        if parent:
+            assert isinstance(parent, NodeInterface);
+
+        self.__values = None;
+
+        values = Array.uniq(values);
+        if (len(values) <= 1) :
+            raise InvalidArgumentException('values must contain at least two distinct elements.');
+
+
+        ScalarNode.__init__(self, name, parent);
+        self.__values = values;
+
+
+    def getValues(self):
+
+        return self.__values;
+
+
+    def _finalizeValue(self, value):
+
+        value = ScalarNode.finalizeValue(self, value);
+
+        if value not in self.__values :
+            ex = InvalidConfigurationException(
+                'The value {0} is not allowed for path "{1}". Permissible '
+                'values: {2}'.format(
+                json.dumps(value),
+                self.getPath(),
+                ', '.join(map(json.dumps, self.__values))));
+            ex.setPath(self.getPath());
+
+            raise ex;
+
+
+        return value;
+
+
+
+
+class NumericNode(ScalarNode):
+    """This node represents a numeric value in the config tree
+ *
+ * @author David Jeanmonod <david.jeanmonod@gmail.com>
+
+    """
+
+
+    def __init__(self, name, parent = None, minValue = None, maxValue = None):
+        if parent is not None:
+            assert isinstance(parent, NodeInterface);
+
+        self._min = None;
+        self._max = None;
+
+        ScalarNode.__init__(self, name, parent);
+        self._min = minValue;
+        self._max = maxValue;
+
+
+    def _finalizeValue(self, value):
+        """@inheritDoc
+
+        """
+
+        value = ScalarNode._finalizeValue(self, value);
+
+        errorMsg = None;
+        if (self._min and value < self._min) :
+            errorMsg = (
+                'The value {0} is too small for path "{1}". Should be '
+                'greater than: {2}'.format(value, self.getPath(), self._min)
+            );
+
+        if (self._max and value > self._max) :
+            errorMsg = (
+                'The value {0} is too big for path "{1}". Should be less '
+                'than: {2}'.format(value, self.getPath(), self._max)
+            );
+
+        if errorMsg :
+            ex = InvalidConfigurationException(errorMsg);
+            ex.setPath(self.getPath());
+            raise ex;
+
+
+        return value;
+
+
+class IntegerNode(NumericNode):
+    """This node represents an integer value in the config tree.
+ *
+ * @author Jeanmonod David <david.jeanmonod@gmail.com>
+
+    """
+
+    def _validateType(self, value):
+        """@inheritDoc
+
+        """
+
+        if ( not isinstance(value, int)) :
+            ex = InvalidTypeException(
+                'Invalid type for path "{0}". Expected int, but got {1}.'
+                ''.format(self.getPath(), type(value))
+            );
+            ex.setPath(self.getPath());
+
+            raise ex;
+
+
+
+class FloatNode(NumericNode):
+    """This node represents a float value in the config tree.
+ *
+ * @author Jeanmonod David <david.jeanmonod@gmail.com>
+
+    """
+
+    def _validateType(self, value):
+        """@inheritDoc
+
+        """
+
+        # Integers are also accepted, we just cast them
+        if (isinstance(value, int)) :
+            value = float(value);
+
+
+        if ( not isinstance(value, float)) :
+            ex = InvalidTypeException(
+                'Invalid type for path "{0}". Expected float, but got {1}.'
+                ''.format(self.getPath(), type(value))
+            );
+            ex.setPath(self.getPath());
+
+            raise ex;
+
+
+
+
+class ReferenceDumper(Object):
+    """Dumps a reference configuration for the given configuration/node instance.
+ *
+ * Currently, only YML format is supported.
+ *
+ * @author Kevin Bond <kevinbond@gmail.com>
+
+    """
+
+    def __init__(self):
+        self.__reference = None;
+
+    def dump(self, configuration):
+        assert isinstance(configuration, ConfigurationInterface);
+
+        return self.dumpNode(configuration.getConfigTreeBuilder().buildTree());
+
+
+    def dumpNode(self, node):
+        assert isinstance(node, NodeInterface);
+
+        self.__reference = '';
+        self.__writeNode(node);
+        ref = self.__reference;
+        self.__reference = None;
+
+        return ref;
+
+
+    def __writeNode(self, node, depth = 0):
+        """@param NodeInterface node
+     * @param integer       depth
+
+        """
+        assert isinstance(node, NodeInterface);
+
+        comments = list();
+        default = '';
+        defaultArray = None;
+        children = None;
+        example = node.getExample();
+
+        # defaults
+        if (isinstance(node, ArrayNode)) :
+            children = node.getChildren();
+
+            if (isinstance(node, PrototypedArrayNode)) :
+                prototype = node.getPrototype();
+
+                if (isinstance(prototype, ArrayNode)) :
+                    children = prototype.getChildren();
+
+
+                # check for attribute as key
+                key = node.getKeyAttribute();
+                if (key) :
+                    keyNode = ArrayNode(key, node);
+                    keyNode.setInfo('Prototype');
+
+                    # add children
+                    for childNode in children.values():
+                        keyNode.addChild(childNode);
+
+                    children = {key: keyNode};
+
+
+
+            if ( not children) :
+                defaultArray = node.getDefaultValue();
+                if (node.hasDefaultValue() and len(defaultArray)) :
+                    default = '';
+                elif not isinstance(example, (list, dict)) :
+                    default = '[]';
+
+
+        else :
+            default = '~';
+
+            if (node.hasDefaultValue()) :
+                default = node.getDefaultValue();
+
+                if (True is default) :
+                    default = 'True';
+                elif (False is default) :
+                    default = 'False';
+                elif (None is default) :
+                    default = '~';
+                elif isinstance(default, (list, dict)) :
+                    defaultArray = node.getDefaultValue();
+                    if (node.hasDefaultValue() and len(defaultArray)) :
+                        default = '';
+                    elif not isinstance(example, (list, dict)) :
+                        default = '[]';
+
+
+
+
+
+        # required?
+        if (node.isRequired()) :
+            comments.append('Required');
+
+
+        # example
+        if example and  not isinstance(example, (list, dict)) :
+            comments.append('Example: '+example);
+
+
+        if default != '':
+            default = ' '+default;
+        else:
+            default = '';
+        default = str(default);
+
+        if comments:
+            comments = '# '+', '.join(comments);
+        else:
+            comments = '';
+
+        text = '{0:20} {1} {2}'.format(node.getName()+':', default, comments);
+
+        info = node.getInfo()
+        if info :
+            self.__writeLine('');
+            self.__writeLine('# '+info, depth * 4);
+
+
+        self.__writeLine(text, depth * 4);
+
+        # output defaults
+        if (defaultArray) :
+            self.__writeLine('');
+
+            if len(defaultArray) > 1:
+                message = 'Defaults';
+            else:
+                message = 'Default';
+
+            self.__writeLine('# '+message+':', depth * 4 + 4);
+
+            self.__writeArray(defaultArray, depth + 1);
+
+
+        if (isinstance(example, (list, dict))) :
+            self.__writeLine('');
+
+            if len(example) > 1:
+                message = 'Examples'
+            else:
+                message = 'Example';
+
+            self.__writeLine('# '+message+':', depth * 4 + 4);
+
+            self.__writeArray(example, depth + 1);
+
+
+        if (children) :
+            for childNode in children.values():
+                self.__writeNode(childNode, depth + 1);
+
+
+
+
+    def __writeLine(self, text, indent = 0):
+        """Outputs a single config reference line
+     *
+     * @param string text
+     * @param int    indent
+
+        """
+
+        indent = len(text) + indent;
+        formatString = '{0:>'+indent+'}';
+
+        self.reference += formatString.format(text)+"\n";
+
+
+    def __writeArray(self, array, depth):
+        assert isinstance(array, (list, dict));
+
+        isIndexed = False;
+        if isinstance(array, dict):
+            for key in array.keys():
+                if not isinstance(key, int):
+                    isIndexed = False;
+                    break;
+        else:
+            isIndexed = True;
+            array = Array.toDict(array);
+
+        for key, value in array.items():
+            if isinstance(value, (list, dict)) :
+                val = '';
+            else :
+                val = value;
+
+
+            if (isIndexed) :
+                self.__writeLine('- '+val, depth * 4);
+            else :
+                self.__writeLine('{0:20} {1}'.format( key+':', val), depth * 4);
+
+
+            if isinstance(value, (list, dict)) :
+                self.__writeArray(value, depth + 1);

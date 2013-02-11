@@ -14,6 +14,7 @@ import sys;
 if sys.version_info[0] >= 3:
     basestring = str;
 
+from pymfony.component.system import Array
 from pymfony.component.system import (
     Object,
     abstract,
@@ -24,6 +25,9 @@ from pymfony.component.system.exception import (
     InvalidArgumentException,
     RuntimeException,
 );
+from pymfony.component.config.definition import FloatNode
+from pymfony.component.config.definition import IntegerNode
+from pymfony.component.config.definition import EnumNode
 from pymfony.component.config.definition import (
     ArrayNode,
     PrototypedArrayNode,
@@ -99,6 +103,31 @@ class NodeDefinition(NodeParentInterface):
         assert isinstance(parent, NodeParentInterface);
         self._parent = parent;
         return self;
+
+
+    def info(self, info):
+        """Sets info message.
+     *
+     * @param string info The info text
+     *
+     * @return NodeDefinition
+
+        """
+
+        return self.attribute('info', info);
+
+
+    def example(self, example):
+        """Sets example configuration.
+     *
+     * @param string|array example
+     *
+     * @return NodeDefinition
+
+        """
+
+        return self.attribute('example', example);
+
 
     def attribute(self, key, value):
         """Sets an attribute on the node.
@@ -348,7 +377,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
 
         @return: ArrayNodeDefinition
         """
-        self._addDefaultChildren = True;
+        self._addDefaultChildren = children;
         return self;
 
     def requiresAtLeastOneElement(self):
@@ -710,7 +739,7 @@ class ExprBuilder(Object):
 
         @return: ExprBuilder
         """
-        self.ifPart = lambda v: v in dict(target).values();
+        self.ifPart = lambda v: v in Array.toDict(target).values();
         return self;
 
     def ifNotInArray(self, target):
@@ -720,7 +749,7 @@ class ExprBuilder(Object):
 
         @return: ExprBuilder
         """
-        self.ifPart = lambda v: v not in dict(target).values();
+        self.ifPart = lambda v: v not in Array.toDict(target).values();
         return self;
 
     def then(self, closure):
@@ -734,7 +763,7 @@ class ExprBuilder(Object):
         self.thenPart = closure;
         return self;
 
-    def ThenEmptyArray(self):
+    def thenEmptyArray(self):
         """Sets a closure returning an empty array.
 
         @return: ExprBuilder
@@ -795,10 +824,11 @@ class ExprBuilder(Object):
         """
         expressions = list(expressions);
         for i in range(len(expressions)):
-            if isinstance(expressions[i], ExprBuilder):
+            call = expressions[i];
+            if isinstance(call, ExprBuilder):
                 def closure(v):
-                    if expressions[i].ifPart(v):
-                        return expressions[i].thenPart(v);
+                    if call.ifPart(v):
+                        return call.thenPart(v);
                     else:
                         return v;
                 expressions[i] = closure;
@@ -849,9 +879,12 @@ class NodeBuilder(NodeParentInterface):
         self._parent = None;
         self._nodeMapping = {
             'variable'  : __name__ + '.VariableNodeDefinition',
-            'array'     : __name__ + '.ArrayNodeDefinition',
             'scalar'    : __name__ + '.ScalarNodeDefinition',
             'boolean'   : __name__ + '.BooleanNodeDefinition',
+            'integer'   : __name__ + '.IntegerNodeDefinition',
+            'float'   : __name__ + '.FloatNodeDefinition',
+            'array'     : __name__ + '.ArrayNodeDefinition',
+            'enum'   : __name__ + '.EnumNodeDefinition',
         };
 
     def setParent(self, parent=None):
@@ -893,6 +926,52 @@ class NodeBuilder(NodeParentInterface):
         """
         return self.node(name, 'boolean');
 
+    def integerNode(self, name):
+        """Creates a child integer node.
+     *
+     * @param string name the name of the node
+     *
+     * @return IntegerNodeDefinition The child node
+
+        """
+
+        return self.node(name, 'integer');
+
+
+    def floatNode(self, name):
+        """Creates a child float node.
+     *
+     * @param string name the name of the node
+     *
+     * @return FloatNodeDefinition The child node
+
+        """
+
+        return self.node(name, 'float');
+
+
+    def enumNode(self, name):
+        """Creates a child EnumNode.
+     *
+     * @param string name
+     *
+     * @return EnumNodeDefinition
+
+        """
+
+        return self.node(name, 'enum');
+
+
+    def variableNode(self, name):
+        """Creates a child variable node.
+     *
+     * @param string name The name of the node
+     *
+     * @return VariableNodeDefinition The builder of the child node
+
+        """
+
+        return self.node(name, 'variable');
 
     def end(self):
         """Returns the parent node.
@@ -912,7 +991,7 @@ class NodeBuilder(NodeParentInterface):
         @raise RuntimeException: When the node type is not registered
         @raise RuntimeException: When the node class is not found
         """
-        qualClassName = self.getNodeClass(nodeType);
+        qualClassName = self._getNodeClass(nodeType);
 
         moduleName, className = Tool.split(qualClassName);
         try:
@@ -958,7 +1037,7 @@ class NodeBuilder(NodeParentInterface):
 
         return self;
 
-    def getNodeClass(self, nodeType):
+    def _getNodeClass(self, nodeType):
         """Returns the class name of the node definition.
 
         @param nodeType: string The node type
@@ -982,6 +1061,10 @@ class NodeBuilder(NodeParentInterface):
             module = __import__(moduleName, globals(), {}, [className], 0);
         except TypeError:
             module = __import__(moduleName, globals(), {}, ["__init__"], 0);
+        except ImportError:
+            raise RuntimeException(
+                'The node class "{0}" does not exist.'.format(nodeClass)
+            );
         if not hasattr(module, className):
             raise RuntimeException(
                 'The node class "{0}" does not exist.'.format(nodeClass)
@@ -1146,3 +1229,143 @@ class ValidationBuilder(Object):
             return self;
         self.rules.append(ExprBuilder(self._node));
         return self.rules[-1];
+
+
+
+class EnumNodeDefinition(ScalarNodeDefinition):
+    """Enum Node Definition.
+ *
+ * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
+
+    def __init__(self, name, parent=None):
+        ScalarNodeDefinition.__init__(self, name, parent=parent);
+        self.__values = None;
+
+    def values(self, values):
+        assert isinstance(values, list);
+
+        values = Array.uniq(values);
+
+        if (len(values) <= 1) :
+            raise InvalidArgumentException('.values() must be called with at least two distinct values.');
+
+
+        self.__values = values;
+
+        return self;
+
+
+    def _instantiateNode(self):
+        """Instantiate a Node
+     *
+     * @return EnumNode The node
+     *
+     * @raise RuntimeException
+
+        """
+
+        if (None is self.__values) :
+            raise RuntimeException('You must call .values() on enum nodes.');
+
+
+        return EnumNode(self._name, self._parent, self.__values);
+
+
+
+
+@abstract
+class NumericNodeDefinition(ScalarNodeDefinition):
+    """Abstract class that(, contain common code of integer and float node definition.):
+ *
+ * @author David Jeanmonod <david.jeanmonod@gmail.com>
+
+    """
+    def __init__(self, name, parent=None):
+        ScalarNodeDefinition.__init__(self, name, parent=parent)
+        self._min = None;
+        self._max = None;
+
+    def max(self, maxValue):
+        """Ensures that the value is smaller than the given reference.
+     *
+     * @param mixed maxValue
+     *
+     * @return NumericNodeDefinition
+     *
+     * @raise InvalidArgumentException when the constraint is inconsistent
+
+        """
+
+        if (self._min and self._min > maxValue) :
+            raise InvalidArgumentException(
+                'You cannot define a max({0}) as you already have a min({1})'
+                ''.format(maxValue, self._min)
+            );
+
+        self._max = maxValue;
+
+        return self;
+
+
+    def min(self, minValue):
+        """Ensures that the value is bigger than the given reference.
+     *
+     * @param mixed minValue
+     *
+     * @return NumericNodeDefinition
+     *
+     * @raise InvalidArgumentException when the constraint is inconsistent
+
+        """
+
+        if (self._max and self._max < minValue) :
+            raise InvalidArgumentException(
+                'You cannot define a min({0}) as you already have a max({1})'
+                ''.format(minValue, self._max)
+            );
+
+        self._min = minValue;
+
+        return self;
+
+
+
+
+class IntegerNodeDefinition(NumericNodeDefinition):
+    """This class provides(, a fluent interface for defining an integer node.):
+ *
+ * @author Jeanmonod David <david.jeanmonod@gmail.com>
+
+    """
+
+    def _instantiateNode(self):
+        """Instantiates a Node.
+     *
+     * @return IntegerNode The node
+
+        """
+
+        return IntegerNode(self._name, self._parent, self._min, self._max);
+
+
+
+
+class FloatNodeDefinition(NumericNodeDefinition):
+    """This class provides a fluent interface for defining a float node.):
+ *
+ * @author Jeanmonod David <david.jeanmonod@gmail.com>
+
+    """
+
+    def _instantiateNode(self):
+        """Instantiates a Node.
+     *
+     * @return FloatNode The node
+
+        """
+
+        return FloatNode(self._name, self._parent, self._min, self._max);
+
+
