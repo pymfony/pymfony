@@ -36,7 +36,7 @@ class StandardExceptionTest(unittest.TestCase):
         self.assertEqual(e.getMessage(), "Standard exception message");
         self.assertEqual(e.getCode(), 1);
         self.assertTrue(isinstance(e.getPrevious(), (BaseException, type(None))));
-        self.assertEqual(e.getLine(), 26);
+        self.assertEqual(e.getLineno(), 26);
         self.assertEqual(e.getFile(), currentFile);
         expectedLocals = {
             'arg1': 'None',
@@ -45,20 +45,26 @@ class StandardExceptionTest(unittest.TestCase):
             'self': repr(self),
         };
 
-        self.assertEqual(e._function, "__raiseException");
-        self.assertEqual(e._locals, expectedLocals);
+        self.assertEqual(e.getTrace()[0]['name'], "__raiseException");
+        self.assertEqual(e.getTrace()[0]['locals'], expectedLocals);
 
+    def testFormatStack(self):
         stack = {
-            'file'     : "filename",
-            'line'     : "10",
-            'function' : "functionName",
+            'filename' : "file",
+            'lineno'   : 10,
+            'name'     : "functionName",
+            'line'     : 'raise Exception()',
             'locals'   : {'arg1': repr(None)},
+            'argcount' : 1,
         };
-        expected = '#0 filename(10): functionName()\n';
-        self.assertEqual(e._formatStack("0", stack), expected);
+
+        stackFormated = StandardException.STACK_PATTERN.format(**stack);
+
+        expected = stackFormated + ", with (arg1='None')";
+        self.assertEqual(self.__e._formatStack(stack), expected);
 
     def testToString(self):
-        self.__e.__str__();
+        str(self.__e);
 
 if __name__ == "__main__":
     unittest.main();

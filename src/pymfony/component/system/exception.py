@@ -10,13 +10,16 @@
 
 from __future__ import absolute_import;
 
-import traceback;
-import sys
+import sys;
+import linecache;
 
 from pymfony.component.system import Object;
 from pymfony.component.system import final;
 
 class StandardException(Exception, Object):
+    STACK_PATTERN = 'File "{filename}", line {lineno}, in {name}';
+
+
     def __init__(self, message="", code=None, previous=None):
         """Construct the exception
 
@@ -33,24 +36,19 @@ class StandardException(Exception, Object):
 
         self._message = None;
         self._code = None;
-        self._file = None;
         self._previous = None;
+        self._file = None;
         self._line = None;
+        self._lineno = None;
+        self._lines = None;
         self.__string = None;
+        self.__traceAsString = None;
         self.__trace = None;
-        self._function = None;
-        self._locals = None;
 
+        self.__trace = self.__createTrace();
         self._message = str(message);
         self._code = int(code);
         self._previous = previous;
-        self.__trace = self.__createTrace();
-        currentStack = self.__trace.pop(0);
-        self._line = currentStack['line'];
-        self._file = currentStack['file'];
-        self._function = currentStack['function'];
-        self._locals = currentStack['locals'];
-        self.__string = self.__formatTrace(self.__trace);
 
 
     def __createTrace(self):
@@ -66,11 +64,39 @@ class StandardException(Exception, Object):
             localVars = {};
             for name, value in f.f_locals.items():
                 localVars[name] = repr(value);
+
+            filename = f.f_code.co_filename;
+            lineno = f.f_lineno;
+            name = f.f_code.co_name;
+            argcount = f.f_code.co_argcount;
+            allLines = linecache.getlines(filename, f.f_globals);
+            line = allLines[lineno - 1].strip();
+
+            upAndDown = 5;
+
+            startLineno = lineno + 1;
+            while startLineno > 1 and lineno - startLineno < upAndDown:
+                startLineno -= 1;
+
+            nbLines = len(allLines);
+            endLineno = lineno;
+            while endLineno < nbLines and endLineno - lineno < upAndDown:
+                endLineno += 1;
+
+            lines = dict();
+            i = startLineno;
+            while i <= endLineno:
+                lines[i] = allLines[i-1];
+                i += 1;
+
             stack = {
-                'file'     : f.f_code.co_filename,
-                'line'     : f.f_lineno,
-                'function' : f.f_code.co_name,
-                'locals'   : localVars,
+                'filename'  : filename,
+                'lineno'    : lineno,
+                'name'      : name,
+                'line'      : line,
+                'lines'     : lines, # {int: string, ...}
+                'locals'    : localVars,
+                'argcount'  : argcount,
             };
             trace.append(stack);
             f = f.f_back;
@@ -81,13 +107,23 @@ class StandardException(Exception, Object):
     def __formatTrace(self, trace):
         string = "";
         i = -1;
-        for stack in trace:
+        for stack in reversed(trace):
             i += 1;
-            string += self._formatStack(i, stack);
+            string += "#" + str(i) + " " + self._formatStack(stack) + "\n";
         return string;
 
-    def _formatStack(self, i, stack):
-        return "#{0} {file}({line}): {function}()\n".format(i, **stack);
+    def _formatStack(self, stack):
+        argList = [];
+        args = "";
+        if not stack['name'].startswith('<'):
+            for name, value in stack['locals'].items():
+                argList.append(name + '=' + repr(value));
+            if argList:
+                args = "(" + ", ".join(argList) + ")";
+
+        formater = self.STACK_PATTERN + ", with {0}"
+
+        return formater.format(args, **stack);
 
     @final
     def getMessage(self):
@@ -119,21 +155,51 @@ class StandardException(Exception, Object):
 
         @return: string the name of the file where the exception was raise.
         """
+        if self._file:
+            return self._file;
+        self._file = self.getTrace()[0]['filename'];
         return self._file;
 
     @final
-    def getLine(self):
+    def getLineno(self):
         """Return the line number where the exception was raise.
 
         @return: int The line number where the exception was raise.
         """
+        if self._lineno:
+            return self._lineno;
+        self._lineno = self.getTrace()[0]['lineno'];
+        return self._lineno;
+
+    @final
+    def getLine(self):
+        """Return the line content where the exception was raise.
+
+        @return: string The line content where the exception was raise.
+        """
+        if self._line:
+            return self._line;
+        self._line = self.getTrace()[0]['line'];
         return self._line;
+
+    @final
+    def getLines(self):
+        """Return lines content where the exception was raise.
+
+        @return: dict lines content where the exception was raise.
+                      {int: string, ...}
+        """
+        if self._lines:
+            return self._lines;
+        self._lines = self.getTrace()[0]['lines'];
+        return self._lines;
 
     @final
     def getTrace(self):
         """Return the stack trace as list.
 
-        @return: list of tuples like (file, line, method, message)
+        @return: list of tuples like
+                (filename, lineno, name, line, lines, locals, argcount)
         """
         return self.__trace;
 
@@ -143,27 +209,45 @@ class StandardException(Exception, Object):
 
         @return: string The stack trace as string.
         """
-        return self.__string;
+        if self.__traceAsString:
+            return self.__traceAsString;
+        self.__traceAsString = self.__formatTrace(self.getTrace());
+        return self.__traceAsString;
 
     def __str__(self):
         """Return the string representation of exception.
 
         @return: string representation of exception.
         """
-        string = '';
+        if self.__string:
+            return self.__string;
+
+        self.__string = '';
         if self._previous:
-            string += str(self._previous);
-            string += '\nNext ';
-        string += \
-        "exception '{0}' with message '{1}' in {2}:{3}\n".format(
+            if not isinstance(self._previous, self.__class__):
+                self.__string += "An exception '{0}' was previously raised with message '{1}'\n".format(
+                    type(self._previous).__name__,
+                    str(self._previous),
+                );
+            else:
+                self.__string += str(self._previous);
+            self.__string += '\nNext ';
+
+        self.__string += \
+        "exception '{0}' with message '{1}'\n".format(
             type(self).__name__,
             self._message,
             self._file,
             self._line,
         );
-        string += "Stack trace:\n";
-        string += self.__string;
-        return string;
+        self.__string += "Traceback (most recent call last):\n";
+        self.__string += self.getTraceAsString();
+        self.__string += \
+        "{0}: {1}\n".format(
+            type(self).__name__,
+            self._message
+        );
+        return self.__string;
 
     @final
     def __copy__(self):
