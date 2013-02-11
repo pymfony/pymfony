@@ -6,8 +6,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
@@ -20,7 +18,10 @@ from pymfony.component.system import Object, abstract;
 from pymfony.component.system import final;
 from pymfony.component.system import interface
 from pymfony.component.system import ReflectionObject;
-from pymfony.component.system.exception import StandardException;
+from pymfony.component.system import CloneBuilder;
+
+"""
+"""
 
 class TestArray(unittest.TestCase):
     def setUp(self):
@@ -148,12 +149,16 @@ class TestReflextion(unittest.TestCase, Object):
     def testGetmro(self):
         self.assertEqual(self.__class__.__mro__, self.subject.getmro());
 
-class testTool(unittest.TestCase):
+class TestTool(unittest.TestCase):
     def testStripcslashes(self):
         self.assertEqual(Tool.stripcslashes('\H\e\l\l\o \W\or\l\d'), "Hello World")
         self.assertEqual(Tool.stripcslashes('Hello World\\r\\n'), 'Hello World\r\n')
         self.assertEqual(Tool.stripcslashes('\x48\x65\x6c\x6c\x6f \x57\x6f\x72\x6c\x64'), "Hello World")
         self.assertEqual(Tool.stripcslashes('\110\145\154\154\157 \127\157\162\154\144'), "Hello World")
+
+class CloneBuilderTest(unittest.TestCase):
+    def testBuild(self):
+        self.assertFalse(self is CloneBuilder.build(self));
 
 if __name__ == "__main__":
     unittest.main();
