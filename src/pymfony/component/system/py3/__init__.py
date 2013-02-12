@@ -133,14 +133,6 @@ class CloneBuilder(Object):
         'bool': bool,
     };
 
-    class instancemethod(object):
-        def __init__(self, method, instance):
-            self.im_class = method.im_class;
-            self.im_self = instance;
-            self.im_func = method.im_func;
-        def __call__(self, *a, **k):
-            return self.im_func(self.im_self, *a, **k);
-
     @classmethod
     def build(cls, instance):
         """Build the clone
@@ -160,7 +152,7 @@ class CloneBuilder(Object):
                         setattr(self, name, cloneValue);
                     else:
                         try:
-                            if inspect.ismethod(value) or isinstance(value, cls.instancemethod):
+                            if inspect.ismethod(value):
                                 cloneMethod = CloneBuilder.cloneMethod(value, self);
                                 setattr(self, name, cloneMethod);
                             else:
@@ -176,7 +168,10 @@ class CloneBuilder(Object):
 
     @classmethod
     def cloneMethod(cls, method, instance):
-        return cls.instancemethod(method, instance);
+        MethodType = type(cls.cloneMethod);
+        assert isinstance(method, MethodType);
+        clone = MethodType(method.im_func, instance, method.im_class);
+        return clone;
 
 @abstract
 class Tool(Object):
