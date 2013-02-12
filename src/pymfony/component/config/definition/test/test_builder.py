@@ -721,3 +721,5 @@ class TreeBuilderTest(unittest.TestCase):
         self.assertEqual('example', children['child'].getExample());
 
 
+if __name__ == '__main__':
+    unittest.main();

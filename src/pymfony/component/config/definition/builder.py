@@ -316,7 +316,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
         self._children = dict();
         self._prototype = None;
         self._atLeastOne = False;
-        self._allowNewKeys = None;
+        self._allowNewKeys = True;
         self._key = None;
         self._removeKeyItem = None;
         self._addDefaults = False;

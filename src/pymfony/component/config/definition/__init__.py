@@ -328,7 +328,7 @@ class BaseNode(NodeInterface):
     def getPath(self):
         path = self._name;
         if not self._parent is None:
-            path = ".".join([self._parent.getPath()]);
+            path = ".".join([self._parent.getPath(), self._name]);
         return path;
 
     def merge(self, leftSide, rightSide):
@@ -536,8 +536,8 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
             return value;
 
         for k, v in value.items():
-            if '-' in k:
-                if not '_' in k:
+            if '-' in str(k):
+                if not '_' in str(k):
                     normalizedKey = str(k).replace('-', '_');
                     if not normalizedKey in value:
                         value[normalizedKey] = v;
@@ -683,7 +683,7 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
         return value;
 
     def _validateType(self, value):
-        if not isinstance(value, dict):
+        if not isinstance(value, (dict, list)):
             if not self._allowFalse or value:
                 ex = InvalidTypeException(
                     'Invalid type for path "{0}". Expected array, but got {1}'
@@ -696,19 +696,24 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
         if value is False:
             return value;
 
+        if isinstance(value, list):
+            value = Array.toDict(value);
+
         assert isinstance(value, dict);
 
         value = self._remapXml(value);
         normalized = dict();
 
+        valueCopy = value.copy();
+
         for name, child in self._children.items():
             assert isinstance(child, NodeInterface)
-            if name in value:
+            if name in valueCopy:
                 normalized[name] = child.normalize(value[name]);
-                value.pop(name);
+                valueCopy.pop(name);
 
         # if extra fields are present, throw exception
-        if value and not self._ignoreExtraKeys:
+        if valueCopy and not self._ignoreExtraKeys:
             ex = InvalidConfigurationException(
                 'Unrecognized options "{0}" under "{1}"'
                 ''.format(", ".join(value.keys()), self.getPath())
@@ -750,8 +755,10 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
         if not leftSide or not self._performDeepMerging:
             return rightSide;
 
-        for k in range(len(rightSide)):
-            v = rightSide[k];
+        if isinstance(rightSide, list):
+            rightSide = Array.toDict(rightSide);
+
+        for k, v in rightSide.items():
             # no conflict
             if k not in leftSide:
                 if not self._allowNewKeys:
@@ -786,7 +793,7 @@ class PrototypedArrayNode(ArrayNode):
         self._removeKeyAttribute = None;
         self._minNumberOfElements = 0;
         self._defaultValue = dict();
-        self._defaultChildren = None; # dict
+        self._defaultChildren = dict(); # dict
 
     def setMinNumberOfElements(self, numder):
         """Sets the minimum number of elements that a prototype based node
@@ -839,6 +846,8 @@ class PrototypedArrayNode(ArrayNode):
 
         @raise InvalidArgumentException: if the default value is not an array
         """
+        if isinstance(value, list):
+            value = Array.toDict(value);
         if not isinstance(value, dict):
             raise InvalidArgumentException(
                 '{0}: the default value of an array node has to be an array.'
@@ -857,7 +866,7 @@ class PrototypedArrayNode(ArrayNode):
             children|The child name|The children names to be added
         """
         if children is None:
-            children = ['default'];
+            children = ['defaults'];
         elif isinstance(children, int) and children > 0:
             children = list(range(1, children+1));
         elif isinstance(children, basestring):
@@ -870,11 +879,11 @@ class PrototypedArrayNode(ArrayNode):
         self._defaultChildren = children;
 
     def getDefaultValue(self):
-        if not self._defaultValue is None:
+        if self._defaultChildren:
             if self._prototype.hasDefaultValue():
                 default = self._prototype.getDefaultValue();
             else:
-                default = list();
+                default = dict();
 
             defaults = dict();
             values = list(self._defaultChildren.values());
@@ -947,6 +956,9 @@ class PrototypedArrayNode(ArrayNode):
         if value is False:
             return value;
 
+        if isinstance(value, list):
+            value = Array.toDict(value);
+
         assert isinstance(value, dict);
 
         value = self._remapXml(value);
@@ -958,12 +970,15 @@ class PrototypedArrayNode(ArrayNode):
         for k, v in value.items():
             i += 1;
 
-            if not self._keyAttribute is None and isinstance(v, dict):
+            if self._keyAttribute is not None and isinstance(v, (dict, list)):
+                if isinstance(v, list):
+                    v = Array.toDict(v);
+
                 if self._keyAttribute not in v \
                     and isinstance(k, int) \
                     and not isAssoc:
                     ex = InvalidConfigurationException(
-                        'The attribute "%s" must be set for path "%s".'
+                        'The attribute "{0}" must be set for path "{1}".'
                         ''.format(self._keyAttribute, self.getPath())
                     );
                     ex.setPath(self.getPath());
@@ -1004,14 +1019,22 @@ class PrototypedArrayNode(ArrayNode):
         if not leftSide or not self._performDeepMerging:
             return rightSide;
 
-        leftSide = list(leftSide);
+        if isinstance(leftSide, list):
+            leftSide = Array.toDict(leftSide);
 
-        for k in range(len(rightSide)):
-            v = rightSide[k];
+        if isinstance(rightSide, list):
+            rightSide = Array.toDict(rightSide);
 
+        i = -1;
+        for k, v in rightSide.items():
+            i += 1;
             # prototype, and key is irrelevant, so simply append the element
             if self._keyAttribute is None:
-                leftSide.append(v);
+                # dict: append
+                index = 0;
+                while index in leftSide:
+                    index += 1;
+                leftSide[index] = v;
                 continue;
 
             # no conflict
@@ -1068,7 +1091,7 @@ class EnumNode(ScalarNode):
 
     def _finalizeValue(self, value):
 
-        value = ScalarNode.finalizeValue(self, value);
+        value = ScalarNode._finalizeValue(self, value);
 
         if value not in self.__values :
             ex = InvalidConfigurationException(
@@ -1148,7 +1171,7 @@ class IntegerNode(NumericNode):
 
         """
 
-        if ( not isinstance(value, int)) :
+        if ( not isinstance(value, int)) or value is False or value is True:
             ex = InvalidTypeException(
                 'Invalid type for path "{0}". Expected int, but got {1}.'
                 ''.format(self.getPath(), type(value))
@@ -1172,7 +1195,7 @@ class FloatNode(NumericNode):
         """
 
         # Integers are also accepted, we just cast them
-        if (isinstance(value, int)) :
+        if (isinstance(value, int)) and value is not True and value is not False:
             value = float(value);
 
 
