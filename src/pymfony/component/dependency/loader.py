@@ -5,8 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
@@ -29,6 +27,9 @@ from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency import Definition;
 from pymfony.component.dependency import Reference;
 from pymfony.component.dependency.exception import InvalidArgumentException;
+
+"""
+"""
 
 @abstract
 class FileLoader(BaseFileLoader):
@@ -115,9 +116,14 @@ class JsonFileLoader(FileLoader):
         if not content:
             return;
 
+        # imports
         self.__parseImports(content, path);
 
+        # parameters
         self.__parseParameters(content);
+
+        # extensions
+        self.__loadFromExtensions(content);
 
         # services
         self.__parseDefinitions(content, path);
@@ -158,6 +164,21 @@ class JsonFileLoader(FileLoader):
                 'The "{0}" file is not valid.'
                 ''.format(path)
             );
+
+        for namespace in content.keys():
+            if namespace in ['imports', 'parameters', 'services']:
+                continue;
+
+            if not self._container.hasExtension(namespace):
+                extensionNamespaces = filter(None, map(lambda e: e.getAlias(), self._container.getExtensions()));
+                raise InvalidArgumentException(
+                    'There is no extension able to load the configuration '
+                    'for "{0}" (in {1}). Looked for namespace "{0}", found "{2}"'
+                    ''.format(
+                        namespace,
+                        path,
+                        '", "'.join(extensionNamespaces)
+                ));
 
         return content;
 
@@ -272,3 +293,21 @@ class JsonFileLoader(FileLoader):
             value = Reference(value, strict);
 
         return value;
+
+
+    def __loadFromExtensions(self, content):
+        """Loads from Extensions
+     *
+     * @param array content
+
+        """
+        assert isinstance(content, dict);
+
+        for namespace, values in content.items():
+            if namespace in ['imports', 'parameters', 'services']:
+                continue;
+
+            if not isinstance(values, (list, dict)) :
+                values = {};
+
+            self._container.loadFromExtension(namespace, values);

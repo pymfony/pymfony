@@ -395,6 +395,21 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         """
         return self.__extensions;
 
+
+    def hasExtension(self, name):
+        """Checks if we have an extension.:
+    *
+    * @param string name The name of the extension
+    *
+    * @return Boolean If the extension exists
+    *
+    * @api
+
+        """
+
+        return name in self.__extensions or name in self.__extensionsByNs;
+
+
     def loadFromExtension(self, extension, values={}):
         """Loads the configuration for an extension.
 
@@ -411,6 +426,8 @@ class ContainerBuilder(Container, TaggedContainerInterface):
             );
 
         namespace = self.getExtension(extension).getAlias();
+        if namespace not in self.__extensionConfigs:
+            self.__extensionConfigs[namespace] = list();
         self.__extensionConfigs[namespace].append(values);
 
         return self;
