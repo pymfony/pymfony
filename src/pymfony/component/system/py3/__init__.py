@@ -273,7 +273,10 @@ class ReflectionClass(Object):
     def __init__(self, argument):
         if isinstance(argument, str):
             qualClassName = argument;
-            argument = ClassLoader.load(argument);
+            try:
+                argument = ClassLoader.load(argument);
+            except ImportError:
+                argument = False;
 
         if argument is not False:
             assert issubclass(argument, object);
@@ -346,9 +349,15 @@ class ReflectionObject(ReflectionClass):
 
 class ClassLoader(Object):
     __classes = {};
+    __badClasses = {};
     @classmethod
     def load(cls, qualClassName):
-        if qualClassName in cls.__classes:
+        """
+        @raise ImportError: When the class can not be load
+        """
+        if qualClassName in cls.__badClasses:
+            raise ImportError("No class named {0}".format(qualClassName));
+        elif qualClassName in cls.__classes:
             return cls.__classes[qualClassName];
 
         moduleName, className = Tool.split(qualClassName);
@@ -356,8 +365,15 @@ class ClassLoader(Object):
             module = __import__(moduleName, globals(), {}, [className], 0);
         except TypeError:
             module = __import__(moduleName, globals(), {}, ["__init__"], 0);
-        classType = getattr(module, className, False);
+        except ImportError as e:
+            cls.__badClasses[qualClassName] = True;
+            raise e;
 
-        cls.__classes[qualClassName] = classType;
+        classType = getattr(module, className, False);
+        if classType:
+            cls.__classes[qualClassName] = classType;
+        else:
+            cls.__badClasses[qualClassName] = True;
+            raise ImportError("No class named {0}".format(qualClassName));
 
         return classType;

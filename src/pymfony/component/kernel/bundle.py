@@ -16,6 +16,7 @@ from pymfony.component.system import interface;
 from pymfony.component.system import abstract;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system import ReflectionObject;
+from pymfony.component.system import ReflectionClass
 
 from pymfony.component.dependency import ContainerAwareInterface;
 from pymfony.component.dependency import ContainerAware;
@@ -119,15 +120,13 @@ class Bundle(ContainerAware, BundleInterface):
         if self._extension is None:
             basename = re.sub(r"Bundle$", "", self.getName());
 
-            className = "{0}Extension".format(basename);
             moduleName = "{0}.dependency".format(self.getNamespace());
-            try:
-                module = __import__(moduleName, globals(), {}, [className], 0);
-            except TypeError:
-                module = __import__(moduleName, globals(), {}, ['__init__'], 0);
+            className = "{0}.{1}Extension".format(moduleName, basename);
 
-            if hasattr(module, className):
-                extension = getattr(module, className)();
+            r = ReflectionClass(className);
+
+            if r.exists():
+                extension = r.newInstance();
                 # check naming convention
                 expectedAlias = ContainerBuilder.underscore(basename);
                 if expectedAlias != extension.getAlias():

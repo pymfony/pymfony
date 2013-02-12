@@ -12,6 +12,7 @@ from __future__ import absolute_import;
 
 import re;
 
+from pymfony.component.system import ClassLoader
 from pymfony.component.system import (
     Object,
     abstract,
@@ -843,12 +844,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         else:
             className = parameterBag.resolveValue(definition.getClass());
 
-        moduleName, className = Tool.split(className);
-        try:
-            module = __import__(moduleName, globals(), {}, [className], 0);
-        except TypeError:
-            module = __import__(moduleName, globals(), {}, ["__init__"], 0);
-        service = getattr(module, className)(*arguments);
+        service = ClassLoader.load(className)(*arguments);
 
         self._services[self._formatIdentifier(identifier)] = service;
 

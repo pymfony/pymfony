@@ -14,6 +14,7 @@ import re;
 
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system import Tool;
+from pymfony.component.system import ClassLoader
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.compilerpass import CompilerPassInterface;
 from pymfony.component.dispatcher import EventSubscriberInterface;
@@ -58,12 +59,7 @@ class RegisterKernelListenersPass(CompilerPassInterface):
             # even if the service is created by a factory
             qualClassName = container.getDefinition(identifier).getClass();
 
-            moduleName, className = Tool.split(qualClassName);
-            try:
-                module = __import__(moduleName, globals(), {}, [className], 0);
-            except TypeError:
-                module = __import__(moduleName, globals(), {}, ["__init__"], 0);
-            classType = getattr(module, className);
+            classType = ClassLoader.load(qualClassName);
 
             if not issubclass(classType, EventSubscriberInterface):
                 raise InvalidArgumentException(

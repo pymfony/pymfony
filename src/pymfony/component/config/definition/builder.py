@@ -14,6 +14,8 @@ import sys;
 if sys.version_info[0] >= 3:
     basestring = str;
 
+from pymfony.component.system import ClassLoader
+from pymfony.component.system import ReflectionClass
 from pymfony.component.system import Array
 from pymfony.component.system import (
     Object,
@@ -993,12 +995,7 @@ class NodeBuilder(NodeParentInterface):
         """
         qualClassName = self._getNodeClass(nodeType);
 
-        moduleName, className = Tool.split(qualClassName);
-        try:
-            module = __import__(moduleName, globals(), {}, [className], 0);
-        except TypeError:
-            module = __import__(moduleName, globals(), {}, ["__init__"], 0);
-        node = getattr(module, className)(name);
+        node = ClassLoader.load(qualClassName)(name);
 
         self.append(node);
 
@@ -1056,16 +1053,8 @@ class NodeBuilder(NodeParentInterface):
             );
 
         nodeClass = self._nodeMapping[nodeType];
-        moduleName, className = Tool.split(nodeClass);
-        try:
-            module = __import__(moduleName, globals(), {}, [className], 0);
-        except TypeError:
-            module = __import__(moduleName, globals(), {}, ["__init__"], 0);
-        except ImportError:
-            raise RuntimeException(
-                'The node class "{0}" does not exist.'.format(nodeClass)
-            );
-        if not hasattr(module, className):
+
+        if not ReflectionClass(nodeClass).exists():
             raise RuntimeException(
                 'The node class "{0}" does not exist.'.format(nodeClass)
             );

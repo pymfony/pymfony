@@ -14,6 +14,7 @@ from pymfony.component.system import Object;
 from pymfony.component.system import interface;
 from pymfony.component.system import abstract;
 from pymfony.component.system import ReflectionObject;
+from pymfony.component.system import ReflectionClass
 
 from pymfony.component.config.resource import FileResource;
 
@@ -75,15 +76,13 @@ class Extension(ExtensionInterface, ConfigurationExtensionInterface):
     def getConfiguration(self, configs, container):
         assert isinstance(configs, list);
         assert isinstance(container, ContainerBuilder);
-        moduleName = str(type(self).__module__);
-        className = 'Configuration';
-        try:
-            module = __import__(moduleName, globals(), {}, [className], 0);
-        except TypeError:
-            module = __import__(moduleName, globals(), {}, ['__init__'], 0);
 
-        if hasattr(module, 'Configuration'):
-            configuration = getattr(module, 'Configuration')();
+        className = ReflectionObject(self).getNamespaceName()+'.'+'Configuration';
+
+        r = ReflectionClass(className);
+
+        if r.exists():
+            configuration = r.newInstance();
             path = ReflectionObject(configuration).getFileName();
             container.addResource(FileResource(path));
             return configuration;
