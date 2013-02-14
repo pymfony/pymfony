@@ -161,7 +161,7 @@ class ArrayNodeDefinitionTest(unittest.TestCase):
             try:
                 tree = node.getNode();
                 self.assertFalse(shouldThrowWhenUsingAttrAsKey);
-                self.assertEquals(defaults, tree.getDefaultValue());
+                self.assertEqual(defaults, tree.getDefaultValue());
             except InvalidDefinitionException:
                 self.assertTrue(shouldThrowWhenUsingAttrAsKey);
 
@@ -581,7 +581,7 @@ class NodeBuilderTest(unittest.TestCase):
         node =     node.setNodeClass('variable', className)
         node =     node.node('', 'variable');
 
-        self.assertEquals(ReflectionObject(node).getName(), className);
+        self.assertEqual(ReflectionObject(node).getName(), className);
 
 
     def testNodeTypesAreNotCaseSensitive(self):
