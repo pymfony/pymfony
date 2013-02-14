@@ -12,6 +12,15 @@ from __future__ import absolute_import;
 
 import re;
 
+from pymfony.component.dependency.interface import ScopeInterface
+from pymfony.component.dependency.interface import ContainerInterface
+from pymfony.component.dependency.interface import IntrospectableContainerInterface
+from pymfony.component.dependency.interface import ContainerAwareInterface
+from pymfony.component.dependency.interface import TaggedContainerInterface
+from pymfony.component.dependency.interface import ExtensionInterface
+from pymfony.component.dependency.exception import ServiceCircularReferenceException
+from pymfony.component.system import ReflectionClass
+import inspect
 from pymfony.component.system import ClassLoader
 from pymfony.component.system import (
     Object,
@@ -25,6 +34,10 @@ from pymfony.component.config.loader import FileLoader as BaseFileLoader;
 from pymfony.component.config.resource import FileResource;
 from pymfony.component.config.resource import ResourceInterface;
 from pymfony.component.config.definition import Processor;
+
+from pymfony.component.dependency.definition import Alias
+from pymfony.component.dependency.definition import Definition
+from pymfony.component.dependency.definition import Reference
 
 from pymfony.component.dependency.exception import (
     BadMethodCallException,
@@ -44,140 +57,43 @@ from pymfony.component.dependency.parameterbag import (
 from pymfony.component.dependency.compiler import PassConfig, Compiler;
 from pymfony.component.dependency.compiler import CompilerPassInterface;
 
-@interface
-class ExtensionInterface(Object):
-    """ExtensionInterface is the interface implemented
-    by container extension classes.
-    """
-    def load(self, configs, container):
-        """Loads a specific configuration.
+class Scope(ScopeInterface):
+    """Scope class.
 
-        @param configs: list An array of configuration values
-        @param container: ContainerBuilder A ContainerBuilder instance
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
 
-        @raise AttributeError: When provided tag is not defined
-            in this extension
-        """
-        pass;
+    @api:
 
-
-    def getNamespace(self):
-        """Returns the namespace to be used for this extension (XML namespace).
-
-        @return: string The XSD base path
-        """
-        pass;
-
-
-    def getXsdValidationBasePath(self):
-        """Returns the base path for the XSD files.
-
-        @return: string The XSD base path
-        """
-        pass;
-
-
-    def getAlias(self):
-        """Returns the recommended alias to use in XML.
-
-        This alias is also the mandatory prefix to use when using YAML.
-
-        @return: string The alias
-        """
-        pass;
-
-@interface
-class ContainerInterface(Object):
-    def set(self, identifier, service):
-        """Sets a service.
-
-        @param identifier: string The service identifier
-        @param service: object The service instance
-        """
-        pass;
-
-    def get(self, identifier):
-        """Gets a service.
-
-        @param identifier: string  The service identifier
-
-        @return: object The associated service
-        """
-        pass;
-
-    def has(self, identifier):
-        """Returns true if the given service is defined.
-
-        @param identifier: string The service identifier
-
-        @return: boolean True if the service is defined, False otherwise
-        """
-        pass;
-
-    def setParameter(self, name, value):
-        """Sets a parameter.
-
-        @param name: string  The parameter name
-        @param value: mixed  The parameter value
-        """
-        pass;
-
-    def getParameter(self, name):
-        """Gets a parameter.
-
-        @param name: string The parameter name
-        @return: mixed The parameter value
-        """
-        pass;
-
-    def hasParameter(self, name):
-        """Checks if a parameter exists.
-
-        @param name: string The parameter name
-        @return: boolean Return True if the parameter exist.
-        """
-        pass;
-
-@interface
-class ContainerAwareInterface(Object):
-    def setContainer(self, container):
-        """Sets the Container.
-
-        @param container: ContainerInterface A ContainerInterface instance
-        """
-        pass;
-
-
-
-@interface
-class TaggedContainerInterface(ContainerInterface):
-    """TaggedContainerInterface is the interface implemented when a
-    container knows how to deals with tags.
     """
 
 
-    def findTaggedServiceIds(self, name):
-        """Returns service ids for a given tag.
+    def __init__(self, name, parentName = ContainerInterface.SCOPE_CONTAINER):
+        """@api:
 
-        @param name: string The tag name
-
-        @return: dict An array of tags
         """
-        pass;
 
-class Alias(Object):
-    def __init__(self, identifier, public=True):
-        self.__id = str(identifier).lower();
-        self.__public = bool(public);
+        self.__name = None;
+        self.__parentName = None;
 
-    def isPublic(self):
-        return self.__public;
+        self.__name = name;
+        self.__parentName = parentName;
 
-    def setPublic(self, boolean):
-        self.__public = bool(boolean);
 
-    def __str__(self):
-        return self.__id;
+    def getName(self):
+        """@api:
+
+        """
+
+        return self.__name;
+
+
+    def getParentName(self):
+        """@api:
+
+        """
+
+        return self.__parentName;
+
 
 
 
@@ -190,10 +106,61 @@ class ContainerAware(ContainerAwareInterface):
             assert isinstance(container, ContainerInterface);
         self._container = container;
 
-class Container(ContainerInterface):
+class Container(IntrospectableContainerInterface):
+    """Container is a dependency injection container.
+
+    It gives access to object instances (services).
+
+    Services and parameters are simple key/pair stores.
+
+    Parameter and service keys are case insensitive.
+
+    A service id can contain lowercased letters, digits, underscores, and dots.
+    Underscores are used to separate words, and dots to group services
+    under namespaces:
+
+    <ul>
+      <li>request</li>
+      <li>mysql_session_storage</li>
+      <li>symfony.mysql_session_storage</li>
+    </ul>
+
+    A service can also be defined by creating a method named
+    getXXXService(), where XXX is the camelized version of the id:
+
+    <ul>
+      <li>request -> getRequestService()</li>
+      <li>mysql_session_storage -> getMysqlSessionStorageService()</li>
+      <li>symfony.mysql_session_storage -> getSymfony_MysqlSessionStorageService()</li>
+    </ul>
+
+    The container can have three possible behaviors when a service does not exist:
+
+    * EXCEPTION_ON_INVALID_REFERENCE: Throws an exception (the default)
+    * None_ON_INVALID_REFERENCE:      Returns None
+    * IGNORE_ON_INVALID_REFERENCE:    Ignores the wrapping command asking for the reference
+                                      (for instance, ignore a setter if the service does not exist):
+
+    @author: Fabien Potencier <fabien@symfony.com>
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @api:
+
+    """
     def __init__(self, parameterBag=None):
+        """Constructor.
+
+        @param: ParameterBagInterface parameterBag A ParameterBagInterface instance
+
+        @api
+
+        """
         self._services = dict();
-        self._parameterBag = None
+        self._scopes = dict();
+        self._scopeChildren = dict();
+        self._scopedServices = dict();
+        self._scopeStacks = dict();
+        self._parameterBag = None;
         self._loading = dict();
 
         if parameterBag is None:
@@ -209,61 +176,369 @@ class Container(ContainerInterface):
 
         This method does two things:
 
-        * Parameter values are resolved;
-        * The parameter bag is frozen.
+            Parameter values are resolved;
+            The parameter bag is frozen.
+
+        @api:
+
         """
         self._parameterBag.resolve();
         self._parameterBag = FrozenParameterBag(self._parameterBag.all());
 
     def isFrozen(self):
-        """Returns true if the container parameter bag are frozen.
+        """Returns True if the container parameter bag are frozen.:
 
-        @return: boolean
+        @return: Boolean True if the container parameter bag are frozen, False otherwise
+
+        @api:
+
         """
         return isinstance(self._parameterBag, FrozenParameterBag);
 
     def getParameterBag(self):
         """Gets the service container parameter bag.
-        
+
         @return: ParameterBagInterface A ParameterBagInterface instance
+
+        @api
+
         """
         return self._parameterBag;
 
     def getParameter(self, name):
+        """Gets a parameter.
+
+        @param: string name The parameter name
+
+        @return mixed  The parameter value
+
+        @raise InvalidArgumentException if the parameter is not defined:
+
+        @api
+
+        """
         return self._parameterBag.get(name);
 
     def hasParameter(self, name):
+        """Checks if a parameter exists.:
+
+        @param: string name The parameter name
+
+        @return Boolean The presence of parameter in container
+
+        @api
+
+        """
         return self._parameterBag.has(name);
 
     def setParameter(self, name, value):
+        """Sets a parameter.
+
+        @param: string name  The parameter name
+        @param mixed  value The parameter value
+
+        @api
+
+        """
         self._parameterBag.set(name, value);
 
-    def set(self, identifier, service):
+    def set(self, identifier, service, scope = ContainerInterface.SCOPE_CONTAINER):
+        """Sets a service.
+
+        @param: string identifier  The service identifier:
+        @param object service      The service instance
+        @param string scope        The scope of the service
+
+        @raise RuntimeException When trying to set a service in an inactive scope
+        @raise InvalidArgumentException When trying to set a service in the prototype scope
+
+        @api
+
+        """
+        if (self.SCOPE_PROTOTYPE == scope) :
+            raise InvalidArgumentException('You cannot set services of scope "prototype".');
+
         identifier = self._formatIdentifier(identifier);
+
+        if (self.SCOPE_CONTAINER  != scope) :
+            if not scope in self.scopedServices :
+                raise RuntimeException('You cannot set services of inactive scopes.');
+
+            self.scopedServices[scope][identifier] = service;
+
+
         self._services[identifier] = service;
 
-    def get(self, identifier):
+    def has(self, identifier):
+        """Returns True if the given service is defined.:
+
+        @param: string id The service identifier:
+
+        @return Boolean True if the service is defined, False otherwise:
+
+        @api
+
+        """
+        identifier = self._formatIdentifier(identifier);
+        method = 'get'+identifier.replace('_', '').replace('.', '_')+'Service';
+        return identifier in self._services.keys() or (hasattr(self, method) and isinstance(getattr(self, method), type(self.get)));
+
+    def get(self, identifier, invalidBehavior = ContainerInterface.EXCEPTION_ON_INVALID_REFERENCE):
+        """Gets a service.
+
+        If a service is defined both through a set() method and
+        with a getidService() method, the former has always precedence.
+
+        @param: string  id              The service identifier:
+        @param integer invalidBehavior The behavior when the service does not exist
+
+        @return object The associated service
+
+        @raise InvalidArgumentException if the service is not defined:
+        @raise ServiceCircularReferenceException When a circular reference is detected
+        @raise ServiceNotFoundException When the service is not defined
+
+        @see Reference
+
+        @api
+
+        """
         identifier = self._formatIdentifier(identifier);
         if identifier in self._services.keys():
             return self._services[identifier];
-        raise ServiceNotFoundException(identifier);
 
-    def has(self, identifier):
-        identifier = self._formatIdentifier(identifier);
-        return identifier in self._services;
+        if identifier in self._loading.keys():
+            raise ServiceCircularReferenceException(identifier, self._loading.keys());
+
+        method = 'get'+identifier.replace('_', '').replace('.', '_')+'Service';
+        if (hasattr(self, method) and isinstance(getattr(self, method), type(self.get))):
+            self._loading[identifier] = True;
+
+            try:
+                service = getattr(self, method)();
+            except Exception as e:
+                self._loading.pop(identifier, None);
+
+                self._services.pop(identifier, None);
+
+                raise e;
+
+            self._loading.pop(identifier, None);
+
+            return service;
+
+        if (self.EXCEPTION_ON_INVALID_REFERENCE == invalidBehavior) :
+            raise ServiceNotFoundException(identifier);
 
     def initialized(self, identifier):
-        """Returns true if the given service has actually been initialized
+        """Returns True if the given service has actually been initialized:
 
-        @param identifier: string The service identifier
+        @param: string id The service identifier:
 
-        @return Boolean
+        @return Boolean True if service has already been initialized, False otherwise:
+
         """
         identifier = self._formatIdentifier(identifier);
         return identifier in self._services;
 
-    def _formatIdentifier(self, identifier):
-        return identifier.lower();
+    def getServiceIds(self):
+        """Gets all service ids.
+
+        @return: array An array of all defined service ids
+
+        """
+
+        ids = list();
+        # r = ReflectionClass(self);
+        # for method in r.getMethods(): # TODO: method
+        #     match = re.match('^get(.+)Service$', method.name);
+        for method in inspect.getmembers(self, inspect.ismethod):
+            match = re.match('^get(.+)Service$', method.__name__);
+            if match :
+                ids.append(self.underscore(match.group(1)));
+
+        return Array.uniq(ids + self._services.keys());
+
+    def enterScope(self, name):
+        """This is called when you enter a scope
+
+        @param: string name
+
+        @raise RuntimeException         When the parent scope is inactive
+        @raise InvalidArgumentException When the scope does not exist
+
+        @api
+
+        """
+
+        if name not in self._scopes :
+            raise InvalidArgumentException(
+                'The scope "{0}" does not exist.'.foemat(name)
+            );
+
+
+        if self.SCOPE_CONTAINER != self._scopes[name] and  self._scopes[name] not in self._scopedServices :
+            raise RuntimeException(
+                'The parent scope "{0}" must be active when entering this '
+                'scope.'.foemat(self._scopes[name])
+            );
+
+
+        # check if a scope of this name is already active, if so we need to:
+        # remove all services of this scope, and those of any of its child
+        # scopes from the global services map
+        if name in self._scopedServices :
+            services = {0: self._services, name: self._scopedServices[name]};
+            self._scopedServices.pop(name, None);
+
+            for child in self._scopeChildren[name]:
+                services[child] = self._scopedServices[child];
+                self._scopedServices(child, None);
+
+
+            # update global map
+            self._services = Array.diffKey(*services.values());
+            services.pop(0);
+
+            # add stack entry for this scope so we can restore the removed services later
+            if name not in self._scopeStacks :
+                self._scopeStacks[name] = list();
+
+            self._scopeStacks[name].append(services);
+
+
+        self._scopedServices[name] = dict();
+
+
+    def leaveScope(self, name):
+        """This is called to leave the current scope, and move back to the parent
+        scope.
+
+        @param: string name The name of the scope to leave
+
+        @raise InvalidArgumentException if the scope is not active:
+
+        @api
+
+        """
+
+        if name not in self._scopedServices :
+            raise InvalidArgumentException(
+                'The scope "{0}" is not active.'.format(name)
+            );
+
+
+        # remove all services of this scope, or any of its child scopes from
+        # the global service map
+        services = [self._services, self._scopedServices[name]];
+        self._scopedServices.pop(name, None);
+        for child in self._scopeChildren[name]:
+            if child not in self._scopedServices :
+                continue;
+
+
+            services.append(self._scopedServices[child]);
+            self._scopedServices.pop(child, None);
+
+        self._services = self.array_diff_key(*services);
+
+        # check if we need to restore services of a previous scope of this type:
+        if name in self._scopeStacks and self._scopeStacks[name] :
+            services = self._scopeStacks[name].pop();
+            self._scopedServices.update(services);
+
+            self._services.update(*services);
+
+
+
+    def addScope(self, scope):
+        """Adds a scope to the container.
+
+        @param: ScopeInterface scope
+
+        @raise InvalidArgumentException
+
+        @api
+
+        """
+        assert isinstance(scope, ScopeInterface);
+
+        name = scope.getName();
+        parentScope = scope.getParentName();
+
+        if (self.SCOPE_CONTAINER == name or self.SCOPE_PROTOTYPE == name) :
+            raise InvalidArgumentException(
+                'The scope "{0}" is reserved.'.format(name)
+            );
+
+        if name in self._scopes :
+            raise InvalidArgumentException(
+                'A scope with name "{0}" already exists.'.format(name)
+            );
+
+        if self.SCOPE_CONTAINER != parentScope and  parentScope not in self._scopes :
+            raise InvalidArgumentException(
+                'The parent scope "{0}" does not exist, or is invalid.'
+                ''.format(parentScope)
+            );
+
+
+        self._scopes[name] = parentScope;
+        self._scopeChildren[name] = list();
+
+        # normalize the child relations
+        while (parentScope != self.SCOPE_CONTAINER):
+            self._scopeChildren[parentScope].append(name);
+            parentScope = self._scopes[parentScope];
+
+
+
+    def hasScope(self, name):
+        """Returns whether this container has a certain scope
+
+        @param: string name The name of the scope
+
+        @return Boolean
+
+        @api
+
+        """
+
+        return name in self._scopes;
+
+
+    def isScopeActive(self, name):
+        """Returns whether this scope is currently active
+
+        This does not actually check if the passed scope actually exists.:
+
+        @param: string name
+
+        @return Boolean
+
+        @api
+
+        """
+
+        return name in self._scopedServices;
+
+
+    @classmethod
+    def camelize(self, identifier):
+        """Camelizes a string.
+
+        @param: string identifier A string to camelize
+
+        @return string The camelized string
+
+        """
+        def callback(match):
+            if '.' == match.group(1):
+                return '_'+match.group(2);
+            else:
+                return ''+match.group(2);
+
+        return re.sub('(^|_|\.)+(.)', callback, identifier);
 
     @classmethod
     def underscore(cls, identifier):
@@ -289,8 +564,28 @@ class Container(ContainerInterface):
 
         return value.lower();
 
+    def _formatIdentifier(self, identifier):
+        return str(identifier).lower();
+
+
+
 class ContainerBuilder(Container, TaggedContainerInterface):
+    """ContainerBuilder is a DI container that provides an API to easily describe services.
+
+    @author: Fabien Potencier <fabien@symfony.com>
+
+    @api
+
+    """
     def __init__(self, parameterBag=None):
+        """Sets the track resources flag.
+
+        If you are not using the loaders and therefore don't want
+        to depend on the Config component, set this flag to False.
+
+        @param: Boolean track True if you want to track resources, False otherwise:
+
+        """
         self.__trackResources = True;
         self.__resources = [];
         self.__definitions = dict();
@@ -305,73 +600,29 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         """Sets the track resources flag.
 
         If you are not using the loaders and therefore don't want
-        to depend on the Config component, set this flag to false.
+        to depend on the Config component, set this flag to False.
 
-        @param track: true if you want to track resources, false otherwise
+        @param: Boolean track True if you want to track resources, False otherwise:
+
         """
         self.__trackResources = bool(track);
 
     def isTrackingResources(self):
-        """Checks if resources are tracked.
+        """Checks if resources are tracked.:
 
-        @return: true if you want to track resources, false otherwise
+        @return: Boolean True if resources are tracked, False otherwise:
+
         """
         return self.__trackResources;
 
-    def get(self, identifier):
-        """
-        @raise ParameterCircularReferenceException:
-        @raise LogicException:
-        """
-        identifier = self._formatIdentifier(identifier);
-        try:
-            return Container.get(self, identifier);
-        except InvalidArgumentException as e:
-            if identifier in self._loading:
-                raise LogicException(
-                    'The service "{0}" has a circular reference to itself.'
-                    ''.format(identifier), 0, e
-                );
-
-            if not self.hasDefinition(identifier) \
-                and identifier in self.getAliases():
-                return self.get(self.__aliases[identifier]);
-
-            try:
-                definition = self.getDefinition(identifier);
-            except InvalidArgumentException as e:
-                raise e;
-
-            self._loading[identifier] = True;
-            service = self.__createService(definition, identifier);
-            del self._loading[identifier];
-            return service;
-
-    def set(self, identifier, service):
-        """Sets a service.
-
-        @param identifier: string The service identifier
-        @param service: object The service instance
-
-        @raise BadMethodCallException: When this ContainerBuilder is frozen
-        """
-        if self.isFrozen():
-            if identifier not in self.__definitions or \
-            not self.__definitions[identifier].isSynthetic():
-                raise BadMethodCallException(
-                    'Setting service on a frozen container is not allowed'
-                );
-
-        identifier = self._formatIdentifier(identifier);
-        self.removeDefinition(identifier);
-
-        Container.set(self, identifier, service);
-
-    def register(self, identifier, className=None):
-        identifier = self._formatIdentifier(identifier);
-        self.setDefinition(identifier, Definition(className));
-
     def registerExtension(self, extension):
+        """Registers an extension.
+
+        @param: ExtensionInterface extension An extension instance
+
+        @api
+
+        """
         assert isinstance(extension, ExtensionInterface);
 
         self.__extensions[extension.getAlias()] = extension;
@@ -379,6 +630,17 @@ class ContainerBuilder(Container, TaggedContainerInterface):
             self.__extensionsByNs[extension.getNamespace()] = extension;
 
     def getExtension(self, name):
+        """Returns an extension by alias or namespace.
+
+        @param: string name An alias or a namespace
+
+        @return ExtensionInterface An extension instance
+
+        @raise LogicException if the extension is not registered:
+
+        @api
+
+        """
         if name in self.__extensions:
             return self.__extensions[name];
 
@@ -386,40 +648,116 @@ class ContainerBuilder(Container, TaggedContainerInterface):
             return self.__extensionsByNs[name];
 
         raise LogicException(
-            'Container extension "%s" is not registered'.format(name)
+            'Container extension "{0}" is not registered'.format(name)
         );
+
 
     def getExtensions(self):
         """Returns all registered extensions.
 
-        @return: ExtensionInterface[] An dict of ExtensionInterface
+        @return: ExtensionInterface[] An array of ExtensionInterface
+
+        @api
+
         """
         return self.__extensions;
 
-
     def hasExtension(self, name):
         """Checks if we have an extension.:
-    *
-    * @param string name The name of the extension
-    *
-    * @return Boolean If the extension exists
-    *
-    * @api
+
+        @param: string name The name of the extension
+
+        @return Boolean If the extension exists
+
+        @api
 
         """
-
         return name in self.__extensions or name in self.__extensionsByNs;
 
+
+    def getResources(self):
+        """Returns an array of resources loaded to build this configuration.
+
+        @return: ResourceInterface[] An array of resources
+
+        @api
+
+        """
+        return Array.uniq(self.__resources);
+
+    def addResource(self, resource):
+        """Adds a resource for this configuration.
+
+        @param: ResourceInterface resource A resource instance
+
+        @return ContainerBuilder The current instance
+
+        @api
+
+        """
+        assert isinstance(resource, ResourceInterface);
+
+        if not self.__trackResources:
+            return self;
+
+        self.__resources.append(resource);
+
+        return self;
+
+    def setResources(self, resources):
+        """Sets the resources for this configuration.
+
+        @param: ResourceInterface[] resources An array of resources
+
+        @return ContainerBuilder The current instance
+
+        @api
+
+        """
+        assert isinstance(resources, list);
+
+        if ( not self.__trackResources) :
+            return self;
+
+
+        self.__resources = resources;
+
+        return self;
+
+    def addObjectResource(self, objectResource):
+        """Adds the object class hierarchy(, as resources.):
+
+        @param: object object An object instance
+
+        @return ContainerBuilder The current instance
+
+        @api
+
+        """
+        assert isinstance(objectResource, Object);
+        if not self.__trackResources:
+            return self;
+
+        parent = ReflectionObject(objectResource);
+        while parent:
+            self.addResource(FileResource(parent.getFileName()));
+            parent = parent.getParentClass();
+
+        return self;
 
     def loadFromExtension(self, extension, values={}):
         """Loads the configuration for an extension.
 
-        @param extension: string The extension alias or namespace
-        @param values: An array of values that customizes the extension
+        @param: string extension The extension alias or namespace
+        @param array  values    An array of values that customizes the extension
 
-        @return: ContainerBuilder The current instance
+        @return ContainerBuilder The current instance
+        @raise BadMethodCallException When this ContainerBuilder is frozen
 
-        @raise LogicException: if the container is frozen
+        @raise LogicException if the container is frozen:
+
+        @api
+
         """
         if self.isFrozen():
             raise BadMethodCallException(
@@ -438,10 +776,13 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                         cType=PassConfig.TYPE_BEFORE_OPTIMIZATION):
         """Adds a compiler pass.
 
-        @param cpass: CompilerPassInterface A compiler pass
-        @param cType: The type of compiler pass
+        @param: CompilerPassInterface cpass A compiler pass
+        @param string                cType The type of compiler pass
 
-        @return: ContainerBuilder The current instance
+        @return ContainerBuilder The current instance
+
+        @api
+
         """
         assert isinstance(cpass, CompilerPassInterface);
 
@@ -456,9 +797,12 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
 
     def getCompilerPassConfig(self):
-        """Returns the compiler pass config which can then be modified.
+        """Returns the compiler pass config which can then be modified.:
 
         @return: PassConfig The compiler pass config
+
+        @api
+
         """
         if self.__compiler is None:
             self.__compiler = Compiler();
@@ -469,116 +813,132 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         """Returns the compiler.
 
         @return: Compiler The compiler
+
+        @api
+
         """
         if self.__compiler is None:
             self.__compiler = Compiler();
 
         return self.__compiler;
 
-    def getDefinition(self, identifier):
-        """Gets a service definition.
+    def getScopes(self):
+        """Returns all Scopes.
 
-        @param identifier: The service identifier
+        @return: dict A dict of scopes
 
-        @return: Definition A Definition instance
+        @api
 
-        @raise InvalidArgumentException: if the service definition
-            does not exist
         """
+
+        return self._scopes;
+
+    def getScopeChildren(self):
+        """Returns all Scope children.
+
+        @return: dict A dict of scope children.
+
+        @api
+
+        """
+
+        return self._scopeChildren;
+
+    def set(self, identifier, service, scope = ContainerInterface.SCOPE_CONTAINER):
+        """Sets a service.
+
+        @param: string id      The service identifier:
+        @param object service The service instance
+        @param string scope   The scope
+
+        @raise BadMethodCallException When this ContainerBuilder is frozen
+
+        @api
+
+        """
+        if self.isFrozen():
+            if identifier not in self.__definitions or \
+            not self.__definitions[identifier].isSynthetic():
+                raise BadMethodCallException(
+                    'Setting service on a frozen container is not allowed'
+                );
+
         identifier = self._formatIdentifier(identifier);
+        self.__definitions.pop(identifier, None);
+        self.__aliases.pop(identifier, None);
 
-        if not self.hasDefinition(identifier):
-            raise InvalidArgumentException(
-                'The service definition "{0}" does not exist.'
-                ''.format(identifier)
-            );
-
-        return self.__definitions[identifier];
+        Container.set(self, identifier, service, scope);
 
     def removeDefinition(self, identifier):
         """Removes a service definition.
 
-        @param identifier: string The service identifier
+        @param: string id The service identifier:
+
+        @api
+
+        """
+        identifier = self._formatIdentifier(identifier);
+        self.__definitions.pop(identifier, None);
+
+    def has(self, identifier):
+        """Returns True if the given service is defined.:
+
+        @param: string id The service identifier:
+
+        @return Boolean True if the service is defined, False otherwise:
+
+        @api
+
+        """
+        identifier = self._formatIdentifier(identifier);
+        return identifier in self.__definitions\
+            or identifier in self.__aliases\
+            or Container.has(self, identifier);
+
+    def get(self, identifier, invalidBehavior = ContainerInterface.EXCEPTION_ON_INVALID_REFERENCE):
+        """Gets a service.
+
+        @param: string  id              The service identifier:
+        @param integer invalidBehavior The behavior when the service does not exist
+
+        @return object The associated service
+
+        @raise InvalidArgumentException if the service is not defined:
+        @raise LogicException if the service has a circular reference to itself:
+
+        @see Reference
+
+        @api
+
         """
         identifier = self._formatIdentifier(identifier);
         try:
-            del self.__definitions[identifier];
-        except KeyError:
-            pass;
+            return Container.get(self, identifier, ContainerInterface.EXCEPTION_ON_INVALID_REFERENCE);
+        except InvalidArgumentException as e:
+            if identifier in self._loading:
+                raise LogicException(
+                    'The service "{0}" has a circular reference to itself.'
+                    ''.format(identifier), 0, e
+                );
 
-    def has(self, identifier):
-        """Returns true if a service definition exists under
-        the given identifier.
+            if not self.hasDefinition(identifier) \
+                and identifier in self.__aliases:
+                return self.get(self.__aliases[identifier]);
 
-        @param identifier: string The service identifier
+            try:
+                definition = self.getDefinition(identifier);
+            except InvalidArgumentException as e:
+                if (ContainerInterface.EXCEPTION_ON_INVALID_REFERENCE  != invalidBehavior):
+                    return None;
+                raise e;
 
-        @return: Boolean true if the service definition exists, false otherwise
-        """
-        identifier = self._formatIdentifier(identifier);
-        return identifier in self.__definitions or\
-             Container.has(self, identifier);
-
-    def addResource(self, resource):
-        """Adds a resource for this configuration.
-
-        @param resource: ResourceInterface
-
-        @return: ContainerBuilder The current instance
-        """
-        assert isinstance(resource, ResourceInterface);
-
-        if not self.__trackResources:
-            return self;
-
-        self.__resources.append(resource);
-
-        return self;
-
-    def setResource(self, resources):
-        """Sets the resources for this configuration.
-
-        @param resource: ResourceInterface[]
-
-        @return: ContainerBuilder The current instance
-        """
-        for resource in resources:
-            assert isinstance(resource, ResourceInterface);
-
-        if not self.__trackResources:
-            return self;
-
-        self.__resources = resources;
-
-        return self;
-
-    def getResources(self):
-        """Returns an array of resources loaded to build this configuration.
-
-        @return: ResourceInterface[]
-        """
-        return Array.uniq(self.__resources);
-
-    def addObjectResource(self, objectResource):
-        """Adds the object class hierarchy as resources.
-
-        @param objectResource: Object An object instance
-
-        @return: ContainerBuilder The current instance
-        """
-        assert isinstance(objectResource, Object);
-        if not self.__trackResources:
-            return self;
-
-        parent = ReflectionObject(objectResource);
-        while parent:
-            self.addResource(FileResource(parent.getFileName()));
-            parent = parent.getParentClass();
-
-        return self;
+            self._loading[identifier] = True;
+            service = self.__createService(definition, identifier);
+            self._loading.pop(identifier, None);
+            return service;
 
     def merge(self, container):
-        """Merges a ContainerBuilder with the current ContainerBuilder
-        configuration.
+        """Merges a ContainerBuilder with the current ContainerBuilder configuration.
 
         Service definitions overrides the current defined ones.
 
@@ -586,18 +946,22 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         the parameters passed to the container constructor to have precedence
         over the loaded ones.
 
-        container = ContainerBuilder(dict('foo': "bar"));
+        container = ContainerBuilder(array('foo' => 'bar'));
         loader = LoaderXXX(container);
         loader.load('resource_name');
         container.register('foo', stdClass());
 
-        In the above example, even if the loaded resource defines a foo
-        parameter, the value will still be 'bar' as defined in the
-        ContainerBuilder constructor.
+        In the above example, even if the loaded resource defines a foo:
+        parameter, the value will still be 'bar' as defined in the ContainerBuilder
+        constructor.
 
-        @param container: ContainerBuilder instance to merge.
+        @param: ContainerBuilder container The ContainerBuilder instance to merge.
 
-        @raise BadMethodCallException: When this ContainerBuilder is frozen
+
+        @raise BadMethodCallException When this ContainerBuilder is frozen
+
+        @api
+
         """
         assert isinstance(container, ContainerBuilder);
         if self.isFrozen():
@@ -613,7 +977,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
             for resource in container.getResources():
                 self.addResource(resource);
 
-        for name, extension in self.__extensions.items():
+        for name in self.__extensions.keys():
             if name not in self.__extensionConfigs:
                 self.__extensionConfigs[name] = list();
 
@@ -622,13 +986,32 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                     list(self.__extensionConfigs[name]) +\
                     list(container.getExtensionConfig[name]);
 
+
+
     def getExtensionConfig(self, name):
+        """Returns the configuration array for the given extension.
+
+        @param: string name The name of the extension
+
+        @return array An array of configuration
+
+        @api
+
+        """
         if not name in self.__extensionConfigs:
             self.__extensionConfigs[name] = list();
 
         return self.__extensionConfigs[name];
 
+
+
     def prependExtensionConfig(self, name, config):
+        """Prepends a config array to the configs of the given extension.
+
+        @param: string name    The name of the extension
+        @param: list  config  The config to set
+
+        """
         assert isinstance(config, list);
 
         if not name in self.__extensionConfigs:
@@ -636,7 +1019,24 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
         self.__extensionConfigs[name].insert(0, config);
 
+
     def compile(self):
+        """Compiles the container.
+
+        This method passes the container to compiler
+        passes whose job is to manipulate and optimize
+        the container.
+
+        The main compiler passes roughly do four things:
+
+            The extension configurations are merged;
+            Parameter values are resolved;
+            The parameter bag is frozen;
+            Extension loading is disabled.
+
+        @api:
+
+        """
         if self.__compiler is None:
             self.__compiler = Compiler();
 
@@ -650,7 +1050,13 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
         Container.compile(self);
 
+
     def getServiceIds(self):
+        """Gets all service ids.
+
+        @return: array An array of all defined service ids
+
+        """
         return Array.uniq(
             list(self.getDefinitions().keys()) +\
             list(self.getAliases().keys()) +\
@@ -658,58 +1064,112 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         );
 
     def addAliases(self, aliases):
+        """Adds the service aliases.
+
+        @param: dict aliases An dict of aliases
+
+        @api
+
+        """
         assert isinstance(aliases, dict);
 
-        for alias, identifier in self.getAliases().items():
+        for identifier, alias in aliases.items():
             self.setAlias(alias, identifier);
 
+
     def setAliases(self, aliases):
+        """Sets the service aliases.
+
+        @param: dict aliases An array of aliases
+
+        @api
+
+        """
         assert isinstance(aliases, dict);
 
         self.__aliases = dict();
         self.addAliases(aliases);
 
-    def __formatAlias(self, identifer):
-        return self._formatIdentifier(identifer);
 
-    def setAlias(self, alias, identifer):
+    def setAlias(self, alias, identifier):
+        """Sets an alias for an existing service.
+
+        @param: string        alias The alias to create
+        @param string|Alias  identifier    The service to alias
+
+        @raise InvalidArgumentException if the id is not a string or an Alias:
+        @raise InvalidArgumentException if the alias is for itself:
+
+        @api
+
+        """
         alias = self.__formatAlias(alias);
 
-        if isinstance(identifer, basestring):
-            identifer = Alias(identifer);
-        elif not isinstance(identifer, Alias):
+        if isinstance(identifier, str):
+            identifier = Alias(identifier);
+        elif not isinstance(identifier, Alias):
             raise InvalidArgumentException(
                 '$id must be a string, or an Alias object.'
             );
 
-        if alias == str(identifer).lower():
+        if alias == str(identifier).lower():
             raise InvalidArgumentException(
                 'An alias can not reference itself, got a circular reference '
                 'on "{0}".'.format(alias)
             );
 
-        try:
-            del self.__definitions[alias];
-        except KeyError:
-            pass;
+        self.__definitions.pop(alias, None);
 
-        self.__aliases[alias] = identifer;
+        self.__aliases[alias] = identifier;
 
     def removeAlias(self, alias):
-        alias = self.__formatAlias(alias);
-        try:
-            del self.__aliases[alias];
-        except KeyError:
-            pass;
+        """Removes an alias.
 
-    def hasAlias(self, alias):
+        @param: string alias The alias to remove
+
+        @api
+
+        """
         alias = self.__formatAlias(alias);
+        self.__aliases.pop(alias, None);
+
+
+    def hasAlias(self, identifier):
+        """Returns True if an alias exists under the given identifier.
+
+        @param: string identifier The service identifier
+
+        @return Boolean True if the alias exists, False otherwise:
+
+        @api
+
+        """
+        alias = self.__formatAlias(identifier);
         return alias in self.__aliases;
 
+
     def getAliases(self):
+        """Gets all defined aliases.
+
+        @return: Alias[] An array of aliases
+
+        @api
+
+        """
         return self.__aliases;
 
     def getAlias(self, identifier):
+        """Gets an alias.
+
+        @param: string id The service identifier:
+
+        @return Alias An Alias instance
+
+        @raise InvalidArgumentException if the alias does not exist:
+
+        @api
+
+        """
         identifier = self.__formatAlias(identifier);
 
         if not self.hasAlias(identifier):
@@ -721,35 +1181,77 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         return self.__aliases[identifier];
 
 
+
+
+
+    def register(self, identifier, className=None):
+        """Registers a service definition.
+
+        This methods allows for simple registration of service definition
+        with a fluid interface.
+
+        @param: string id    The service identifier
+        @param string class The service class
+
+        @return Definition A Definition instance
+
+        @api
+
+        """
+        identifier = self._formatIdentifier(identifier);
+        return self.setDefinition(identifier, Definition(className));
+
+
     def addDefinitions(self, definitions):
         """Adds the service definitions.
 
-        @param definitions: Definition[] An dict of service definitions
+        @param: Definition[] definitions An array of service definitions
+
+        @api
+
         """
         assert isinstance(definitions, dict);
 
         for identifier, definition in definitions.items():
             self.setDefinition(identifier, definition);
 
+
     def setDefinitions(self, definitions):
         """Sets the service definitions.
 
-        @param definitions: Definition[] An dict of service definitions
+        @param: Definition[] definitions An array of service definitions
+
+        @api
+
         """
         assert isinstance(definitions, dict);
 
         self.__definitions = dict();
         self.addDefinitions(definitions);
 
+
+    def getDefinitions(self):
+        """Gets all service definitions.
+
+        @return: Definition[] An array of Definition instances
+
+        @api
+
+        """
+        return self.__definitions;
+
     def setDefinition(self, identifier, definition):
         """Sets a service definition.
 
-        @param identifier: string The service identifier
-        @param definition: Definition A Definition instance
+        @param: string     id         The service identifier:
+        @param Definition definition A Definition instance
 
-        @return: Definition the service definition
+        @return Definition the service definition
 
-        @raise BadMethodCallException: When this ContainerBuilder is frozen
+        @raise BadMethodCallException When this ContainerBuilder is frozen
+
+        @api
+
         """
         assert isinstance(definition, Definition);
 
@@ -759,58 +1261,82 @@ class ContainerBuilder(Container, TaggedContainerInterface):
             );
 
         identifier = self._formatIdentifier(identifier);
+        self.__aliases.pop(identifier, None);
+
         self.__definitions[identifier] = definition;
 
         return definition;
 
-    def getDefinitions(self):
-        """Gets all service definitions.
-
-        @return: Definition[] An dict of Definition instances
-        """
-        return self.__definitions;
 
     def hasDefinition(self, identifier):
-        """Returns true if a service definition exists under the given
-        identifier.
+        """Returns True if a service definition exists under the given identifier.:
 
-        @param identifier: string The service identifier
+        @param: string id The service identifier:
 
-        @return: Boolean true if the service definition exists, false otherwise
+        @return Boolean True if the service definition exists, False otherwise:
+
+        @api
+
         """
         identifier = self._formatIdentifier(identifier);
         return identifier in self.__definitions;
 
+    def getDefinition(self, identifier):
+        """Gets a service definition.
+
+        @param: string id The service identifier:
+
+        @return Definition A Definition instance
+
+        @raise InvalidArgumentException if the service definition does not exist:
+
+        @api
+
+        """
+        identifier = self._formatIdentifier(identifier);
+
+        if not self.hasDefinition(identifier):
+            raise InvalidArgumentException(
+                'The service definition "{0}" does not exist.'
+                ''.format(identifier)
+            );
+
+        return self.__definitions[identifier];
+
+
     def findDefinition(self, identifier):
+        """Gets a service definition by id or alias.
+
+        The method "unaliases" recursively to return a Definition instance.
+
+        @param: string id The service identifier or alias:
+
+        @return Definition A Definition instance
+
+        @raise InvalidArgumentException if the service definition does not exist:
+
+        @api
+
+        """
         while self.hasAlias(identifier):
             identifier = str(self.getAlias(identifier));
 
         return self.getDefinition(identifier);
 
-    def resolveServices(self, value):
-        """Replaces service references by the real service instance.
-
-        @param value: mixed
-
-        @return: mixed The same value with all service references
-            replaced by the real service instances
-        """
-        if isinstance(value, dict):
-            for k, v in value.items():
-                value[k] = self.resolveServices(v);
-        if isinstance(value, list):
-            i = 0;
-            for v in value:
-                value[i] = self.resolveServices(v);
-                i+=1;
-        elif isinstance(value, Reference):
-            value = self.get(str(value));
-        elif isinstance(value, Definition):
-            value = self.__createService(value, None);
-        return value;
-
-
     def __createService(self, definition, identifier):
+        """Creates a service for a service definition.
+
+        @param: Definition definition A service definition instance
+        @param string     id         The service identifier:
+
+        @return object The service described by the service definition
+
+        @raise RuntimeException When the scope is inactive
+        @raise RuntimeException When the factory definition is incomplete
+        @raise RuntimeException When the service is a synthetic service
+        @raise InvalidArgumentException When configure callable is not callable
+
+        """
         assert isinstance(definition, Definition);
 
         if definition.isSynthetic():
@@ -820,6 +1346,9 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                 ''.format(identifier)
             );
         parameterBag = self.getParameterBag();
+
+        # if (None is not definition.getFile()) :
+        #    require_once parameterBag.resolveValue(definition.getFile());
 
         value = parameterBag.resolveValue(definition.getArguments());
         value = parameterBag.unescapeValue(value);
@@ -846,7 +1375,16 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
         service = ClassLoader.load(className)(*arguments);
 
-        self._services[self._formatIdentifier(identifier)] = service;
+        scope = definition.getScope();
+        if self.SCOPE_PROTOTYPE  != scope :
+            if self.SCOPE_CONTAINER != scope and scope not in self._scopedServices :
+                raise RuntimeException('You tried to create a service of an inactive scope.');
+
+            lowerId = self._formatIdentifier(identifier);
+            self._services[lowerId] = service;
+
+            if (self.SCOPE_CONTAINER != scope) :
+                self._scopedServices[scope][lowerId] = service;
 
         for call in definition.getMethodCalls():
             services = self.getServiceConditionals(call[1]);
@@ -874,7 +1412,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                     closure[0] = self.get(str(closure[0]));
                 else:
                     closure[0] = parameterBag.resolveValue(closure[0]);
-    
+
             if not Tool.isCallable(closure):
                 raise InvalidArgumentException(
                     'The configure callable for class "{0}" is not a callable.'
@@ -884,7 +1422,39 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
         return service;
 
+    def resolveServices(self, value):
+        """Replaces service references by the real service instance.
+
+        @param: mixed value A value
+
+        @return mixed The same value with all service references replaced by the real service instances
+
+        """
+        if isinstance(value, dict):
+            for k, v in value.items():
+                value[k] = self.resolveServices(v);
+        if isinstance(value, list):
+            i = 0;
+            for v in value:
+                value[i] = self.resolveServices(v);
+                i+=1;
+        elif isinstance(value, Reference):
+            value = self.get(str(value), value.getInvalidBehavior());
+        elif isinstance(value, Definition):
+            value = self.__createService(value, None);
+        return value;
+
+
     def findTaggedServiceIds(self, name):
+        """Returns service ids for a given tag.
+
+        @param: string name The tag name
+
+        @return array An array of tags
+
+        @api
+
+        """
         tags = dict();
         for identifier, definition in self.getDefinitions().items():
             if definition.getTag(name):
@@ -894,7 +1464,8 @@ class ContainerBuilder(Container, TaggedContainerInterface):
     def findTags(self):
         """Returns all tags the defined services use.
 
-        @return: dict An array of tags
+        @return: array An array of tags
+
         """
         tags = dict();
         for definition in self.getDefinitions().values():
@@ -902,9 +1473,15 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
         return tags;
 
-
     @classmethod
     def getServiceConditionals(cls, value):
+        """Returns the Service Conditionals.
+
+        @param: mixed value An array of conditionals to return.
+
+        @return array An array of Service conditionals
+
+        """
         services = list();
 
         if isinstance(value, list):
@@ -917,211 +1494,10 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
         return services;
 
-class Reference(Object):
-    def __init__(self, identifier, strict=True):
-        self.__id = str(identifier).lower();
-        self.__strict = bool(strict);
 
-    def isStrict(self):
-        return self.__strict;
-
-    def __str__(self):
-        return str(self.__id);
+    def __formatAlias(self, identifer):
+        return self._formatIdentifier(identifer);
 
 
-class Definition(Object):
-    def __init__(self, className=None, arguments=None):
-        if arguments is None:
-            arguments = list();
-        assert isinstance(arguments, list);
 
-        self._arguments = arguments;
-        self.__class = className;
-
-        self.__file = None;
-        self.__factoryClass = None;
-        self.__factoryMethod = None;
-        self.__factoryService = None;
-        self.__configurator = None;
-        self.__properties = dict();
-        self.__calls = list();
-        self.__tags = dict();
-        self.__public = True;
-        self.__synthetic = False;
-        self.__abstract = False;
-
-    def setFactoryClass(self, factoryClass):
-        self.__factoryClass = factoryClass;
-        return self;
-
-    def getFactoryClass(self):
-        return self.__factoryClass;
-
-    def setFactoryMethod(self, factoryMethod):
-        self.__factoryMethod = factoryMethod;
-        return self;
-
-    def getFactoryMethod(self):
-        return self.__factoryMethod;
-
-    def setFactoryService(self, factoryService):
-        self.__factoryService = factoryService;
-        return self;
-
-    def getFactoryService(self):
-        return self.__factoryService;
-
-    def setClass(self, classNama):
-        self.__class = classNama;
-        return self;
-
-    def getClass(self):
-        return self.__class;
-
-    def setArguments(self, arguments):
-        assert isinstance(arguments, list);
-        self._arguments = arguments;
-        return self;
-
-    def setProperties(self, properties):
-        assert isinstance(properties, dict)
-        self.__properties = properties;
-        return self;
-
-    def getProperties(self):
-        return self.__properties;
-
-    def setProperty(self, key, value):
-        self.__properties[key] = value;
-        return self;
-
-    def addArgument(self, argument):
-        self._arguments.append(argument);
-        return self;
-
-    def replaceArgument(self, index, argument):
-        if index < 0 or index > len(self._arguments) - 1:
-            raise OutOfBoundsException(
-                'The index "{!d}" is not in the range [0, {!d}].'
-                ''.format(index, len(self._arguments) - 1)
-            );
-        self._arguments[index] = argument;
-        return self;
-
-    def getArguments(self):
-        return self._arguments;
-
-    def getArgument(self, index):
-        if index < 0 or index > len(self._arguments) - 1:
-            raise OutOfBoundsException(
-                'The index "{!d}" is not in the range [0, {!d}].'
-                ''.format(index, len(self._arguments) - 1)
-            );
-        return self._arguments[index];
-
-    def setMethodCalls(self, calls):
-        """
-        @param calls: list of [methodName, [arg1, ...]]
-        """
-        assert isinstance(calls, list);
-        self.__calls = list();
-        for call in calls:
-            assert isinstance(call, list);
-            self.addMethodCall(call[0], call[1]);
-        return self;
-
-    def addMethodCall(self, method, arguments=[]):
-        arguments = list(arguments);
-        method = str(method);
-        if not method:
-            raise InvalidArgumentException('Method name cannot be empty.');
-        self.__calls.append([method, arguments]);
-        return self;
-
-    def removeMethodCall(self, method):
-        i = -1;
-        for call in self.__calls:
-            i += 1;
-            if call[0] == method:
-                del self.__calls[i];
-                break;
-        return self;
-
-    def hasMethodCall(self, method):
-        for call in self.__calls:
-            if call[0] == method:
-                return True;
-        return False;
-
-    def getMethodCalls(self):
-        return self.__calls;
-
-    def setTags(self, tags):
-        assert isinstance(tags, dict);
-        self.__tags = tags;
-        return self;
-
-    def getTags(self):
-        return self.__tags;
-
-    def getTag(self, name):
-        if name in self.__tags:
-            return self.__tags[name];
-        else:
-            return list();
-
-    def addTag(self, name, attributes=[]):
-        attributes = list(attributes);
-        if name not in self.__tags:
-            self.__tags[name] = list();
-        self.__tags[name].append(attributes);
-        return self;
-
-    def hasTag(self, name):
-        return name in self.__tags;
-
-    def clearTag(self, name):
-        if self.hasTag(name):
-            del self.__tags[name];
-        return self;
-
-    def clearTags(self):
-        self.__tags = dict();
-        return self;
-
-    def setFile(self, filename):
-        self.__file = filename;
-        return self;
-
-    def getFile(self):
-        return self.__file;
-
-    def setPublic(self, boolean):
-        self.__public = bool(boolean);
-        return self;
-
-    def isPublic(self):
-        return self.__public;
-                
-    def setSynthetic(self, boolean):
-        self.__synthetic = bool(boolean);
-        return self;
-
-    def isSynthetic(self):
-        return self.__synthetic;
-
-    def setObject(self, boolean):
-        self.__abstract = bool(boolean);
-        return self;
-
-    def isAbstract(self):
-        return self.__abstract;
-
-    def setConfigurator(self, closure):
-        assert Tool.isCallable(closure);
-        self.__configurator;
-        return self;
-
-    def getConfigurator(self):
-        return self.__configurator;
 

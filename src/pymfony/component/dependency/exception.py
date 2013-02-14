@@ -113,3 +113,153 @@ class ParameterNotFoundException(InvalidArgumentException):
 
 class ParameterCircularReferenceException(RuntimeException):
     pass;
+
+
+
+class ServiceCircularReferenceException(RuntimeException):
+    """This exception is thrown when a circular reference is detected.
+
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
+
+    def __init__(self, serviceId, path):
+        assert isinstance(path, list);
+
+        RuntimeException.__init__(self,
+            'Circular reference detected for service "{0}", path: "{1}".'
+            ''.format(serviceId, ' -> '.join(path)
+        ));
+
+        self.__serviceId = None;
+        self.__path = None;
+
+
+        self.__serviceId = serviceId;
+        self.__path = path;
+
+
+    def getServiceId(self):
+
+        return self.__serviceId;
+
+
+    def getPath(self):
+
+        return self.__path;
+
+
+class ScopeWideningInjectionException(RuntimeException):
+    """Thrown when a scope widening injection is detected.
+
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
+
+
+    def __init__(self, sourceServiceId, sourceScope, destServiceId, destScope):
+
+        RuntimeException.__init__(self,
+            'Scope Widening Injection detected: The definition "{0}" references '
+            'the service "{1}" which belongs to a narrower scope. Generally, it '
+            'is safer to either move "{2}" to scope "{3}" or alternatively rely '
+            'on the provider pattern by injecting the container itself, and '
+            'requesting the service "{4}" each time it is needed. In rare, '
+            'special cases however that might not be necessary, then you can '
+            'set the reference to strict=False to get rid of this error.'
+            ''.format(
+           sourceServiceId,
+           destServiceId,
+           sourceServiceId,
+           destScope,
+           destServiceId
+        ));
+
+        self.__sourceServiceId = None;
+        self.__sourceScope = None;
+        self.__destServiceId = None;
+        self.__destScope = None;
+
+        self.__sourceServiceId = sourceServiceId;
+        self.__sourceScope = sourceScope;
+        self.__destServiceId = destServiceId;
+        self.__destScope = destScope;
+
+
+    def getSourceServiceId(self):
+
+        return self.__sourceServiceId;
+
+
+    def getSourceScope(self):
+
+        return self.__sourceScope;
+
+
+    def getDestServiceId(self):
+
+        return self.__destServiceId;
+
+
+    def getDestScope(self):
+
+        return self.__destScope;
+
+
+
+
+class ScopeCrossingInjectionException(RuntimeException):
+    """This exception is thrown when the a scope crossing injection is detected.
+
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
+
+
+    def __init__(self, sourceServiceId, sourceScope, destServiceId, destScope):
+
+        RuntimeException.__init__(self,
+            'Scope Crossing Injection detected: The definition "{0}" references '
+            'the service "{1}" which belongs to another scope hierarchy. '
+            'This service might not be available consistently. Generally, it '
+            'is safer to either move the definition "{2}" to scope "{3}", or '
+            'declare "{4}" as a child scope of "{5}". If you can be sure that '
+            'the other scope is always active, you can set the reference to '
+            'strict=False to get rid of this error.'.format(
+           sourceServiceId,
+           destServiceId,
+           sourceServiceId,
+           destScope,
+           sourceScope,
+           destScope
+        ));
+
+        self.__sourceServiceId = None;
+        self.__sourceScope = None;
+        self.__destServiceId = None;
+        self.__destScope = None;
+    
+        self.__sourceServiceId = sourceServiceId;
+        self.__sourceScope = sourceScope;
+        self.__destServiceId = destServiceId;
+        self.__destScope = destScope;
+
+
+    def getSourceServiceId(self):
+
+        return self.__sourceServiceId;
+
+
+    def getSourceScope(self):
+
+        return self.__sourceScope;
+
+
+    def getDestServiceId(self):
+
+        return self.__destServiceId;
+
+
+    def getDestScope(self):
+
+        return self.__destScope;
