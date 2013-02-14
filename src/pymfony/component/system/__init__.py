@@ -193,3 +193,24 @@ class Array(Object):
         leftSide = list(leftSide);
         rightSide = list(rightSide);
         return [item for item in leftSide if item not in rightSide];
+
+    @classmethod
+    def diffKey(cls, dict1, dict2, *args):
+        """Compares dict1 against dict2 and returns the difference.
+
+        @param: dict dict1 The dict to compare from
+        @param: dict dict2 A dict to compare against
+        @param: dict ...   More dicts to compare against
+
+        @return: Returns a dict containing all the entries from dict1 that
+                 are not present in any of the other dicts.
+        """
+        args = list(args);
+        args = [dict2] + args;
+        diff = {};
+        while args:
+            new = args.pop(0);
+            for key, value in dict1.items():
+                if key not in new.keys():
+                    diff[key] = value;
+        return diff;

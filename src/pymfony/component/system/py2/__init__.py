@@ -189,6 +189,43 @@ class Tool(Object):
 
     @classmethod
     def isCallable(cls, closure):
+        if isinstance(closure, basestring):
+            if '.' in closure:
+                # Static class method call
+                try:
+                    closure = ClassLoader.load(closure);
+                except Exception:
+                    return False;
+            else:
+                # Simple callback
+                try:
+                    closure = eval(closure);
+                except Exception:
+                    return False;
+
+        elif isinstance(closure, list):
+            if len(closure) != 2:
+                return False;
+
+            if not isinstance(closure[1], basestring):
+                return False;
+
+            if not isinstance(closure[0], object):
+                # Static class method call
+                try:
+                    closure[0] = ClassLoader.load(closure[0]);
+                except Exception:
+                    return False;
+                closure = getattr(closure[0], closure[1], False);
+                if closure is False:
+                    return False;
+            else:
+                # Object method call
+                closure = getattr(closure[0], closure[1], False);
+                if closure is False:
+                    return False;
+
+
         try:
             if hasattr(closure, '__call__'):
                     return True;

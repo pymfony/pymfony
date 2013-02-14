@@ -12,6 +12,11 @@ from __future__ import absolute_import;
 
 import re
 
+try:
+    from collections import OrderedDict;
+except ImportError: # < Python 2.7
+    from pymfony.component.system.py2.tool import OrderedDict;
+
 from pymfony.component.system import IteratorAggregateInterface
 from pymfony.component.system import CountableInterface
 from pymfony.component.system import Array
@@ -411,3 +416,4 @@ class Convert(Object):
         out = sign + out;
 
         return int(out);
+
