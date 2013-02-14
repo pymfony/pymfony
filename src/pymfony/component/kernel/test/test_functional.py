@@ -18,7 +18,7 @@ from pymfony.component.kernel import Kernel;
 from pymfony.component.config import FileLocator;
 from pymfony.bundle.framework import FrameworkBundle;
 from pymfony.component.console import Request
-
+from pymfony.component.console.output import OutputInterface
 
 class AppKernel(Kernel):
     def registerBundles(self):
@@ -27,7 +27,7 @@ class AppKernel(Kernel):
         ];
 
     def registerContainerConfiguration(self, loader):
-        path = self.locateResource("@/Resources/config/config_{0}.ini".format(
+        path = self.locateResource("@/Resources/config/config_{0}.json".format(
             self.getEnvironment()
         ));
         loader.load(path);
@@ -38,8 +38,9 @@ class AppKernel(Kernel):
 class Test(unittest.TestCase):
     def setUp(self):
         self._kernel = AppKernel("test", True);
-        self._request = Request.create(["script", "command"]);
+        self._request = Request.create(["script"]);
         self._response = self._kernel.getCliKernel().handle(self._request);
+        self._response.setVerbosity(OutputInterface.VERBOSITY_QUIET);
         self.container = self._kernel.getContainer();
 
     def tearDown(self):

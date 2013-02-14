@@ -37,6 +37,21 @@ class FrameworkExtension(ConfigurableExtension):
 
         container.setParameter('kernel.default_locale', config['default_locale']);
 
+        container.setParameter('console.default_command', 'list');
+        # command register TODO do a better way
+        if container.hasParameter('console.commands'):
+            commands = container.getParameter('console.commands');
+        else:
+            commands = dict();
+
+        commands['list'] = {
+            "_description": "Show command list",
+            "_controller": "@FrameworkBundle:List:show",
+        };
+
+        container.setParameter('console.commands', commands);
+
+
     def getAlias(self):
         return 'framework';
 

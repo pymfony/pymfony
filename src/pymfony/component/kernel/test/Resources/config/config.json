@@ -1,15 +1,8 @@
 {
-	"imports": [
-		"parameters.ini"
-	],
-	"parameters": {
-		"console.commands": {
-			"command": {
-				"_controller": "@FrameworkBundle:Test:command"
-			}
-		}
-	},
-	"framework": {
-		"default_locale": "%locale%"
-	}
+    "imports": [
+        {"resource": "parameters.ini"}
+    ],
+    "framework":{
+        "default_locale": "%locale%"
+    }
 }

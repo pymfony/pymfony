@@ -19,6 +19,8 @@ from pymfony.component.system import Tool
 from pymfony.component.system.exception import InvalidArgumentException
 from pymfony.component.system import ReflectionClass
 from pymfony.component.system import ReflectionObject
+from pymfony.component.dependency.interface import ContainerAwareInterface
+from pymfony.component.dependency.interface import ContainerInterface
 
 @interface
 class ControllerResolverInterface(Object):
@@ -88,10 +90,12 @@ class ControllerResolver(ControllerResolverInterface):
 
     """
 
-    def __init__(self):
+    def __init__(self, container):
         """Constructor.
         """
+        assert isinstance(container, ContainerInterface);
 
+        self._container = container;
 
     def getController(self, request):
         """Returns the Controller instance associated with a Request.
@@ -135,6 +139,9 @@ class ControllerResolver(ControllerResolverInterface):
                     ReflectionObject(controller).getName(), method)
                 );
 
+        if isinstance(controller, ContainerAwareInterface):
+            controller.setContainer(self._container);
+
 
         return getattr(controller, method);
 
@@ -170,8 +177,8 @@ class ControllerResolver(ControllerResolverInterface):
                 continue;
             if name == 'request':
                 arguments.append(request);
-            elif request.attributes.has(name):
-                arguments.append(request.attributes.get(name));
+            elif request.hasArgument(name):
+                arguments.append(request.getArgument(name));
 
         return arguments;
 
@@ -201,6 +208,5 @@ class ControllerResolver(ControllerResolverInterface):
             raise InvalidArgumentException(
                 'Class "{0}" does not exist.'.format(className)
             );
-
 
         return (r.newInstance(), method);

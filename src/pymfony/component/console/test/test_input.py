@@ -446,10 +446,10 @@ class InputDefinitionTest(unittest.TestCase):
         self.initializeArguments();
 
         definition = InputDefinition();
-        self.assertEqual(dict(), definition.getArguments(), '__init__() creates a new InputDefinition object');
+        self.assertEqual(list(), definition.getArguments(), '__init__() creates a new InputDefinition object');
 
         definition = InputDefinition([self.foo, self.bar]);
-        self.assertEqual({'foo': self.foo, 'bar': self.bar}, definition.getArguments(), '__init__() takes an array of InputArgument objects as its first argument');
+        self.assertEqual([self.foo, self.bar], definition.getArguments(), '__init__() takes an array of InputArgument objects as its first argument');
 
         self.initializeOptions();
 
@@ -466,10 +466,10 @@ class InputDefinitionTest(unittest.TestCase):
 
         definition = InputDefinition();
         definition.setArguments([self.foo]);
-        self.assertEqual({'foo': self.foo}, definition.getArguments(), '->setArguments() sets the array of InputArgument objects');
+        self.assertEqual([self.foo], definition.getArguments(), '->setArguments() sets the array of InputArgument objects');
         definition.setArguments([self.bar]);
 
-        self.assertEqual({'bar': self.bar}, definition.getArguments(), '->setArguments() clears all InputArgument objects');
+        self.assertEqual([self.bar], definition.getArguments(), '->setArguments() clears all InputArgument objects');
 
 
     def testAddArguments(self):
@@ -478,9 +478,9 @@ class InputDefinitionTest(unittest.TestCase):
 
         definition = InputDefinition();
         definition.addArguments([self.foo]);
-        self.assertEqual({'foo': self.foo}, definition.getArguments(), '->addArguments() adds an array of InputArgument objects');
+        self.assertEqual([self.foo], definition.getArguments(), '->addArguments() adds an array of InputArgument objects');
         definition.addArguments([self.bar]);
-        self.assertEqual({'foo': self.foo, 'bar': self.bar}, definition.getArguments(), '->addArguments() does not clear existing InputArgument objects');
+        self.assertEqual([self.foo, self.bar], definition.getArguments(), '->addArguments() does not clear existing InputArgument objects');
 
 
     def testAddArgument(self):
@@ -489,9 +489,9 @@ class InputDefinitionTest(unittest.TestCase):
 
         definition = InputDefinition();
         definition.addArgument(self.foo);
-        self.assertEqual({'foo': self.foo}, definition.getArguments(), '->addArgument() adds a InputArgument object');
+        self.assertEqual([self.foo], definition.getArguments(), '->addArgument() adds a InputArgument object');
         definition.addArgument(self.bar);
-        self.assertEqual({'foo': self.foo, 'bar': self.bar}, definition.getArguments(), '->addArgument() adds a InputArgument object');
+        self.assertEqual([self.foo, self.bar], definition.getArguments(), '->addArgument() adds a InputArgument object');
 
         # arguments must have different names:
         try:

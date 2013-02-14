@@ -23,26 +23,26 @@ from pymfony.component.console.input import ArgvInput;
 from pymfony.component.system.tool import ParameterBag;
 from pymfony.component.console.input import InputInterface
 
-class Request(Object):
-    def __init__(self, argvInput = None, attributes = dict()):
-        self._input = None;
-        self.attributes = None;
-
-        self.initialize(argvInput, attributes);
+class Request(ArgvInput):
+    def __init__(self, argv = None, attributes = dict()):
+        self.initialize(argv, attributes);
 
     def initialize(self, argv = None, attributes = dict()):
         self.attributes = ParameterBag(attributes);
-        if isinstance(argv, InputInterface):
-            self._input = argv;
-        else:
-            self._input = ArgvInput(argv);
+        ArgvInput.__init__(self, argv);
 
-    def getCommand(self):
-        """
-        @return: string The command to execute
-        """
-        return self._input.getFirstArgument();
+    @classmethod
+    def create(cls, argv):
+        """Creates a Request based on a given argv and configuration.
 
+        @param list argv A list of parameters from the CLI (in the argv format)
+
+        @return: Request
+
+        @api:
+        """
+        request = cls(argv, dict());
+        return request;
 
     @classmethod
     def createFromGlobals(cls):
@@ -64,32 +64,9 @@ class Request(Object):
         request = cls(StringInput(string), dict());
         return request;
 
-    @classmethod
-    def create(cls, argv):
-        """Creates a Request based on a given argv and configuration.
-     *
-     * @param list argv  A list of parameters from the CLI (in the argv format)
-
-        @return: Request
-
-     * @api
-
-        """
-        request = cls(argv, dict());
-        return request;
-
-    def bind(self, definition):
-        """Binds the current Input instance with the given arguments and options.
-     *
-     * @param InputDefinition definition A InputDefinition instance
-
-        """
-        self._input.bind(definition);
-        self.attributes.add(self._input.getArguments());
-        self.attributes.add(self._input.getOptions());
 
 
-class Response(Object):
+class Response(ConsoleOutput):
     statusTexts = {
         # Status codes translation table.
         #
@@ -140,15 +117,17 @@ class Response(Object):
 
      * @api
         """
+
         self._content = None;
-        self._output = None;
         self._outputType = None;
         self._statusCode = None;
+
+        ConsoleOutput.__init__(self);
 
         self.setContent(content);
         self.setStatusCode(status);
         self.setOutputType(OutputInterface.OUTPUT_NORMAL);
-        self._output = ConsoleOutput();
+
 
 
     def send(self):
@@ -163,9 +142,9 @@ class Response(Object):
         """
 
         if 0 != self._statusCode:
-            self._output.getErrorOutput().writeln(self._content, self._outputType);
+            self.getErrorOutput().writeln(self._content, self._outputType);
         else:
-            self._output.writeln(self._content, self._outputType);
+            self.writeln(self._content, self._outputType);
 
         return self;
 
@@ -207,17 +186,6 @@ class Response(Object):
         """
 
         return self._content;
-
-    def getOutput(self):
-        """Gets the current output.
-     *
-     * @return OutputInterface
-     *
-     * @api
-
-        """
-
-        return self._output;
 
     def setOutputType(self, outputType):
         """Sets the output type.

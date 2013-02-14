@@ -415,6 +415,8 @@ class StreamOutput(Output):
             text = message;
 
         try:
+            self.__stream.write(text);
+        except TypeError:
             self.__stream.write(text.encode());
         except IOError:
             # @codeCoverageIgnoreStart

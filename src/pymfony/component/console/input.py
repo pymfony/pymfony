@@ -583,7 +583,12 @@ class InputDefinition(Object):
 
         """
 
-        return self.__arguments;
+        arguments = list();
+
+        for name in self.__argumentsIndex:
+            arguments.append(self.__arguments[name]);
+
+        return arguments;
 
 
     def getArgumentCount(self):
@@ -812,7 +817,7 @@ class InputDefinition(Object):
             elements.append(str('['+value+']').format(shortcut, option.getName()));
 
 
-        for argument in self.getArguments().values():
+        for argument in self.getArguments():
             if argument.isRequired():
                 value = '{0}';
             else:
@@ -850,7 +855,7 @@ class InputDefinition(Object):
 
             maxi = max(maxi, nameLength);
 
-        for argument in self.getArguments().values():
+        for argument in self.getArguments():
             maxi = max(maxi, len(argument.getName()));
 
         ++maxi;
@@ -859,7 +864,7 @@ class InputDefinition(Object):
 
         if (self.getArguments()) :
             text.append('<comment>Arguments:</comment>');
-            for argument in self.getArguments().values():
+            for argument in self.getArguments():
                 if (None is not argument.getDefault() and ( not isinstance(argument.getDefault(), list) or len(argument.getDefault()))) :
                     default = '<comment> (default: {0})</comment>'.format(self.__formatDefaultValue(argument.getDefault()));
                 else :
@@ -924,7 +929,7 @@ class InputDefinition(Object):
 
         argumentsXML = dom.createElement('arguments');
         definitionXML.appendChild(argumentsXML);
-        for argument in self.getArguments().values():
+        for argument in self.getArguments():
             argumentXML = dom.createElement('argument');
             argumentsXML.appendChild(argumentXML);
             argumentXML.setAttribute('name', argument.getName());

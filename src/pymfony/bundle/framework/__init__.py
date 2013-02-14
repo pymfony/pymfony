@@ -14,13 +14,19 @@ from pymfony.component.kernel.bundle import Bundle;
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.bundle.framework.dependency.compiler import RegisterKernelListenersPass;
 from pymfony.component.dependency.compiler import PassConfig;
+from pymfony.component.dependency import Scope
 
 class FrameworkBundle(Bundle):
+    """Bundle.
+
+    @author: Fabien Potencier <fabien@symfony.com>
+
+    """
     def build(self, container):
         assert isinstance(container, ContainerBuilder);
+
         Bundle.build(self, container);
 
-        container.addCompilerPass(
-            RegisterKernelListenersPass(),
-            PassConfig.TYPE_AFTER_REMOVING
-        );
+        container.addScope(Scope('request'));
+
+        container.addCompilerPass(RegisterKernelListenersPass(), PassConfig.TYPE_AFTER_REMOVING);

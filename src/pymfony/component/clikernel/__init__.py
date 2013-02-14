@@ -27,6 +27,7 @@ from pymfony.component.clikernel.event import FilterResponseEvent
 from pymfony.component.clikernel.event import GetResponseForExceptionEvent
 from pymfony.component.clikernel.interface import CliTerminableInterface;
 from pymfony.component.clikernel.interface import CliKernelInterface;
+from pymfony.component.console.output import OutputInterface
 
 
 @final
@@ -184,7 +185,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
             raise NotFoundCliException(
                 'Unable to find the controller for path "{0}". Maybe you '
                 'forgot to add the matching route in your routing '
-                'configuration?'.format(request.getCommand())
+                'configuration?'.format(request.getFirstArgument())
             );
 
 

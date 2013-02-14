@@ -10,10 +10,8 @@
 
 from __future__ import absolute_import;
 
-import re;
 
 from pymfony.component.system.exception import InvalidArgumentException;
-from pymfony.component.system import Tool;
 from pymfony.component.system import ClassLoader
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.compilerpass import CompilerPassInterface;
@@ -29,7 +27,7 @@ class RegisterKernelListenersPass(CompilerPassInterface):
         definition = container.getDefinition('event_dispatcher');
 
         listeners = container.findTaggedServiceIds('kernel.event_listener');
-        for identifier, events in listeners:
+        for identifier, events in listeners.items():
             for event in events:
                 if 'priority' in event:
                     priority = event['priority'];
@@ -50,7 +48,7 @@ class RegisterKernelListenersPass(CompilerPassInterface):
                     event['method'] = 'on'+method;
 
                 definition.addMethodCall('addListenerService', [
-                    event['event'], [identifier, event['method'], priority]
+                    event['event'], [identifier, event['method']], priority
                 ]);
 
         subscribers = container.findTaggedServiceIds('kernel.event_subscriber');

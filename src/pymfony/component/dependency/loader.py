@@ -55,8 +55,6 @@ class IniFileLoader(FileLoader):
         if not content:
             return;
 
-        self.__parseImports(content, path);
-
         self.__parseParameters(content);
 
     def supports(self, resource, resourceType=None):
@@ -79,7 +77,7 @@ class IniFileLoader(FileLoader):
         result = cfgParser.read(filename);
         if not result:
             raise InvalidArgumentException(
-                'The "%s" file is not valid.'.format(filename)
+                'The "{0]" file is not valid.'.format(filename)
             );
 
         for section in cfgParser.sections():
@@ -87,15 +85,6 @@ class IniFileLoader(FileLoader):
             for key, value in cfgParser.items(section):
                 content[section][key] = value;
         return content;
-
-    def __parseImports(self, content, path):
-        if 'imports' not in content:
-            return;
-
-        for imports in content['imports']:
-            self.setCurrentDir(os.path.dirname(path));
-            self.imports(imports, None, 'ignore_error' in imports, path);
-
 
     def __parseParameters(self, content):
         if 'parameters' in content:
@@ -188,7 +177,7 @@ class JsonFileLoader(FileLoader):
 
         for imports in content['imports']:
             self.setCurrentDir(os.path.dirname(path));
-            self.imports(imports, None, 'ignore_error' in imports, path);
+            self.imports(imports['resource'], None, 'ignore_error' in imports, path);
 
 
     def __parseParameters(self, content):

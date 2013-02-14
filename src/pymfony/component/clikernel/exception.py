@@ -38,7 +38,6 @@ class CliException(RuntimeException, CliExceptionInterface):
 
 
     def __init__(self, statusCode, message = None, previous = None, code = 0):
-        assert isinstance(previous, Exception);
 
         self.__statusCode = None;
 
@@ -69,7 +68,6 @@ class NotFoundCliException(CliException):
      * @param integer    code     The internal exception code
 
         """
-        assert isinstance(previous, Exception);
 
         CliException.__init__(self, 1, message, previous, code);
 

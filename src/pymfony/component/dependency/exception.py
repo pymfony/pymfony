@@ -71,6 +71,7 @@ class ServiceNotFoundException(InvalidArgumentException):
 
 class ParameterNotFoundException(InvalidArgumentException):
     def __init__(self, key, sourceId=None, sourceKey=None):
+        InvalidArgumentException.__init__(self);
         self.__key = key;
         self.__sourceKey = sourceKey;
         self.__sourceId = sourceId;
@@ -79,19 +80,19 @@ class ParameterNotFoundException(InvalidArgumentException):
 
     def updateRepr(self):
         if not self.__sourceId is None:
-            self.message = (
+            self._message = (
                 'The service "{1}" has a dependency '
                 'on a non-existent parameter "{0}".'
                 "".format(self.__key, self.__sourceId)
             );
         elif not self.__sourceKey is None:
-            self.message = (
+            self._message = (
                 'The parameter "{1}" has a dependency '
                 'on a non-existent parameter "{0}".'
                 "".format(self.__key, self.__sourceKey)
             );
         else:
-            self.message = (
+            self._message = (
                 'You have requested a non-existent parameter "{0}".'
                 "".format(self.__key)
             );

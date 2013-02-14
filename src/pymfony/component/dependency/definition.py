@@ -446,21 +446,24 @@ class Definition(Object):
         else:
             return list();
 
-    def addTag(self, name, attributes=[]):
+    def addTag(self, name, attributes={}):
         """Adds a tag for this definition.
 
         @param: string name       The tag name
-        @param list  attributes An array of attributes
+        @param dict  attributes An array of attributes
 
         @return Definition The current instance
 
         @api
 
         """
-        attributes = list(attributes);
+        assert isinstance(attributes, dict);
+
         if name not in self.__tags:
             self.__tags[name] = list();
+
         self.__tags[name].append(attributes);
+
         return self;
 
     def hasTag(self, name):
