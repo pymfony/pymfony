@@ -10,13 +10,11 @@
 
 from __future__ import absolute_import;
 
-import sys;
-if sys.version_info[0] >= 3:
-    basestring = str;
 import re;
 
 from pymfony.component.system import Object;
-from pymfony.component.system import interface;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system.types import String;
 
 from pymfony.component.dependency.exception import ParameterNotFoundException;
 from pymfony.component.dependency.exception import RuntimeException;
@@ -180,7 +178,7 @@ class ParameterBag(ParameterBagInterface):
                 args[k] = self.resolveValue(v, resolving);
             return args;
 
-        if not isinstance(value, basestring):
+        if not isinstance(value, String):
             return value;
 
         return self.resolveString(value, resolving);
@@ -233,7 +231,7 @@ class ParameterBag(ParameterBagInterface):
         return self._resolved;
 
     def escapeValue(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, String):
             return value.replace("%", "%%");
 
         if isinstance(value, dict):
@@ -245,7 +243,7 @@ class ParameterBag(ParameterBagInterface):
         return value;
 
     def unescapeValue(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, String):
             return value.replace("%%", "%");
 
         if isinstance(value, dict):

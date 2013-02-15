@@ -11,7 +11,7 @@
 from __future__ import absolute_import;
 
 from pymfony.component.system import Object;
-from pymfony.component.system import interface;
+from pymfony.component.system.oop import interface;
 from pymfony.component.system.exception import BadMethodCallException;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import LogicException;

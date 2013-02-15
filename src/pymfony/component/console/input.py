@@ -15,11 +15,11 @@ from xml.dom.minidom import Document
 import json
 import re
 
-from pymfony.component.system import Array
+from pymfony.component.system.types import Array
 from pymfony.component.system import Tool
-from pymfony.component.system import interface;
+from pymfony.component.system.oop import interface;
 from pymfony.component.system import Object;
-from pymfony.component.system import abstract;
+from pymfony.component.system.oop import abstract;
 from pymfony.component.system.exception import RuntimeException;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import LogicException;

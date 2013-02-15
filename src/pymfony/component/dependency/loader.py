@@ -10,7 +10,6 @@ from __future__ import absolute_import;
 
 import sys;
 if sys.version_info[0] >= 3:
-    basestring = str;
     from configparser import ConfigParser;
 else:
     from ConfigParser import ConfigParser;
@@ -18,7 +17,8 @@ else:
 import os.path;
 import json;
 
-from pymfony.component.system import abstract;
+from pymfony.component.system.oop import abstract;
+from pymfony.component.system.types import String;
 from pymfony.component.config import FileLocatorInterface;
 from pymfony.component.config.loader import FileLoader as BaseFileLoader;
 from pymfony.component.config.resource import FileResource;
@@ -58,7 +58,7 @@ class IniFileLoader(FileLoader):
         self.__parseParameters(content);
 
     def supports(self, resource, resourceType=None):
-        if isinstance(resource, basestring):
+        if isinstance(resource, String):
             if os.path.basename(resource).endswith(".ini"):
                 return True;
         return False;
@@ -118,7 +118,7 @@ class JsonFileLoader(FileLoader):
         self.__parseDefinitions(content, path);
 
     def supports(self, resource, resourceType=None):
-        if isinstance(resource, basestring):
+        if isinstance(resource, String):
             if os.path.basename(resource).endswith(".json"):
                 return True;
         return False;
@@ -223,7 +223,7 @@ class JsonFileLoader(FileLoader):
                 self.__resolveServices(service['properties'])
             );
         if 'configurator' in service:
-            if isinstance(service['configurator'], basestring):
+            if isinstance(service['configurator'], String):
                 definition.setConfigurator(service['configurator']);
             else:
                 definition.setConfigurator([
@@ -257,7 +257,7 @@ class JsonFileLoader(FileLoader):
                 for attributes, value in tag.items():
                     if not isinstance(
                         value,
-                        (type(None),basestring,int,float,bool)
+                        (type(None),String,int,float,bool)
                         ):
                         raise InvalidArgumentException(
                             'A "tags" attribute must be of a scalar-type '
@@ -272,7 +272,7 @@ class JsonFileLoader(FileLoader):
     def __resolveServices(self, value):
         if isinstance(value, list):
             value = list(map(self.__resolveServices, value));
-        if isinstance(value, basestring) and value.startswith("@"):
+        if isinstance(value, String) and value.startswith("@"):
             value = value[1:];
             if value.endswith("="):
                 value = value[:-1];

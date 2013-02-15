@@ -12,7 +12,7 @@ from __future__ import absolute_import;
 
 from pymfony.component.system.exception import RuntimeException
 from pymfony.component.system import Object;
-from pymfony.component.system import interface
+from pymfony.component.system.oop import interface
 
 @interface
 class CliExceptionInterface(Object):

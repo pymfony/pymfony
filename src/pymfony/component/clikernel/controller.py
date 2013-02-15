@@ -12,7 +12,7 @@ from __future__ import absolute_import;
 
 import inspect
 
-from pymfony.component.system import interface;
+from pymfony.component.system.oop import interface;
 from pymfony.component.system import Object;
 from pymfony.component.console import Request
 from pymfony.component.system import Tool

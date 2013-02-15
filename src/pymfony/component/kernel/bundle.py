@@ -12,8 +12,8 @@ from __future__ import absolute_import;
 
 import re;
 
-from pymfony.component.system import interface;
-from pymfony.component.system import abstract;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system.oop import abstract;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system import ReflectionObject;
 from pymfony.component.system import ReflectionClass

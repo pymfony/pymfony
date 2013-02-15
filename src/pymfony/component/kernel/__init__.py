@@ -16,9 +16,11 @@ import pickle;
 import re;
 
 
-from pymfony.component.system import Object, abstract, interface;
-from pymfony.component.system import Array;
-from pymfony.component.system import final;
+from pymfony.component.system import Object;
+from pymfony.component.system.oop import abstract;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system.types import Array;
+from pymfony.component.system.oop import final;
 from pymfony.component.system import ReflectionObject;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system.exception import InvalidArgumentException;
@@ -195,13 +197,12 @@ class Kernel(KernelInterface):
         if self._debug:
             ExceptionHandler.register(self._debug);
 
-    def __copy__(self):
-        clone = Object.__copy__(self);
+    def __clone__(self):
         if self._debug:
-            clone._startTime = time();
-        clone._booted = False;
-        clone._container = None;
-        return clone;
+            self._startTime = time();
+
+        self._booted = False;
+        self._container = None;
 
     def getKernelParameters(self):
         bundles = dict();

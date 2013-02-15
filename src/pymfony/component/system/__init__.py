@@ -5,24 +5,26 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
 import sys;
+import inspect;
+
+from pymfony.component.system.oop import abstract;
+from pymfony.component.system.oop import interface;
+
 if sys.version_info[0] == 2:
     from pymfony.component.system.py2 import *;
 else:
     from pymfony.component.system.py3 import *;
 
-__all__ = [
-    'abstract',
-    'interface',
-    'Object',
-    'final',
-];
 
+"""
+"""
+
+class Object(OOPObject):
+    pass;
 
 @interface
 class SerializableInterface(Object):
@@ -139,78 +141,344 @@ class CountableInterface(Object):
         pass;
 
 
+class CloneBuilder(AbstractCloneBuilder):
+    @classmethod
+    def build(cls, instance):
+        """Build the clone
+
+        @param instance: object The instance to clone
+        """
+        mro = type(instance).__mro__;
+
+        class CloneObject(Object):
+            __clone_mro__ = tuple(mro);
+            def __init__(self, instanceOrig):
+                properties = inspect.getmembers(instanceOrig);
+                for name, value in properties:
+                    typeName = type(value).__name__;
+                    if typeName in CloneBuilder.TYPES_MAP.keys():
+                        cloneValue = CloneBuilder.TYPES_MAP[typeName](value);
+                        setattr(self, name, cloneValue);
+                    else:
+                        try:
+                            if inspect.ismethod(value):
+                                cloneMethod = CloneBuilder.cloneMethod(value, self);
+                                setattr(self, name, cloneMethod);
+                            else:
+                                setattr(self, name, value);
+                        except AttributeError:
+                            pass;
+
+                for classType in instance.__class__.__mro__:
+                    if classType not in self.__class__.__mro__:
+                        self.__class__.register(classType);
+
+        clone = CloneObject(instance);
+
+        if isinstance(clone, ClonableInterface) or (
+            hasattr(clone, '__clone__') and hasattr(clone.__clone__, '__call__')
+        ):
+            clone.__clone__();
+
+        return clone;
+
+    @classmethod
+    def cloneMethod(cls, method, instance):
+        MethodType = type(cls.cloneMethod);
+        assert isinstance(method, MethodType);
+        clone = MethodType(method.im_func, instance, method.im_class);
+        return clone;
+
+def clone(instance):
+    """Creating a copy of an object with fully replicated properties is not
+    always the wanted behavior.
+
+    Object Cloning
+
+    Creating a copy of an object with fully replicated properties is not
+    always the wanted behavior. A good example of the need for copy
+    constructors, is if you have an object which represents a GTK window
+    and the object holds the resource of this GTK window, when you create
+    a duplicate you might want to create a new window with the same
+    properties and have the new object hold the resource of the new
+    window. Another example is if your object holds a reference to another
+    object which it uses and when you replicate the parent object you
+    want to create a new instance of this other object so that the replica
+    has its own separate copy.
+
+    An object copy is created by using the clone keyword (which calls the
+    object's __clone__() method if possible). An object's __clone__()
+    method cannot be called directly.
+
+        copy_of_object = clone(object);
+
+    When an object is cloned, PYTHON will perform a shallow copy of all of
+    the object's properties. Any properties that are references to other
+    variables, will remain references.
+
+        void __clone__( void )
+
+    Once the cloning is complete, if a __clone__() method is defined, then
+    the newly created object's __clone__() method will be called, to allow
+    any necessary properties that need to be changed.
+
+    @src: http://www.php.net/manual/en/language.oop5.cloning.php
+
+    @param: The object instance to clone.
+
+    @return: The clone instance passed as a parameter
+    """
+
+    return CloneBuilder.build(instance);
+
+
+@interface
+class ClonableInterface(Object):
+    def __clone__(self):
+        """Allow any necessary properties that need to be changed after the
+        cloning is complete.
+
+        @see: clone method
+        """
 
 @abstract
-class Array(Object):
+class Tool(Object):
     @classmethod
-    def toDict(cls, l, strKeys=False):
-        assert isinstance(l, list);
-        d = dict();
-        i = 0;
-        for i in range(len(l)):
-            if strKeys:
-                d[str(i)] = l[i];
+    def isAbstract(cls, obj):
+        abstractclass = getattr(obj, '__abstractclass__', False);
+        return inspect.isabstract(obj) or obj is abstractclass;
+
+
+    @classmethod
+    def isCallable(cls, closure):
+        if isinstance(closure, AbstractString):
+            if '.' in closure:
+                # Static class method call
+                try:
+                    closure = ClassLoader.load(closure);
+                except Exception:
+                    return False;
             else:
-                d[i] = l[i];
-            i = i + 1;
-        return d;
+                # Simple callback
+                try:
+                    closure = eval(closure);
+                except Exception:
+                    return False;
+
+        elif isinstance(closure, list):
+            if len(closure) != 2:
+                return False;
+
+            if not isinstance(closure[1], AbstractString):
+                return False;
+
+            if not isinstance(closure[0], object):
+                # Static class method call
+                try:
+                    closure[0] = ClassLoader.load(closure[0]);
+                except Exception:
+                    return False;
+                closure = getattr(closure[0], closure[1], False);
+                if closure is False:
+                    return False;
+            else:
+                # Object method call
+                closure = getattr(closure[0], closure[1], False);
+                if closure is False:
+                    return False;
+
+
+        try:
+            if hasattr(closure, '__call__'):
+                    return True;
+            if repr(closure).startswith("<") and repr(closure).endswith(">"):
+                if " at 0x" in repr(closure):
+                    return True;
+                if "'function'" in str(type(closure)):
+                    return True;
+                if "'builtin_function_or_method'" in str(type(closure)):
+                    return True;
+        except BaseException:
+            pass;
+        return False;
 
     @classmethod
-    def uniq(cls, iterable):
-        assert isinstance(iterable, (list, dict));
-        if isinstance(iterable, list):
-            d = cls.toDict(iterable);
-            result = [];
-            def append(k, v):
-                result.append(v);
+    def split(cls, string, sep="."):
+        """Split a string.
+
+        Return tuple (head, tail) where tail is everything after
+        the final <sep>. Either part may be empty."""
+        # set i to index beyond p's last slash
+        i = len(string);
+        while i and string[i-1] not in sep:
+            i = i - 1;
+        head, tail = string[:i], string[i:]; # now tail has no "."
+        head2 = head;
+        while head2 and head2[-1] in sep:
+            head2 = head2[:-1];
+        head = head2 or head;
+        return head, tail;
+
+    @classmethod
+    def stripcslashes(cls, string):
+        HEXA = '0123456789abcdefABCDEF';
+        target = "";
+        nlen = len(string);
+        numtmp = dict();
+
+        source = string[:];
+        end = nlen;
+        i = 0;
+        while(i < end):
+            if source[i] == '\\' and i+1 < end :
+                i+=1;
+                if source[i] == 'n': target+='\n'; nlen-=1; i+=1;continue;
+                elif source[i] == 'r': target+='\r'; nlen-=1; i+=1;continue;
+                elif source[i] == 'a': target+='\a'; nlen-=1; i+=1;continue;
+                elif source[i] == 't': target+='\t'; nlen-=1; i+=1;continue;
+                elif source[i] == 'v': target+='\v'; nlen-=1; i+=1;continue;
+                elif source[i] == 'b': target+='\b'; nlen-=1; i+=1;continue;
+                elif source[i] == 'f': target+='\f'; nlen-=1; i+=1;continue;
+                elif source[i] == '\\': target+='\\'; nlen-=1; i+=1;continue;
+                elif source[i] == 'x':
+                    if i+1 < end and source[i+1] in HEXA:
+                        i+=1;
+                        numtmp = source[i];
+                        if i+1 < end and source[i+1] in HEXA:
+                            i+=1;
+                            numtmp += source[i];
+                            nlen-=3;
+                        else:
+                            nlen-=2;
+                        target += numtmp.decode("hex");
+                        i+=1;continue;
+                    # break is left intentionally
+                y = 0;
+                while (i < end and source[i] in '01234567' and y<3):
+                    numtmp[y] = source[i];
+                    y+=1; i+=1;
+                
+                if y:
+                    target += str(hex(int(numtmp, 8)))[2:].decode("hex");
+                    nlen-=y;
+                    i-=1;
+                else:
+                    target+=source[i];
+                    nlen-=1;
+                
+            else:
+                target+=source[i];
+            i+=1;
+
+        return target;
+
+
+
+class ReflectionClass(Object):
+    def __init__(self, argument):
+        if isinstance(argument, AbstractString):
+            qualClassName = argument;
+            try:
+                argument = ClassLoader.load(argument);
+            except ImportError:
+                argument = False;
+
+        if argument is not False:
+            assert issubclass(argument, object);
+            self.__exists = True;
+            self._class = argument;
+            self._fileName = None;
+            self._mro = None;
+            self._namespaceName = None;
+            self._parentClass = None;
+            self._name = None;
         else:
-            d = iterable;
-            result = {};
-            def append(k, v):
-                result[k] = v;
+            self.__exists = False;
+            self._name = qualClassName;
+            self._fileName = '';
+            self._mro = tuple();
+            self._namespaceName = Tool.split(qualClassName)[0];
+            self._parentClass = False;
+            self._class = None;
 
-        pairs = list();
-        for k, v in d.items():
-            pairs.append((k, v));
-        seen = {};
-        for k, v in pairs:
-            marker = v;
-            if marker not in seen.keys():
-                seen[marker] = 1;
-                append(k, v);
 
-        return result;
+    def getFileName(self):
+        if self._fileName is not None:
+            return self._fileName;
 
-    @classmethod
-    def diff(cls, leftSide, rightSide):
-        """Computes the difference of lists
+        try:
+            self._fileName = inspect.getabsfile(self._class);
+        except TypeError:
+            self._fileName = False;
+        return self._fileName;
 
-        @param leftSide: list The list to compare from
-        @param rightSide: list The list to compare against
-
-        @return: list
+    def getParentClass(self):
         """
-        leftSide = list(leftSide);
-        rightSide = list(rightSide);
-        return [item for item in leftSide if item not in rightSide];
-
-    @classmethod
-    def diffKey(cls, dict1, dict2, *args):
-        """Compares dict1 against dict2 and returns the difference.
-
-        @param: dict dict1 The dict to compare from
-        @param: dict dict2 A dict to compare against
-        @param: dict ...   More dicts to compare against
-
-        @return: Returns a dict containing all the entries from dict1 that
-                 are not present in any of the other dicts.
+        @return: ReflexionClass|False
         """
-        args = list(args);
-        args = [dict2] + args;
-        diff = {};
-        while args:
-            new = args.pop(0);
-            for key, value in dict1.items():
-                if key not in new.keys():
-                    diff[key] = value;
-        return diff;
+        if self._parentClass is None:
+            if len(self.getmro()) > 1:
+                self._parentClass = ReflectionClass(self.getmro()[1]);
+            else:
+                self._parentClass = False;
+        return self._parentClass;
+
+
+    def getmro(self):
+        if self._mro is None:
+            self._mro = inspect.getmro(self._class);
+        return self._mro;
+
+    def getNamespaceName(self):
+        if self._namespaceName is None:
+            self._namespaceName = str(self._class.__module__);
+        return self._namespaceName;
+
+    def getName(self):
+        if self._name is None:
+            self._name = self.getNamespaceName()+'.'+str(self._class.__name__);
+        return self._name;
+
+    def exists(self):
+        return self.__exists;
+
+    def newInstance(self, *args, **kargs):
+        return self._class(*args, **kargs);
+
+
+class ReflectionObject(ReflectionClass):
+    def __init__(self, argument):
+        assert isinstance(argument, Object);
+        ReflectionClass.__init__(self, argument.__class__);
+
+
+class ClassLoader(Object):
+    __classes = {};
+    __badClasses = {};
+    @classmethod
+    def load(cls, qualClassName):
+        """
+        @raise ImportError: When the class can not be load
+        """
+        if qualClassName in cls.__badClasses:
+            raise ImportError("No class named {0}".format(qualClassName));
+        elif qualClassName in cls.__classes:
+            return cls.__classes[qualClassName];
+
+        moduleName, className = Tool.split(qualClassName);
+        try:
+            module = __import__(moduleName, globals(), {}, [className], 0);
+        except TypeError:
+            module = __import__(moduleName, globals(), {}, ["__init__"], 0);
+        except ImportError as e:
+            cls.__badClasses[qualClassName] = True;
+            raise e;
+
+        classType = getattr(module, className, False);
+        if classType:
+            cls.__classes[qualClassName] = classType;
+        else:
+            cls.__badClasses[qualClassName] = True;
+            raise ImportError("No class named {0}".format(qualClassName));
+
+        return classType;

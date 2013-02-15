@@ -11,7 +11,7 @@ from __future__ import absolute_import;
 
 import unittest
 
-from pymfony.component.system.tool import OrderedDict
+from pymfony.component.system.types import OrderedDict
 from pymfony.component.dependency import ContainerBuilder
 from pymfony.component.dependency import Reference
 from pymfony.component.dependency import Definition

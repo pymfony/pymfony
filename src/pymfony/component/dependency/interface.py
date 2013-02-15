@@ -10,7 +10,7 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.system import interface
+from pymfony.component.system.oop import interface
 from pymfony.component.system import Object
 
 @interface

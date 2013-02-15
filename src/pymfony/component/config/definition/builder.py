@@ -10,37 +10,28 @@
 
 from __future__ import absolute_import;
 
-import sys;
-if sys.version_info[0] >= 3:
-    basestring = str;
 
+from pymfony.component.system import clone
+from pymfony.component.system.types import String
 from pymfony.component.system import ClassLoader
 from pymfony.component.system import ReflectionClass
-from pymfony.component.system import Array
-from pymfony.component.system import (
-    Object,
-    abstract,
-    interface,
-    Tool,
-);
-from pymfony.component.system.exception import (
-    InvalidArgumentException,
-    RuntimeException,
-);
+from pymfony.component.system.types import Array
+from pymfony.component.system import Object;
+from pymfony.component.system.oop import abstract;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system import Tool;
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.exception import RuntimeException;
 from pymfony.component.config.definition import FloatNode
 from pymfony.component.config.definition import IntegerNode
 from pymfony.component.config.definition import EnumNode
-from pymfony.component.config.definition import (
-    ArrayNode,
-    PrototypedArrayNode,
-    VariableNode,
-    ScalarNode,
-    BooleanNode,
-);
-from pymfony.component.config.definition import (
-    InvalidDefinitionException,
-    UnsetKeyException,
-);
+from pymfony.component.config.definition import ArrayNode;
+from pymfony.component.config.definition import PrototypedArrayNode;
+from pymfony.component.config.definition import VariableNode;
+from pymfony.component.config.definition import ScalarNode;
+from pymfony.component.config.definition import BooleanNode;
+from pymfony.component.config.definition import InvalidDefinitionException;
+from pymfony.component.config.definition import UnsetKeyException;
 
 @interface
 class NodeParentInterface(Object):
@@ -662,7 +653,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
                 );
 
             if self._key is None and (
-                isinstance(self._addDefaultChildren, basestring) or \
+                isinstance(self._addDefaultChildren, String) or \
                 isinstance(self._addDefaultChildren, dict)
                 ):
                 raise InvalidDefinitionException(
@@ -715,7 +706,7 @@ class ExprBuilder(Object):
 
         @return: ExprBuilder
         """
-        self.ifPart = lambda v: isinstance(v, basestring);
+        self.ifPart = lambda v: isinstance(v, String);
         return self;
 
     def ifNull(self):
@@ -1011,7 +1002,7 @@ class NodeBuilder(NodeParentInterface):
         assert isinstance(node, NodeDefinition);
 
         if isinstance(node, ParentNodeDefinitionInterface):
-            builder = self.__copy__();
+            builder = clone(self);
             builder.setParent(None);
             node.setBuilder(builder);
 

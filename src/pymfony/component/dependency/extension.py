@@ -11,8 +11,8 @@
 from __future__ import absolute_import;
 
 from pymfony.component.system import Object;
-from pymfony.component.system import interface;
-from pymfony.component.system import abstract;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system.oop import abstract;
 from pymfony.component.system import ReflectionObject;
 from pymfony.component.system import ReflectionClass
 

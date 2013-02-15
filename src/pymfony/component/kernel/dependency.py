@@ -10,11 +10,10 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.system import abstract;
+from pymfony.component.system.oop import abstract;
 
-from pymfony.component.dependency.compilerpass import (
-    MergeExtensionConfigurationPass as BaseMergeExtensionConfigurationPass
-);
+from pymfony.component.dependency.compilerpass import MergeExtensionConfigurationPass as BaseMergeExtensionConfigurationPass;
+
 from pymfony.component.dependency.extension import Extension as BaseExtension;
 from pymfony.component.dependency import ContainerBuilder;
 

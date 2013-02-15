@@ -11,6 +11,7 @@
 from __future__ import absolute_import;
 
 import re;
+import inspect
 
 from pymfony.component.dependency.interface import ScopeInterface
 from pymfony.component.dependency.interface import ContainerInterface
@@ -20,16 +21,13 @@ from pymfony.component.dependency.interface import TaggedContainerInterface
 from pymfony.component.dependency.interface import ExtensionInterface
 from pymfony.component.dependency.exception import ServiceCircularReferenceException
 from pymfony.component.system import ReflectionClass
-import inspect
 from pymfony.component.system import ClassLoader
-from pymfony.component.system import (
-    Object,
-    abstract,
-    interface,
-    ReflectionObject,
-    Tool,
-    Array,
-);
+from pymfony.component.system import Object;
+from pymfony.component.system.oop import abstract;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system import ReflectionObject;
+from pymfony.component.system import Tool;
+from pymfony.component.system.types import Array
 from pymfony.component.config.loader import FileLoader as BaseFileLoader;
 from pymfony.component.config.resource import FileResource;
 from pymfony.component.config.resource import ResourceInterface;
@@ -39,22 +37,19 @@ from pymfony.component.dependency.definition import Alias
 from pymfony.component.dependency.definition import Definition
 from pymfony.component.dependency.definition import Reference
 
-from pymfony.component.dependency.exception import (
-    BadMethodCallException,
-    ServiceNotFoundException,
-    InvalidArgumentException,
-    LogicException,
-    RuntimeException,
-    OutOfBoundsException,
-);
+from pymfony.component.dependency.exception import BadMethodCallException;
+from pymfony.component.dependency.exception import ServiceNotFoundException;
+from pymfony.component.dependency.exception import InvalidArgumentException;
+from pymfony.component.dependency.exception import LogicException;
+from pymfony.component.dependency.exception import RuntimeException;
+from pymfony.component.dependency.exception import OutOfBoundsException;
 
-from pymfony.component.dependency.parameterbag import (
-    ParameterBag,
-    ParameterBagInterface,
-    FrozenParameterBag,
-);
+from pymfony.component.dependency.parameterbag import ParameterBag;
+from pymfony.component.dependency.parameterbag import ParameterBagInterface;
+from pymfony.component.dependency.parameterbag import FrozenParameterBag;
 
-from pymfony.component.dependency.compiler import PassConfig, Compiler;
+from pymfony.component.dependency.compiler import PassConfig;
+from pymfony.component.dependency.compiler import Compiler;
 from pymfony.component.dependency.compiler import CompilerPassInterface;
 
 class Scope(ScopeInterface):

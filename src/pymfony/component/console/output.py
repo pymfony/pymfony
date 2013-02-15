@@ -14,9 +14,9 @@ import re;
 import os;
 import sys;
 
-from pymfony.component.system import interface
+from pymfony.component.system.oop import interface
 from pymfony.component.system import Object
-from pymfony.component.system import abstract
+from pymfony.component.system.oop import abstract
 from pymfony.component.system import Tool
 from pymfony.component.system.exception import RuntimeException
 from pymfony.component.system.exception import InvalidArgumentException

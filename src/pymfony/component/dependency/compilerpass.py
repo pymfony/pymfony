@@ -10,7 +10,7 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.system import CloneBuilder
+from pymfony.component.system import clone
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.extension import PrependExtensionInterface;
 from pymfony.component.dependency.exception import ParameterNotFoundException;
@@ -21,7 +21,7 @@ from pymfony.component.dependency import ContainerInterface
 from pymfony.component.dependency import Alias
 from pymfony.component.dependency import Reference
 from pymfony.component.dependency.exception import InvalidArgumentException
-from pymfony.component.system import Array
+from pymfony.component.system.types import Array
 from pymfony.component.dependency.definition import DefinitionDecorator
 from pymfony.component.dependency.compiler import RepeatablePassInterface
 from pymfony.component.dependency.compiler import RepeatedPass
@@ -1085,7 +1085,7 @@ class InlineServiceDefinitionsPass(RepeatablePassInterface):
                     if (ContainerInterface.SCOPE_PROTOTYPE != definition.getScope()) :
                         arguments[k] = definition;
                     else :
-                        arguments[k] = CloneBuilder.build(definition);
+                        arguments[k] = clone(definition);
 
 
             elif isinstance(argument, Definition) :

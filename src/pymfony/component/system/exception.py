@@ -14,7 +14,7 @@ import sys;
 import linecache;
 
 from pymfony.component.system import Object;
-from pymfony.component.system import final;
+from pymfony.component.system.oop import final;
 
 class StandardException(Exception, Object):
     STACK_PATTERN = 'File "{filename}", line {lineno}, in {name}';

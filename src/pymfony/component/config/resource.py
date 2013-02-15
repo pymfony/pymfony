@@ -14,11 +14,10 @@ from pickle import dumps as serialize;
 from pickle import loads as unserialize;
 import re
 
-from pymfony.component.system import (
-    interface,
-    Object,
-    SerializableInterface,
-);
+from pymfony.component.system.oop import interface;
+from pymfony.component.system import Object;
+
+from pymfony.component.system import SerializableInterface
 
 """
 """

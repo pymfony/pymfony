@@ -13,7 +13,7 @@ from __future__ import absolute_import;
 import re;
 
 from pymfony.component.system import Object
-from pymfony.component.system import interface
+from pymfony.component.system.oop import interface
 from pymfony.component.system.exception import InvalidArgumentException
 
 @interface

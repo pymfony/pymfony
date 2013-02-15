@@ -12,7 +12,6 @@ from __future__ import absolute_import;
 
 import unittest
 import os
-from xml.dom.minidom import Document
 import sys
 
 from pymfony.component.system.exception import RuntimeException

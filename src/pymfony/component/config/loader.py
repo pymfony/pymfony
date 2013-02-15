@@ -10,16 +10,12 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.system import (
-    interface,
-    Object,
-);
+from pymfony.component.system.oop import interface;
+from pymfony.component.system import Object;
 
+from pymfony.component.config.exception import FileLoaderImportCircularReferenceException;
+from pymfony.component.config.exception import FileLoaderLoadException;
 
-from pymfony.component.config.exception import (
-    FileLoaderImportCircularReferenceException,
-    FileLoaderLoadException,
-)
 
 from pymfony.component.config import FileLocatorInterface;
 

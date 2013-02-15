@@ -14,7 +14,6 @@ from __future__ import absolute_import;
 from pymfony.component.system import Object
 from pymfony.component.dependency.exception import OutOfBoundsException
 from pymfony.component.dependency.exception import InvalidArgumentException
-from pymfony.component.system import Tool
 from pymfony.component.dependency.interface import ContainerInterface
 
 class Alias(Object):

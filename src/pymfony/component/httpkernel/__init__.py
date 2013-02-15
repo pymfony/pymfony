@@ -11,7 +11,7 @@
 from __future__ import absolute_import;
 
 from pymfony.component.system import Object;
-from pymfony.component.system import final;
+from pymfony.component.system.oop import final;
 
 @final
 class HttpKernelEvents(Object):

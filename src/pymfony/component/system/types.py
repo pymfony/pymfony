@@ -5,24 +5,104 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
-import re
+import re;
+
+from pymfony.component.system.oop import abstract;
+from pymfony.component.system import Object;
+from pymfony.component.system import IteratorAggregateInterface;
+from pymfony.component.system import CountableInterface;
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system import AbstractString;
+
+"""
+"""
 
 try:
     from collections import OrderedDict;
 except ImportError: # < Python 2.7
-    from pymfony.component.system.py2.tool import OrderedDict;
+    from pymfony.component.system.py2.types import OrderedDict;
 
-from pymfony.component.system import IteratorAggregateInterface
-from pymfony.component.system import CountableInterface
-from pymfony.component.system import Array
-from pymfony.component.system import abstract
-from pymfony.component.system import Object
-from pymfony.component.system.exception import InvalidArgumentException
+class String(AbstractString):
+    """Base string to provide back compatibility"""
+    pass;
+
+class Array(OrderedDict):
+    @classmethod
+    def toDict(cls, l, strKeys=False):
+        assert isinstance(l, list);
+        d = dict();
+        i = 0;
+        for i in range(len(l)):
+            if strKeys:
+                d[str(i)] = l[i];
+            else:
+                d[i] = l[i];
+            i = i + 1;
+        return d;
+
+    @classmethod
+    def uniq(cls, iterable):
+        assert isinstance(iterable, (list, dict));
+        if isinstance(iterable, list):
+            d = cls.toDict(iterable);
+            result = [];
+            def append(k, v):
+                result.append(v);
+        else:
+            d = iterable;
+            result = {};
+            def append(k, v):
+                result[k] = v;
+
+        pairs = list();
+        for k, v in d.items():
+            pairs.append((k, v));
+        seen = {};
+        for k, v in pairs:
+            marker = v;
+            if marker not in seen.keys():
+                seen[marker] = 1;
+                append(k, v);
+
+        return result;
+
+    @classmethod
+    def diff(cls, leftSide, rightSide):
+        """Computes the difference of lists
+
+        @param leftSide: list The list to compare from
+        @param rightSide: list The list to compare against
+
+        @return: list
+        """
+        leftSide = list(leftSide);
+        rightSide = list(rightSide);
+        return [item for item in leftSide if item not in rightSide];
+
+    @classmethod
+    def diffKey(cls, dict1, dict2, *args):
+        """Compares dict1 against dict2 and returns the difference.
+
+        @param: dict dict1 The dict to compare from
+        @param: dict dict2 A dict to compare against
+        @param: dict ...   More dicts to compare against
+
+        @return: Returns a dict containing all the entries from dict1 that
+                 are not present in any of the other dicts.
+        """
+        args = list(args);
+        args = [dict2] + args;
+        diff = {};
+        while args:
+            new = args.pop(0);
+            for key, value in dict1.items():
+                if key not in new.keys():
+                    diff[key] = value;
+        return diff;
+
 
 class ParameterBag(IteratorAggregateInterface, CountableInterface):
     """ParameterBag is a container for key/value pairs.
@@ -285,7 +365,7 @@ class ParameterBag(IteratorAggregateInterface, CountableInterface):
             return value;
 
         value = str(value);
-        value = Convert.str2Int(value);
+        value = Convert.str2int(value);
 
         return int(value);
 
@@ -313,7 +393,9 @@ class ParameterBag(IteratorAggregateInterface, CountableInterface):
 class Convert(Object):
 
     @classmethod
-    def str2Int(cls, value):
+    def str2int(cls, value):
+        """A PHP conversion
+        """
         if isinstance(value, float):
             return int(value);
         if isinstance(value, int):
@@ -416,4 +498,3 @@ class Convert(Object):
         out = sign + out;
 
         return int(out);
-

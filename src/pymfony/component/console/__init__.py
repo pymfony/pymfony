@@ -20,7 +20,7 @@ from pymfony.component.console.output import OutputInterface;
 from pymfony.component.console.output import ConsoleOutput;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.console.input import ArgvInput;
-from pymfony.component.system.tool import ParameterBag;
+from pymfony.component.system.types import ParameterBag;
 from pymfony.component.console.input import InputInterface
 
 class Request(ArgvInput):

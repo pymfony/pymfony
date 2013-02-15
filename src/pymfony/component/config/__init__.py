@@ -14,24 +14,18 @@ import os.path;
 import sys;
 if sys.version_info[0] >= 3:
     from urllib.parse import urlparse;
-    basestring = str;
 else:
     from urlparse import urlparse;
 
-from pymfony.component.system import (
-    Object,
-    interface,
-    Tool,
-    Array,
-);
-from pymfony.component.system.exception import (
-    InvalidArgumentException,
-);
+from pymfony.component.system.types import String;
+from pymfony.component.system import Object;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system import Tool;
+from pymfony.component.system.types import Array
+from pymfony.component.system.exception import InvalidArgumentException;
 
-from pymfony.component.config.exception import (
-    FileLoaderImportCircularReferenceException,
-    FileLoaderLoadException,
-)
+from pymfony.component.config.exception import FileLoaderImportCircularReferenceException;
+from pymfony.component.config.exception import FileLoaderLoadException;
 
 @interface
 class FileLocatorInterface(Object):
@@ -56,7 +50,7 @@ class FileLocator(FileLocatorInterface):
         """
         if paths is None:
             self._paths = list();
-        elif isinstance(paths, basestring):
+        elif isinstance(paths, String):
             self._paths = [paths];
         else:
             self._paths = list(paths);

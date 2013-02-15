@@ -10,17 +10,15 @@
 
 from __future__ import absolute_import;
 
-import sys;
-if sys.version_info[0] >= 3:
-    basestring = str;
 
+from pymfony.component.system.types import String;
 from pymfony.component.system import Object;
-from pymfony.component.system import interface;
+from pymfony.component.system.oop import interface;
 from pymfony.component.system import Tool;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import BadMethodCallException;
-from pymfony.component.system import ArrayAccessInterface;
-from pymfony.component.system import IteratorAggregateInterface;
+from pymfony.component.system import ArrayAccessInterface
+from pymfony.component.system import IteratorAggregateInterface
 
 from pymfony.component.dependency import ContainerInterface;
 
@@ -373,9 +371,9 @@ class EventDispatcher(EventDispatcherInterface):
         assert isinstance(subscriber, EventSubscriberInterface);
 
         for eventName, params in subscriber.getSubscribedEvents().items():
-            if isinstance(params, basestring):
+            if isinstance(params, String):
                 self.addListener(eventName, [subscriber, params]);
-            elif isinstance(params[0], basestring):
+            elif isinstance(params[0], String):
                 priority = 0;
                 if len(params) > 1:
                     priority = params[1];
@@ -403,7 +401,7 @@ class EventDispatcher(EventDispatcherInterface):
                 for listener in params:
                     self.removeListener(eventName, [subscriber, listener[0]]);
             else:
-                if isinstance(params, basestring):
+                if isinstance(params, String):
                     method = params;
                 else:
                     method = params[0];
@@ -583,13 +581,13 @@ class ContainerAwareEventDispatcher(EventDispatcher):
             if eventName not in self.__listenerIds:
                 self.__listenerIds[eventName] = list();
 
-            if isinstance(params, basestring):
+            if isinstance(params, String):
                 self.__listenerIds[eventName].append([
                     serviceId,
                     params,
                     0,
                 ]);
-            elif isinstance(params[0], basestring):
+            elif isinstance(params[0], String):
                 priority = 0;
                 if len(params) > 1:
                     priority = params[1];

@@ -11,30 +11,22 @@
 from __future__ import absolute_import;
 
 import json;
-import sys;
-if sys.version_info[0] >= 3:
-    basestring = str;
 
-from pymfony.component.system import (
-    Object,
-    abstract,
-    interface,
-    Tool,
-    Array,
-);
-from pymfony.component.system.exception import (
-    InvalidArgumentException,
-    RuntimeException,
-);
-from pymfony.component.config.definition.exception import (
-    ForbiddenOverwriteException,
-    DefinitionException,
-    InvalidConfigurationException,
-    InvalidTypeException,
-    InvalidDefinitionException,
-    UnsetKeyException,
-    DuplicateKeyException,
-);
+from pymfony.component.system.types import String;
+from pymfony.component.system import Object;
+from pymfony.component.system.oop import abstract;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system import Tool;
+from pymfony.component.system.types import Array
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.exception import RuntimeException;
+from pymfony.component.config.definition.exception import ForbiddenOverwriteException;
+from pymfony.component.config.definition.exception import DefinitionException;
+from pymfony.component.config.definition.exception import InvalidConfigurationException;
+from pymfony.component.config.definition.exception import InvalidTypeException;
+from pymfony.component.config.definition.exception import InvalidDefinitionException;
+from pymfony.component.config.definition.exception import UnsetKeyException;
+from pymfony.component.config.definition.exception import DuplicateKeyException;
 
 
 @interface
@@ -214,7 +206,7 @@ class BaseNode(NodeInterface):
 
         @raise InvalidArgumentException: if the name contains a period.
         """
-        assert isinstance(name, basestring);
+        assert isinstance(name, String);
         if parent is not None:
             assert isinstance(parent, NodeInterface);
 
@@ -495,7 +487,7 @@ class VariableNode(BaseNode, PrototypeNodeInterface):
 
 class ScalarNode(VariableNode):
     def _validateType(self, value):
-        if not isinstance(value,(type(None),basestring,int,float,bool)) and \
+        if not isinstance(value,(type(None),String,int,float,bool)) and \
             not value is None:
             ex = InvalidTypeException(
                 'Invalid type for path "{0}". Expected scalar, but got {1}.'
@@ -869,7 +861,7 @@ class PrototypedArrayNode(ArrayNode):
             children = ['defaults'];
         elif isinstance(children, int) and children > 0:
             children = list(range(1, children+1));
-        elif isinstance(children, basestring):
+        elif isinstance(children, String):
             children = [children];
 
         if isinstance(children, list):

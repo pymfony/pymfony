@@ -11,7 +11,7 @@
 from __future__ import absolute_import;
 
 from pymfony.component.system import Object;
-from pymfony.component.system import final;
+from pymfony.component.system.oop import final;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.console import Response;
 from pymfony.component.console import Request;
