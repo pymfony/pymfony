@@ -41,6 +41,7 @@ class InvalidArgumentException(InvalidArgumentException, ExceptionInterface):
 
 class ServiceNotFoundException(InvalidArgumentException):
     def __init__(self, identifier, sourceId=None):
+        InvalidArgumentException.__init__(self);
         self.__id = identifier;
         self.__sourceId = sourceId;
 
@@ -48,12 +49,12 @@ class ServiceNotFoundException(InvalidArgumentException):
 
     def updateRepr(self):
         if self.__sourceId is None:
-            self.message = (
+            self._message = (
                 'You have requested a non-existent parameter "{0}".'
                 "".format(self.__id)
             );
         else:
-            self.message = (
+            self._message = (
                 'The service "{1}" has a dependency '
                 'on a non-existent service "{0}".'
                 "".format(self.__id, self.__sourceId)

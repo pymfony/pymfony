@@ -726,13 +726,13 @@ class InputDefinition(Object):
     def getOptions(self):
         """Gets the array of InputOption objects.
      *
-     * @return InputOption[] An dict of InputOption objects
+     * @return InputOption[] A list of InputOption objects
      *
      * @api
 
         """
 
-        return self.__options;
+        return list(self.__options.values());
 
 
     def hasShortcut(self, name):
@@ -802,7 +802,7 @@ class InputDefinition(Object):
         """
 
         elements = list();
-        for option in self.getOptions().values():
+        for option in self.getOptions():
             if option.getShortcut():
                 shortcut = '-{0}|'.format(option.getShortcut());
             else:
@@ -847,7 +847,7 @@ class InputDefinition(Object):
 
         # find the largest option or argument name
         maxi = 0;
-        for option in self.getOptions().values():
+        for option in self.getOptions():
             nameLength = len(option.getName()) + 2;
             if (option.getShortcut()) :
                 nameLength += len(option.getShortcut()) + 3;
@@ -882,7 +882,7 @@ class InputDefinition(Object):
         if (self.getOptions()) :
             text.append('<comment>Options:</comment>');
 
-            for option in self.getOptions().values():
+            for option in self.getOptions():
                 if (option.acceptValue() and None is not option.getDefault() and ( not isinstance(option.getDefault(), list) or len(option.getDefault()))) :
                     default = '<comment> (default: {0})</comment>'.format(self.__formatDefaultValue(option.getDefault()));
                 else :
@@ -958,7 +958,7 @@ class InputDefinition(Object):
 
         optionsXML = dom.createElement('options');
         definitionXML.appendChild(optionsXML);
-        for option in self.getOptions().values():
+        for option in self.getOptions():
             optionXML = dom.createElement('option');
             optionsXML.appendChild(optionXML);
             optionXML.setAttribute('name', '--'+option.getName());

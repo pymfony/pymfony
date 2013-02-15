@@ -454,10 +454,10 @@ class InputDefinitionTest(unittest.TestCase):
         self.initializeOptions();
 
         definition = InputDefinition();
-        self.assertEqual(dict(), definition.getOptions(), '__init__() creates a new InputDefinition object');
+        self.assertEqual(list(), definition.getOptions(), '__init__() creates a new InputDefinition object');
 
         definition = InputDefinition([self.foo, self.bar]);
-        self.assertEqual({'foo': self.foo, 'bar': self.bar}, definition.getOptions(), '__init__() takes an array of InputOption objects as its first argument');
+        self.assertTrue([self.foo, self.bar] == definition.getOptions() or [self.bar, self.foo] == definition.getOptions(), '__init__() takes an array of InputOption objects as its first argument');
 
 
     def testSetArguments(self):
@@ -593,9 +593,9 @@ class InputDefinitionTest(unittest.TestCase):
         self.initializeOptions();
 
         definition = InputDefinition([self.foo]);
-        self.assertEqual({'foo': self.foo}, definition.getOptions(), '->setOptions() sets the array of InputOption objects');
+        self.assertEqual([self.foo], definition.getOptions(), '->setOptions() sets the array of InputOption objects');
         definition.setOptions([self.bar]);
-        self.assertEqual({'bar': self.bar}, definition.getOptions(), '->setOptions() clears all InputOption objects');
+        self.assertEqual([self.bar], definition.getOptions(), '->setOptions() clears all InputOption objects');
         try:
             definition.getOptionForShortcut('f');
             self.fail('->setOptions() clears all InputOption objects');
@@ -610,9 +610,9 @@ class InputDefinitionTest(unittest.TestCase):
         self.initializeOptions();
 
         definition = InputDefinition([self.foo]);
-        self.assertEqual({'foo': self.foo}, definition.getOptions(), '->addOptions() adds an array of InputOption objects');
+        self.assertEqual([self.foo], definition.getOptions(), '->addOptions() adds an array of InputOption objects');
         definition.addOptions([self.bar]);
-        self.assertEqual({'foo': self.foo, 'bar': self.bar}, definition.getOptions(), '->addOptions() does not clear existing InputOption objects');
+        self.assertTrue([self.foo, self.bar] == definition.getOptions() or [self.bar, self.foo] == definition.getOptions(), '->addOptions() does not clear existing InputOption objects');
 
 
     def testAddOption(self):
@@ -621,9 +621,9 @@ class InputDefinitionTest(unittest.TestCase):
 
         definition = InputDefinition();
         definition.addOption(self.foo);
-        self.assertEqual({'foo': self.foo}, definition.getOptions(), '->addOption() adds a InputOption object');
+        self.assertEqual([self.foo], definition.getOptions(), '->addOption() adds a InputOption object');
         definition.addOption(self.bar);
-        self.assertEqual({'foo': self.foo, 'bar': self.bar}, definition.getOptions(), '->addOption() adds a InputOption object');
+        self.assertEqual([self.foo, self.bar], definition.getOptions(), '->addOption() adds a InputOption object');
         try:
             definition.addOption(self.foo2);
             self.fail('->addOption() raise a LogicException if the another option is already registered with the same name');
@@ -1071,9 +1071,5 @@ class ArrayInputTest(unittest.TestCase):
             self.assertEqual('The "-o" option does not exist.', e.getMessage(), '->parse() raise an InvalidArgumentException exception if an invalid option is passed');
 
 
-
-
-
 if __name__ == "__main__":
     unittest.main();
-
