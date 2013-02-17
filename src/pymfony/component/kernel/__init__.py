@@ -570,10 +570,10 @@ class Kernel(KernelInterface):
         return self._rootDir;
 
     def getCacheDir(self):
-        return self._rootDir+'/Resources/cache/'+self._environment;
+        return self._rootDir+'/cache/'+self._environment;
 
     def getLogDir(self):
-        return self._rootDir+'/Resources/logs/'+self._environment;
+        return self._rootDir+'/logs/'+self._environment;
 
     def getCharset(self):
         return 'UTF-8';
