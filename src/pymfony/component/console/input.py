@@ -1858,6 +1858,9 @@ class ArgvInput(Input):
             values = [values];
 
         tokens = self.__tokens[:];
+        if not tokens:
+            return default;
+
         token = tokens.pop(0);
         while (token) :
             for value in values:
