@@ -1,22 +1,30 @@
 {
 	"parameters": {
+		"console.command_name_converter.class": "pymfony.bundle.framework_bundle.command.CommandNameParser",
 		"console_kernel.class": "pymfony.component.console_kernel.ConsoleKernel",
-		"console.controller_resolver.class": "pymfony.component.console_kernel.controller.ControllerResolver",
+		"console.command_resolver.class": "pymfony.bundle.framework_bundle.controller.ControllerResolver",
 		"console.router_listener.class": "pymfony.component.console_kernel.listener.RouterListener",
 		"console.response_listener.class": "pymfony.component.console_kernel.listener.ResponseListener"
 	},
 	"services": {
-		"console.controller_resolver": {
-			"class": "%console.controller_resolver.class%",
+		"console.command_name_converter": {
+			"class": "%console.command_name_converter.class%",
 			"arguments": [
-				"@service_container"
+				"@kernel"
+			]
+		},
+		"console.command_resolver": {
+			"class": "%console.command_resolver.class%",
+			"arguments": [
+				"@service_container",
+				"@console.command_name_converter"
 			]
 		},
 		"console_kernel": {
 			"class": "%console_kernel.class%",
 			"arguments": [
 				"@event_dispatcher",
-				"@console.controller_resolver",
+				"@console.command_resolver",
 				"%kernel.name%",
 				"%kernel.version%"
 			]

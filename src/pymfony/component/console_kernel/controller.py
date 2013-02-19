@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import inspect
@@ -19,8 +16,10 @@ from pymfony.component.system import Tool
 from pymfony.component.system.exception import InvalidArgumentException
 from pymfony.component.system import ReflectionClass
 from pymfony.component.system import ReflectionObject
-from pymfony.component.dependency.interface import ContainerAwareInterface
-from pymfony.component.dependency.interface import ContainerInterface
+from pymfony.component.system.exception import RuntimeException
+
+"""
+"""
 
 @interface
 class ControllerResolverInterface(Object):
@@ -90,12 +89,9 @@ class ControllerResolver(ControllerResolverInterface):
 
     """
 
-    def __init__(self, container):
+    def __init__(self):
         """Constructor.
         """
-        assert isinstance(container, ContainerInterface);
-
-        self._container = container;
 
     def getController(self, request):
         """Returns the Controller instance associated with a Request.
@@ -139,9 +135,6 @@ class ControllerResolver(ControllerResolverInterface):
                     ReflectionObject(controller).getName(), method)
                 );
 
-        if isinstance(controller, ContainerAwareInterface):
-            controller.setContainer(self._container);
-
 
         return getattr(controller, method);
 
@@ -179,6 +172,15 @@ class ControllerResolver(ControllerResolverInterface):
                 arguments.append(request);
             elif request.hasArgument(name):
                 arguments.append(request.getArgument(name));
+            elif request.hasOption(name):
+                arguments.append(request.getOption(name));
+            else:
+                raise RuntimeException(
+                    'Controller "{0}" requires that you provide a value for '
+                    'the "{1}" argument (because there is no default value or '
+                    'because there is a non optional argument after this one).'
+                    ''.format(repr(controller), name)
+                );
 
         return arguments;
 

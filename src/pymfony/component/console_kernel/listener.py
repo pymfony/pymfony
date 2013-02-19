@@ -83,14 +83,13 @@ class RouterListener(EventSubscriberInterface):
                 'registered.'.format(cmdName)
             );
 
-        controllerInfos = commands[cmdName];
-        controller = self.__stripController(controllerInfos['_controller']);
-        request.attributes.set('_controller', controller);
+        cmdInfos = commands[cmdName];
+        request.attributes.set('_controller', cmdInfos['_controller']);
 
         definition = self._getDefaultInputDefinition();
         # parse the definition
-        if '_definition' in controllerInfos:
-            cmdDefinition = controllerInfos["_definition"];
+        if '_definition' in cmdInfos:
+            cmdDefinition = cmdInfos["_definition"];
             if isinstance(cmdDefinition, InputDefinition):
                 definition.addArguments(cmdDefinition.getArguments());
                 definition.addOptions(cmdDefinition.getOptions());
@@ -115,27 +114,6 @@ class RouterListener(EventSubscriberInterface):
             InputOption('--no-ansi', '', InputOption.VALUE_NONE, 'Disable ANSI output.'),
             InputOption('--no-interaction', '-n', InputOption.VALUE_NONE, 'Do not ask any interactive question.'),
         ]);
-
-
-
-    def __stripController(self, controller):
-        """
-        @param: dict controllerInfos
-        """
-        controller = str(controller);
-
-        # 'SomeBundle:controllerName:actionName'
-
-        bundleName, controllerName, actionName = controller.split(':', 3);
-
-        bundle = self.__container.get('kernel').getBundle(bundleName);
-        bundleNamespace = bundle.getNamespace();
-        className = ( bundleNamespace + '.command.' +
-            controllerName + 'Controller'
-        );
-        methodName = actionName + 'Action';
-
-        return className + "::" + methodName;
 
 
     @classmethod
