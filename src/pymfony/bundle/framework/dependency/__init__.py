@@ -46,7 +46,7 @@ class FrameworkExtension(ConfigurableExtension):
 
         commands['list'] = {
             "_description": "Show command list",
-            "_controller": "@FrameworkBundle:List:show",
+            "_controller": "FrameworkBundle:List:show",
         };
 
         container.setParameter('console.commands', commands);

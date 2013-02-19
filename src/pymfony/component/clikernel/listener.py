@@ -124,11 +124,9 @@ class RouterListener(EventSubscriberInterface):
         """
         controller = str(controller);
 
-        '@SomeBundle:controllerName:actionName'
-        if not controller.startswith('@'):
-            raise NotFoundCliException();
+        # 'SomeBundle:controllerName:actionName'
 
-        bundleName, controllerName, actionName = controller[1:].split(':', 3);
+        bundleName, controllerName, actionName = controller.split(':', 3);
 
         bundle = self.__container.get('kernel').getBundle(bundleName);
         bundleNamespace = bundle.getNamespace();
