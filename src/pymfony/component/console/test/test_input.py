@@ -622,7 +622,7 @@ class InputDefinitionTest(unittest.TestCase):
         definition.addOption(self.foo);
         self.assertEqual([self.foo], definition.getOptions(), '->addOption() adds a InputOption object');
         definition.addOption(self.bar);
-        self.assertEqual([self.foo, self.bar], definition.getOptions(), '->addOption() adds a InputOption object');
+        self.assertTrue([self.foo, self.bar] == definition.getOptions() or [self.bar, self.foo] == definition.getOptions(), '->addOption() adds a InputOption object');
         try:
             definition.addOption(self.foo2);
             self.fail('->addOption() raise a LogicException if the another option is already registered with the same name');
