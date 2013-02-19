@@ -589,7 +589,7 @@ class Kernel(KernelInterface):
     def getCharset(self):
         return 'UTF-8';
 
-    def getCliKernel(self):
+    def getConsoleKernel(self):
         if not self._booted:
             self.boot();
-        return self._container.get('cli_kernel');
+        return self._container.get('console_kernel');

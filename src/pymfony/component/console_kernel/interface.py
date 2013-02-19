@@ -17,7 +17,7 @@ from pymfony.component.console import Response;
 from pymfony.component.console import Request;
 
 @interface
-class CliTerminableInterface(Object):
+class ConsoleTerminableInterface(Object):
     """Terminable extends the Kernel request/response cycle with dispatching a post
  * response event after sending the response and before shutting down the kernel.
  *
@@ -43,8 +43,8 @@ class CliTerminableInterface(Object):
         assert isinstance(request, Request);
 
 @interface
-class CliKernelInterface(Object):
-    """CliKernelInterface handles a Request to convert it to a Response.
+class ConsoleKernelInterface(Object):
+    """ConsoleKernelInterface handles a Request to convert it to a Response.
  *
  * @author Fabien Potencier <fabien@symfony.com>
  *
@@ -63,8 +63,8 @@ class CliKernelInterface(Object):
      *
      * @param Request   request   A Request instance
      * @param integer   type      The type of the request
-     *                            (one of CliKernelInterface.MASTER_REQUEST
-                                  or CliKernelInterface.SUB_REQUEST)
+     *                            (one of ConsoleKernelInterface.MASTER_REQUEST
+                                  or ConsoleKernelInterface.SUB_REQUEST)
      * @param Boolean   catch     Whether to catch exceptions or not
      *
      * @return Response A Response instance

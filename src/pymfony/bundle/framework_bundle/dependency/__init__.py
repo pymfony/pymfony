@@ -30,7 +30,7 @@ class FrameworkExtension(ConfigurableExtension):
         ));
 
         loader.load("services.json");
-        loader.load("cli.json");
+        loader.load("console.json");
 
         for name, value in config.items():
             container.getParameterBag().set(self.getAlias()+'.'+name, value);

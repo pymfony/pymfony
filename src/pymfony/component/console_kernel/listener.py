@@ -11,16 +11,16 @@
 from __future__ import absolute_import;
 
 
-from pymfony.component.clikernel import CliKernelEvents
-from pymfony.component.dispatcher import EventSubscriberInterface
+from pymfony.component.console_kernel import ConsoleKernelEvents
+from pymfony.component.event_dispatcher import EventSubscriberInterface
 from pymfony.component.dependency import ContainerInterface
-from pymfony.component.clikernel.event import GetResponseEvent
-from pymfony.component.clikernel.exception import NotFoundCliException
+from pymfony.component.console_kernel.event import GetResponseEvent
+from pymfony.component.console_kernel.exception import NotFoundConsoleException
 from pymfony.component.console import Response
 from pymfony.component.console.output import OutputInterface
 from pymfony.component.console import Request
 from pymfony.component.console.input import InputDefinition
-from pymfony.component.clikernel.event import FilterResponseEvent
+from pymfony.component.console_kernel.event import FilterResponseEvent
 from pymfony.component.console.input import InputArgument
 from pymfony.component.console.input import InputOption
 
@@ -68,18 +68,18 @@ class RouterListener(EventSubscriberInterface):
             request.setInteractive(False);
 
         if request.hasParameterOption(['--version', '-V']):
-            return Response(self.__container.get('cli_kernel').getLongVersion()); 
+            return Response(self.__container.get('console_kernel').getLongVersion()); 
 
         # add attributes based on the request (routing)
         if not self.__container.hasParameter('console.commands'):
-            raise NotFoundCliException('You need to registered commands.');
+            raise NotFoundConsoleException('You need to registered commands.');
 
         commands = self.__container.getParameter('console.commands');
 
         if not cmdName:
             cmdName = request.attributes.get('_default_command');
         if cmdName not in commands:
-            raise NotFoundCliException('The command "{0}" is not '
+            raise NotFoundConsoleException('The command "{0}" is not '
                 'registered.'.format(cmdName)
             );
 
@@ -142,7 +142,7 @@ class RouterListener(EventSubscriberInterface):
     def getSubscribedEvents(self):
 
         return {
-            CliKernelEvents.REQUEST: [['onKernelRequest', 32]],
+            ConsoleKernelEvents.REQUEST: [['onKernelRequest', 32]],
         };
 
 
@@ -178,5 +178,5 @@ class ResponseListener(EventSubscriberInterface):
     @classmethod
     def getSubscribedEvents(cls):
         return {
-            CliKernelEvents.RESPONSE: 'onKernelResponse',
+            ConsoleKernelEvents.RESPONSE: 'onKernelResponse',
         };

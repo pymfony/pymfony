@@ -15,73 +15,73 @@ from pymfony.component.system.oop import final;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.console import Response;
 from pymfony.component.console import Request;
-from pymfony.component.dispatcher import EventDispatcherInterface;
-from pymfony.component.clikernel.exception import CliExceptionInterface;
-from pymfony.component.clikernel.exception import NotFoundCliException;
-from pymfony.component.clikernel.controller import ControllerResolverInterface
-from pymfony.component.clikernel.event import PostResponseEvent
-from pymfony.component.clikernel.event import GetResponseEvent
-from pymfony.component.clikernel.event import FilterControllerEvent
-from pymfony.component.clikernel.event import GetResponseForControllerResultEvent
-from pymfony.component.clikernel.event import FilterResponseEvent
-from pymfony.component.clikernel.event import GetResponseForExceptionEvent
-from pymfony.component.clikernel.interface import CliTerminableInterface;
-from pymfony.component.clikernel.interface import CliKernelInterface;
+from pymfony.component.event_dispatcher import EventDispatcherInterface;
+from pymfony.component.console_kernel.exception import ConsoleExceptionInterface;
+from pymfony.component.console_kernel.exception import NotFoundConsoleException;
+from pymfony.component.console_kernel.controller import ControllerResolverInterface
+from pymfony.component.console_kernel.event import PostResponseEvent
+from pymfony.component.console_kernel.event import GetResponseEvent
+from pymfony.component.console_kernel.event import FilterControllerEvent
+from pymfony.component.console_kernel.event import GetResponseForControllerResultEvent
+from pymfony.component.console_kernel.event import FilterResponseEvent
+from pymfony.component.console_kernel.event import GetResponseForExceptionEvent
+from pymfony.component.console_kernel.interface import ConsoleTerminableInterface;
+from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
 from pymfony.component.console.output import OutputInterface
 
 
 @final
-class CliKernelEvents(Object):
+class ConsoleKernelEvents(Object):
     # The REQUEST event occurs at the very beginning of request dispatching
     #
     # This event allows you to create a response for a request before any
     # other code in the framework is executed. The event listener method
-    # receives a pymfony.component.clikernel.event.GetResponseEvent instance.
-    REQUEST = 'cli_kernel.request';
+    # receives a pymfony.component.console_kernel.event.GetResponseEvent instance.
+    REQUEST = 'console_kernel.request';
 
     # The EXCEPTION event occurs when an uncaught exception appears
     #
     # This event allows you to create a response for a raise exception or
     # to modify the raise exception. The event listener method receives
-    # a pymfony.component.clikernel.event.GetResponseForExceptionEvent instance.
-    EXCEPTION = 'cli_kernel.exception';
+    # a pymfony.component.console_kernel.event.GetResponseForExceptionEvent instance.
+    EXCEPTION = 'console_kernel.exception';
 
     # The CONTROLLER event occurs once a controller was found for
     # handling a output
     #
     # This event allows you to change the controller that will handle the
     # response. The event listener method receives a
-    # pymfony.component.clikernel.event.FilterControllerEvent instance.
-    CONTROLLER = 'cli_kernel.controller';
+    # pymfony.component.console_kernel.event.FilterControllerEvent instance.
+    CONTROLLER = 'console_kernel.controller';
 
     # The VIEW event occurs when the return value of a controller
     # is not a Response instance.
     #
     # This event allows you to create a response for the return value of the
     # controller. The event listener method receives a
-    # pymfony.component.clikernel.event.GetResponseForControllerResultEvent
+    # pymfony.component.console_kernel.event.GetResponseForControllerResultEvent
     # instance.
-    VIEW = 'cli_kernel.view';
+    VIEW = 'console_kernel.view';
 
     # The RESPONSE event occurs once a response was created for
     # replying to a response
     #
     # This event allows you to modify or replace the response that will be
     # replied. The event listener method receives a
-    # pymfony.component.clikernel.event.FilterResponseEvent instance.
-    RESPONSE = 'cli_kernel.response';
+    # pymfony.component.console_kernel.event.FilterResponseEvent instance.
+    RESPONSE = 'console_kernel.response';
 
     # The TERMINATE event occurs once a response was sent
     #
     # This event allows you to run expensive post-response jobs.
     # The event listener method receives a
-    # pymfony.component.clikernel.event.PostResponseEvent instance.
-    TERMINATE = 'cli_kernel.terminate';
+    # pymfony.component.console_kernel.event.PostResponseEvent instance.
+    TERMINATE = 'console_kernel.terminate';
 
 
 
-class CliKernel(CliKernelInterface, CliTerminableInterface):
-    """CliKernel notifies events to convert a Request object to a Response one.:
+class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
+    """ConsoleKernel notifies events to convert a Request object to a Response one.:
  *
  * @author Fabien Potencier <fabien@symfony.com>
  *
@@ -111,7 +111,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
         self.__name = name;
         self.__version = version;
 
-    def handle(self, request, requestType = CliKernelInterface.MASTER_REQUEST, catch = True):
+    def handle(self, request, requestType = ConsoleKernelInterface.MASTER_REQUEST, catch = True):
         """Handles a Request to convert it to a Response.
      *
      * When catch is True, the implementation must catch all exceptions
@@ -119,8 +119,8 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
      *
      * @param Request request   A Request instance
      * @param integer   type      The type of the request
-     *                            (one of CliKernelInterface.MASTER_REQUEST
-                                  or CliKernelInterface.SUB_REQUEST)
+     *                            (one of ConsoleKernelInterface.MASTER_REQUEST
+                                  or ConsoleKernelInterface.SUB_REQUEST)
      * @param Boolean   catch     Whether to catch exceptions or not
      *
      * @return Response A Response instance
@@ -153,7 +153,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
         assert isinstance(request, Request);
 
         self._dispatcher.dispatch(
-            CliKernelEvents.TERMINATE,
+            ConsoleKernelEvents.TERMINATE,
             PostResponseEvent(self, request, response)
         );
 
@@ -222,25 +222,25 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
         return '<info>Console Tool</info>';
 
 
-    def __handleRaw(self, request, requestType = CliKernelInterface.MASTER_REQUEST):
+    def __handleRaw(self, request, requestType = ConsoleKernelInterface.MASTER_REQUEST):
         """Handles a request to convert it to a response.
      *
      * Exceptions are not caught.
      *
      * @param Request request A Request instance
-     * @param integer type    The type of the request (one of CliKernelInterface.MASTER_REQUEST or CliKernelInterface.SUB_REQUEST)
+     * @param integer type    The type of the request (one of ConsoleKernelInterface.MASTER_REQUEST or ConsoleKernelInterface.SUB_REQUEST)
      *
      * @return Response A Response instance
      *
      * @raise LogicException If one of the listener does not behave as expected
-     * @raise NotFoundCliException When controller cannot be found
+     * @raise NotFoundConsoleException When controller cannot be found
 
         """
         assert isinstance(request, Request);
 
         # request
         event = GetResponseEvent(self, request, requestType);
-        self._dispatcher.dispatch(CliKernelEvents.REQUEST, event);
+        self._dispatcher.dispatch(ConsoleKernelEvents.REQUEST, event);
 
         if (event.hasResponse()) :
             return self.__filterResponse(event.getResponse(), request, requestType);
@@ -249,7 +249,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
         # load controller
         controller = self._resolver.getController(request);
         if (False is controller) :
-            raise NotFoundCliException(
+            raise NotFoundConsoleException(
                 'Unable to find the controller for path "{0}". Maybe you '
                 'forgot to add the matching route in your routing '
                 'configuration?'.format(request.getFirstArgument())
@@ -257,7 +257,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
 
 
         event = FilterControllerEvent(self, controller, request, requestType);
-        self._dispatcher.dispatch(CliKernelEvents.CONTROLLER, event);
+        self._dispatcher.dispatch(ConsoleKernelEvents.CONTROLLER, event);
         controller = event.getController();
 
         # controller arguments
@@ -269,7 +269,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
         # view
         if ( not isinstance(response, Response)) :
             event = GetResponseForControllerResultEvent(self, request, requestType, response);
-            self._dispatcher.dispatch(CliKernelEvents.VIEW, event);
+            self._dispatcher.dispatch(ConsoleKernelEvents.VIEW, event);
 
             if (event.hasResponse()) :
                 response = event.getResponse();
@@ -298,8 +298,8 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
      * @param Request  request  A error message in case the response is
                                     not a Response object
      * @param integer    requestType  The type of the input (one of
-                                    CliKernelInterface.MASTER_REQUEST or
-                                    CliKernelInterface.SUB_REQUEST)
+                                    ConsoleKernelInterface.MASTER_REQUEST or
+                                    ConsoleKernelInterface.SUB_REQUEST)
      *
      * @return Response The filtered Response instance
      *
@@ -311,7 +311,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
 
         event = FilterResponseEvent(self, request, requestType, response);
 
-        self._dispatcher.dispatch(CliKernelEvents.RESPONSE, event);
+        self._dispatcher.dispatch(ConsoleKernelEvents.RESPONSE, event);
 
         return event.getResponse();
 
@@ -331,7 +331,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
         assert isinstance(e, Exception);
 
         event = GetResponseForExceptionEvent(self, request, requestType, e);
-        self._dispatcher.dispatch(CliKernelEvents.EXCEPTION, event);
+        self._dispatcher.dispatch(ConsoleKernelEvents.EXCEPTION, event);
 
         # a listener might have replaced the exception
         e = event.getException();
@@ -341,7 +341,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
 
         response = event.getResponse();
 
-        if (isinstance(e, CliExceptionInterface)) :
+        if (isinstance(e, ConsoleExceptionInterface)) :
             # keep the CLI status code
             response.setStatusCode(e.getStatusCode());
         else:

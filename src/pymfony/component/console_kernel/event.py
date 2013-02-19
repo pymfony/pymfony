@@ -10,15 +10,15 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.dispatcher import Event;
+from pymfony.component.event_dispatcher import Event;
 from pymfony.component.console import Request
-from pymfony.component.clikernel.interface import CliKernelInterface
+from pymfony.component.console_kernel.interface import ConsoleKernelInterface
 from pymfony.component.system.exception import LogicException
 from pymfony.component.system import Tool
 from pymfony.component.console import Response
 
-class CliKernelEvent(Event):
-    """Base class for events thrown in the CliKernel component):
+class ConsoleKernelEvent(Event):
+    """Base class for events thrown in the ConsoleKernel component):
  *
  * @author Bernhard Schussek <bschussek@gmail.com>
  *
@@ -29,12 +29,12 @@ class CliKernelEvent(Event):
 
     def __init__(self, kernel, request, requestType):
         assert isinstance(request, Request);
-        assert isinstance(kernel, CliKernelInterface);
+        assert isinstance(kernel, ConsoleKernelInterface);
 
         Event.__init__(self);
 
         # The kernel in which this event was thrown
-        # @var CliKernelInterface
+        # @var ConsoleKernelInterface
         self.__kernel = None;
 
         # The request the kernel is currently processing
@@ -54,7 +54,7 @@ class CliKernelEvent(Event):
     def getKernel(self):
         """Returns the kernel in which this event was thrown
      *
-     * @return CliKernelInterface
+     * @return ConsoleKernelInterface
      *
      * @api
 
@@ -78,8 +78,8 @@ class CliKernelEvent(Event):
     def getRequestType(self):
         """Returns the request type the kernel is currently processing
      *
-     * @return integer  One of CliKernelInterface.MASTER_REQUEST and
-     *                  CliKernelInterface.SUB_REQUEST
+     * @return integer  One of ConsoleKernelInterface.MASTER_REQUEST and
+     *                  ConsoleKernelInterface.SUB_REQUEST
      *
      * @api
 
@@ -88,7 +88,7 @@ class CliKernelEvent(Event):
         return self.__requestType;
 
 
-class FilterControllerEvent(CliKernelEvent):
+class FilterControllerEvent(ConsoleKernelEvent):
     """Allows filtering of a controller callable
  *
  * You can call getController() to retrieve the current controller. With
@@ -107,9 +107,9 @@ class FilterControllerEvent(CliKernelEvent):
 
     def __init__(self, kernel, controller, request, requestType):
         assert isinstance(request, Request);
-        assert isinstance(kernel, CliKernelInterface);
+        assert isinstance(kernel, ConsoleKernelInterface);
 
-        CliKernelEvent.__init__(self, kernel, request, requestType);
+        ConsoleKernelEvent.__init__(self, kernel, request, requestType);
 
         # The current controller
         # @var callable
@@ -155,7 +155,7 @@ class FilterControllerEvent(CliKernelEvent):
 
 
 
-class FilterResponseEvent(CliKernelEvent):
+class FilterResponseEvent(ConsoleKernelEvent):
     """Allows to filter a Response object
  *
  * You can call getResponse() to retrieve the current response. With
@@ -171,9 +171,9 @@ class FilterResponseEvent(CliKernelEvent):
     def __init__(self, kernel, request, requestType, response):
         assert isinstance(response, Response);
         assert isinstance(request, Request);
-        assert isinstance(kernel, CliKernelInterface);
+        assert isinstance(kernel, ConsoleKernelInterface);
 
-        CliKernelEvent.__init__(self, kernel, request, requestType);
+        ConsoleKernelEvent.__init__(self, kernel, request, requestType);
 
         # he current response object
         # @var Response
@@ -209,7 +209,7 @@ class FilterResponseEvent(CliKernelEvent):
 
 
 
-class GetResponseEvent(CliKernelEvent):
+class GetResponseEvent(ConsoleKernelEvent):
     """Allows to create a response for a request
  *
  * Call setResponse() to set the response that will be returned for the
@@ -223,7 +223,7 @@ class GetResponseEvent(CliKernelEvent):
     """
 
     def __init__(self, kernel, request, requestType):
-        CliKernelEvent.__init__(self, kernel, request, requestType);
+        ConsoleKernelEvent.__init__(self, kernel, request, requestType);
 
         # he response object
         # @var Response
@@ -284,7 +284,7 @@ class GetResponseForControllerResultEvent(GetResponseEvent):
 
     def __init__(self, kernel, request, requestType, controllerResult):
         assert isinstance(request, Request);
-        assert isinstance(kernel, CliKernelInterface);
+        assert isinstance(kernel, ConsoleKernelInterface);
 
         GetResponseEvent.__init__(self, kernel, request, requestType);
 
@@ -343,7 +343,7 @@ class GetResponseForExceptionEvent(GetResponseEvent):
     def __init__(self, kernel, request, requestType, e):
         assert isinstance(e, Exception);
         assert isinstance(request, Request);
-        assert isinstance(kernel, CliKernelInterface);
+        assert isinstance(kernel, ConsoleKernelInterface);
 
         GetResponseEvent.__init__(self, kernel, request, requestType);
 
@@ -393,10 +393,10 @@ class PostResponseEvent(Event):
     def __init__(self, kernel, request, response):
         assert isinstance(response, Response);
         assert isinstance(request, Request);
-        assert isinstance(kernel, CliKernelInterface);
+        assert isinstance(kernel, ConsoleKernelInterface);
 
         #The kernel in which this event was thrown
-        # @var CliKernelInterface
+        # @var ConsoleKernelInterface
         self.__kernel = None;
 
 

@@ -15,7 +15,7 @@ from pymfony.component.system import Object;
 from pymfony.component.system.oop import interface
 
 @interface
-class CliExceptionInterface(Object):
+class ConsoleExceptionInterface(Object):
     """Interface for CLI error exceptions.
  *
  * @author Kris Wallsmith <kris@symfony.com>
@@ -29,8 +29,8 @@ class CliExceptionInterface(Object):
 
         """
 
-class CliException(RuntimeException, CliExceptionInterface):
-    """CliException.
+class ConsoleException(RuntimeException, ConsoleExceptionInterface):
+    """ConsoleException.
  *
  * @author Kris Wallsmith <kris@symfony.com>
 
@@ -53,8 +53,8 @@ class CliException(RuntimeException, CliExceptionInterface):
 
 
 
-class NotFoundCliException(CliException):
-    """NotFoundCliException.
+class NotFoundConsoleException(ConsoleException):
+    """NotFoundConsoleException.
  *
  * @author Fabien Potencier <fabien@symfony.com>
 
@@ -69,5 +69,5 @@ class NotFoundCliException(CliException):
 
         """
 
-        CliException.__init__(self, 1, message, previous, code);
+        ConsoleException.__init__(self, 1, message, previous, code);
 

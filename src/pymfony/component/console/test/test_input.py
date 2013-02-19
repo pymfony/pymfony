@@ -793,7 +793,7 @@ class ArgvInputTest(unittest.TestCase):
     def testConstructor(self):
         argv = sys.argv[:];
 
-        sys.argv = ['cli.php', 'foo'];
+        sys.argv = ['console.php', 'foo'];
         inputv = ArgvInput();
 
         self.assertEqual(['foo'], inputv._ArgvInput__tokens, '__init__() automatically get its input from the argv server variable');
@@ -802,27 +802,27 @@ class ArgvInputTest(unittest.TestCase):
 
     def testParser(self):
 
-        inputv = ArgvInput(['cli.php', 'foo']);
+        inputv = ArgvInput(['console.php', 'foo']);
         inputv.bind(InputDefinition([InputArgument('name')]));
         self.assertEqual({'name': 'foo'}, inputv.getArguments(), '->parse() parses required arguments');
 
         inputv.bind(InputDefinition([InputArgument('name')]));
         self.assertEqual({'name': 'foo'}, inputv.getArguments(), '->parse() is stateless');
 
-        inputv = ArgvInput(['cli.php', '--foo']);
+        inputv = ArgvInput(['console.php', '--foo']);
         inputv.bind(InputDefinition([InputOption('foo')]));
         self.assertEqual({'foo': True}, inputv.getOptions(), '->parse() parses long options without a value');
 
-        inputv = ArgvInput(['cli.php', '--foo=bar']);
+        inputv = ArgvInput(['console.php', '--foo=bar']);
         inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_REQUIRED)]));
         self.assertEqual({'foo': 'bar'}, inputv.getOptions(), '->parse() parses long options with a required value (with a = separator)');
 
-        inputv = ArgvInput(['cli.php', '--foo', 'bar']);
+        inputv = ArgvInput(['console.php', '--foo', 'bar']);
         inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_REQUIRED)]));
         self.assertEqual({'foo': 'bar'}, inputv.getOptions(), '->parse() parses long options with a required value (with a space separator)');
 
         try:
-            inputv = ArgvInput(['cli.php', '--foo']);
+            inputv = ArgvInput(['console.php', '--foo']);
             inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_REQUIRED)]));
             self.fail('->parse() raise a RuntimeException if no value is passed to an option when it is required');
         except Exception as e:
@@ -830,36 +830,36 @@ class ArgvInputTest(unittest.TestCase):
             self.assertEqual('The "--foo" option requires a value.', e.getMessage(), '->parse() raise a RuntimeException if no value is passed to an option when it is required');
 
 
-        inputv = ArgvInput(['cli.php', '-f']);
+        inputv = ArgvInput(['console.php', '-f']);
         inputv.bind(InputDefinition([InputOption('foo', 'f')]));
         self.assertEqual({'foo': True}, inputv.getOptions(), '->parse() parses short options without a value');
 
-        inputv = ArgvInput(['cli.php', '-fbar']);
+        inputv = ArgvInput(['console.php', '-fbar']);
         inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_REQUIRED)]));
         self.assertEqual({'foo': 'bar'}, inputv.getOptions(), '->parse() parses short options with a required value (with no separator)');
 
-        inputv = ArgvInput(['cli.php', '-f', 'bar']);
+        inputv = ArgvInput(['console.php', '-f', 'bar']);
         inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_REQUIRED)]));
         self.assertEqual({'foo': 'bar'}, inputv.getOptions(), '->parse() parses short options with a required value (with a space separator)');
 
-        inputv = ArgvInput(['cli.php', '-f', '']);
+        inputv = ArgvInput(['console.php', '-f', '']);
         inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_OPTIONAL)]));
         self.assertEqual({'foo': ''}, inputv.getOptions(), '->parse() parses short options with an optional empty value');
 
-        inputv = ArgvInput(['cli.php', '-f', '', 'foo']);
+        inputv = ArgvInput(['console.php', '-f', '', 'foo']);
         inputv.bind(InputDefinition([InputArgument('name'), InputOption('foo', 'f', InputOption.VALUE_OPTIONAL)]));
         self.assertEqual({'foo': ''}, inputv.getOptions(), '->parse() parses short options with an optional empty value followed by an argument');
 
-        inputv = ArgvInput(['cli.php', '-f', '', '-b']);
+        inputv = ArgvInput(['console.php', '-f', '', '-b']);
         inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_OPTIONAL), InputOption('bar', 'b')]));
         self.assertEqual({'foo': '', 'bar': True}, inputv.getOptions(), '->parse() parses short options with an optional empty value followed by an option');
 
-        inputv = ArgvInput(['cli.php', '-f', '-b', 'foo']);
+        inputv = ArgvInput(['console.php', '-f', '-b', 'foo']);
         inputv.bind(InputDefinition([InputArgument('name'), InputOption('foo', 'f', InputOption.VALUE_OPTIONAL), InputOption('bar', 'b')]));
         self.assertEqual({'foo': None, 'bar': True}, inputv.getOptions(), '->parse() parses short options with an optional value which is not present');
 
         try:
-            inputv = ArgvInput(['cli.php', '-f']);
+            inputv = ArgvInput(['console.php', '-f']);
             inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_REQUIRED)]));
             self.fail('->parse() raise a RuntimeException if no value is passed to an option when it is required');
         except Exception as e:
@@ -868,7 +868,7 @@ class ArgvInputTest(unittest.TestCase):
 
 
         try:
-            inputv = ArgvInput(['cli.php', '-ffoo']);
+            inputv = ArgvInput(['console.php', '-ffoo']);
             inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_NONE)]));
             self.fail('->parse() raise a RuntimeException if a value is passed to an option which does not take one');
         except Exception as e:
@@ -877,7 +877,7 @@ class ArgvInputTest(unittest.TestCase):
 
 
         try:
-            inputv = ArgvInput(['cli.php', 'foo', 'bar']);
+            inputv = ArgvInput(['console.php', 'foo', 'bar']);
             inputv.bind(InputDefinition());
             self.fail('->parse() raise a RuntimeException if too many arguments are passed');
         except Exception as e:
@@ -886,7 +886,7 @@ class ArgvInputTest(unittest.TestCase):
 
 
         try:
-            inputv = ArgvInput(['cli.php', '--foo']);
+            inputv = ArgvInput(['console.php', '--foo']);
             inputv.bind(InputDefinition());
             self.fail('->parse() raise a RuntimeException if an unknown long option is passed');
         except Exception as e:
@@ -895,7 +895,7 @@ class ArgvInputTest(unittest.TestCase):
 
 
         try:
-            inputv = ArgvInput(['cli.php', '-f']);
+            inputv = ArgvInput(['console.php', '-f']);
             inputv.bind(InputDefinition());
             self.fail('->parse() raise a RuntimeException if an unknown short option is passed');
         except Exception as e:
@@ -903,40 +903,40 @@ class ArgvInputTest(unittest.TestCase):
             self.assertEqual('The "-f" option does not exist.', e.getMessage(), '->parse() raise a RuntimeException if an unknown short option is passed');
 
 
-        inputv = ArgvInput(['cli.php', '-fb']);
+        inputv = ArgvInput(['console.php', '-fb']);
         inputv.bind(InputDefinition([InputOption('foo', 'f'), InputOption('bar', 'b')]));
         self.assertEqual({'foo': True, 'bar': True}, inputv.getOptions(), '->parse() parses short options when they are aggregated as a single one');
 
-        inputv = ArgvInput(['cli.php', '-fb', 'bar']);
+        inputv = ArgvInput(['console.php', '-fb', 'bar']);
         inputv.bind(InputDefinition([InputOption('foo', 'f'), InputOption('bar', 'b', InputOption.VALUE_REQUIRED)]));
         self.assertEqual({'foo': True, 'bar': 'bar'}, inputv.getOptions(), '->parse() parses short options when they are aggregated as a single one and the last one has a required value');
 
-        inputv = ArgvInput(['cli.php', '-fb', 'bar']);
+        inputv = ArgvInput(['console.php', '-fb', 'bar']);
         inputv.bind(InputDefinition([InputOption('foo', 'f'), InputOption('bar', 'b', InputOption.VALUE_OPTIONAL)]));
         self.assertEqual({'foo': True, 'bar': 'bar'}, inputv.getOptions(), '->parse() parses short options when they are aggregated as a single one and the last one has an optional value');
 
-        inputv = ArgvInput(['cli.php', '-fbbar']);
+        inputv = ArgvInput(['console.php', '-fbbar']);
         inputv.bind(InputDefinition([InputOption('foo', 'f'), InputOption('bar', 'b', InputOption.VALUE_OPTIONAL)]));
         self.assertEqual({'foo': True, 'bar': 'bar'}, inputv.getOptions(), '->parse() parses short options when they are aggregated as a single one and the last one has an optional value with no separator');
 
-        inputv = ArgvInput(['cli.php', '-fbbar']);
+        inputv = ArgvInput(['console.php', '-fbbar']);
         inputv.bind(InputDefinition([InputOption('foo', 'f', InputOption.VALUE_OPTIONAL), InputOption('bar', 'b', InputOption.VALUE_OPTIONAL)]));
         self.assertEqual({'foo': 'bbar', 'bar': None}, inputv.getOptions(), '->parse() parses short options when they are aggregated as a single one and one of them takes a value');
 
         try:
-            inputv = ArgvInput(['cli.php', 'foo', 'bar', 'baz', 'bat']);
+            inputv = ArgvInput(['console.php', 'foo', 'bar', 'baz', 'bat']);
             inputv.bind(InputDefinition([InputArgument('name', InputArgument.IS_ARRAY)]));
             self.assertEqual({'name': ['foo', 'bar', 'baz', 'bat']}, inputv.getArguments(), '->parse() parses array arguments');
         except RuntimeException as e:
             self.assertNotEqual('Too many arguments.', e.getMessage(), '->parse() parses array arguments');
 
 
-        inputv = ArgvInput(['cli.php', '--name=foo', '--name=bar', '--name=baz']);
+        inputv = ArgvInput(['console.php', '--name=foo', '--name=bar', '--name=baz']);
         inputv.bind(InputDefinition([InputOption('name', None, InputOption.VALUE_OPTIONAL | InputOption.VALUE_IS_ARRAY)]));
         self.assertEqual({'name': ['foo', 'bar', 'baz']}, inputv.getOptions());
 
         try:
-            inputv = ArgvInput(['cli.php', '-1']);
+            inputv = ArgvInput(['console.php', '-1']);
             inputv.bind(InputDefinition([InputArgument('number')]));
             self.fail('->parse() raise a RuntimeException if an unknown option is passed');
         except Exception as e:
@@ -944,38 +944,38 @@ class ArgvInputTest(unittest.TestCase):
             self.assertEqual('The "-1" option does not exist.', e.getMessage(), '->parse() parses arguments with leading dashes as options without having encountered a double-dash sequence');
 
 
-        inputv = ArgvInput(['cli.php', '--', '-1']);
+        inputv = ArgvInput(['console.php', '--', '-1']);
         inputv.bind(InputDefinition([InputArgument('number')]));
         self.assertEqual({'number': '-1'}, inputv.getArguments(), '->parse() parses arguments with leading dashes as arguments after having encountered a double-dash sequence');
 
-        inputv = ArgvInput(['cli.php', '-f', 'bar', '--', '-1']);
+        inputv = ArgvInput(['console.php', '-f', 'bar', '--', '-1']);
         inputv.bind(InputDefinition([InputArgument('number'), InputOption('foo', 'f', InputOption.VALUE_OPTIONAL)]));
         self.assertEqual({'foo': 'bar'}, inputv.getOptions(), '->parse() parses arguments with leading dashes as options before having encountered a double-dash sequence');
         self.assertEqual({'number': '-1'}, inputv.getArguments(), '->parse() parses arguments with leading dashes as arguments after having encountered a double-dash sequence');
 
-        inputv = ArgvInput(['cli.php', '-f', 'bar', '']);
+        inputv = ArgvInput(['console.php', '-f', 'bar', '']);
         inputv.bind(InputDefinition([InputArgument('empty'), InputOption('foo', 'f', InputOption.VALUE_OPTIONAL)]));
         self.assertEqual({'empty': ''}, inputv.getArguments(), '->parse() parses empty string arguments');
 
 
     def testGetFirstArgument(self):
 
-        inputv = ArgvInput(['cli.php', '-fbbar']);
+        inputv = ArgvInput(['console.php', '-fbbar']);
         self.assertEqual(None, inputv.getFirstArgument(), '->getFirstArgument() returns the first argument from the raw input');
 
-        inputv = ArgvInput(['cli.php', '-fbbar', 'foo']);
+        inputv = ArgvInput(['console.php', '-fbbar', 'foo']);
         self.assertEqual('foo', inputv.getFirstArgument(), '->getFirstArgument() returns the first argument from the raw input');
 
 
     def testHasParameterOption(self):
 
-        inputv = ArgvInput(['cli.php', '-f', 'foo']);
+        inputv = ArgvInput(['console.php', '-f', 'foo']);
         self.assertTrue(inputv.hasParameterOption('-f'), '->hasParameterOption() returns True if the given short option is in the raw input');
 
-        inputv = ArgvInput(['cli.php', '--foo', 'foo']);
+        inputv = ArgvInput(['console.php', '--foo', 'foo']);
         self.assertTrue(inputv.hasParameterOption('--foo'), '->hasParameterOption() returns True if the given short option is in the raw input');
 
-        inputv = ArgvInput(['cli.php', 'foo']);
+        inputv = ArgvInput(['console.php', 'foo']);
         self.assertFalse(inputv.hasParameterOption('--foo'), '->hasParameterOption() returns False if the given short option is not in the raw input');
 
 

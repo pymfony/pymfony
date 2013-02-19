@@ -12,9 +12,9 @@ from __future__ import absolute_import;
 
 import unittest;
 
-from pymfony.component.dispatcher import Event;
-from pymfony.component.dispatcher import EventDispatcher;
-from pymfony.component.dispatcher import EventSubscriberInterface;
+from pymfony.component.event_dispatcher import Event;
+from pymfony.component.event_dispatcher import EventDispatcher;
+from pymfony.component.event_dispatcher import EventSubscriberInterface;
 
 
 class TestEventDispatcher(unittest.TestCase):

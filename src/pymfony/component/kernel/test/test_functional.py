@@ -16,7 +16,7 @@ import os.path as op;
 
 from pymfony.component.kernel import Kernel;
 from pymfony.component.config import FileLocator;
-from pymfony.bundle.framework import FrameworkBundle;
+from pymfony.bundle.framework_bundle import FrameworkBundle;
 from pymfony.component.console import Request
 from pymfony.component.console.output import OutputInterface
 
@@ -39,13 +39,13 @@ class Test(unittest.TestCase):
     def setUp(self):
         self._kernel = AppKernel("test", True);
         self._request = Request.create(["script"]);
-        self._response = self._kernel.getCliKernel().handle(self._request);
+        self._response = self._kernel.getConsoleKernel().handle(self._request);
         self._response.setVerbosity(OutputInterface.VERBOSITY_QUIET);
         self.container = self._kernel.getContainer();
 
     def tearDown(self):
         self._response.send();
-        self._kernel.getCliKernel().terminate(self._request, self._response);
+        self._kernel.getConsoleKernel().terminate(self._request, self._response);
         self._kernel.shutdown();
 
 

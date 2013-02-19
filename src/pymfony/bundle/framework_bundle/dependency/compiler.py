@@ -15,7 +15,7 @@ from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system import ClassLoader
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.compilerpass import CompilerPassInterface;
-from pymfony.component.dispatcher import EventSubscriberInterface;
+from pymfony.component.event_dispatcher import EventSubscriberInterface;
 
 class RegisterKernelListenersPass(CompilerPassInterface):
     def process(self, container):
