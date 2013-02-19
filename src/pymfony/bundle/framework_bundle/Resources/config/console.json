@@ -4,7 +4,13 @@
 		"console_kernel.class": "pymfony.component.console_kernel.ConsoleKernel",
 		"console.command_resolver.class": "pymfony.bundle.framework_bundle.controller.ControllerResolver",
 		"console.router_listener.class": "pymfony.component.console_kernel.listener.RouterListener",
-		"console.response_listener.class": "pymfony.component.console_kernel.listener.ResponseListener"
+		"console.response_listener.class": "pymfony.component.console_kernel.listener.ResponseListener",
+		"console.router.class": "pymfony.component.console_kernel.routing.Router",
+		"console.routing.loader.json.class": "pymfony.component.console_kernel.routing.JsonFileLoader",
+		"console.routing.loader.class": "pymfony.bundle.framework_bundle.routing.DelegatingLoader",
+		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver",
+		"console.route_collection.class": "pymfony.component.console_kernel.routing.CompliedRouteCollection",
+		"console.route_compiler.class": "pymfony.component.console_kernel.routing.RouteCompiler"
 	},
 	"services": {
 		"console.command_name_converter": {
@@ -29,21 +35,64 @@
 				"%kernel.version%"
 			]
 		},
-		"console.router_listener": {
-			"class": "%console.router_listener.class%",
-			"tags": [
-				{"name": "kernel.event_subscriber"}
-			],
-			"arguments": [
-				"@service_container"
-			]
-		},
 		"console.response_listener": {
 			"class": "%console.response_listener.class%",
 			"tags": [
 				{"name": "kernel.event_subscriber"}
 			],
 			"arguments": [
+			]
+		},
+		"console.router_listener": {
+			"class": "%console.router_listener.class%",
+			"tags": [
+				{"name": "kernel.event_subscriber"}
+			],
+			"arguments": [
+				"@service_container",
+				"@console.router"
+			]
+		},
+		"console.routing.loader.json":{
+			"class": "%console.routing.loader.json.class%",
+			"tags": [
+				{"name": "console.routing.loader"}
+			],
+			"arguments":[
+				"@file_locator"
+			]
+		},
+		"console.routing.loader":{
+			"class": "%console.routing.loader.class%",
+			"arguments":[
+				"@console.command_name_converter",
+				"@console.routing.resolver"
+			]
+		},
+		"console.routing.resolver":{
+			"class": "%console.routing.resolver.class%"
+		},
+		"console.router.default": {
+			"class": "%console.router.class%",
+			"arguments":[
+				"@console.routing.loader",
+				"%console.router.resource%",
+				"@console.route_collection"
+			]
+		},
+		"console.router":{
+			"alias": "console.router.default"
+		},
+		"console.route_compiler":{
+			"class": "%console.route_compiler.class%",
+			"arguments":[
+				"@service_container"
+			]
+		},
+		"console.route_collection":{
+			"class": "%console.route_collection.class%",
+			"arguments":[
+				"@console.route_compiler"
 			]
 		}
 	}

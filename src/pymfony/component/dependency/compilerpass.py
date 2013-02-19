@@ -781,7 +781,8 @@ class CheckReferenceValidityPass(CompilerPassInterface):
      * @raise ScopeCrossingInjectionException when the definition references a service of another scope hierarchy
 
         """
-        assert isinstance(definition, Definition);
+        if definition is not None:
+            assert isinstance(definition, Definition);
         assert isinstance(reference, Reference);
 
         if (ContainerInterface.SCOPE_PROTOTYPE == self.__currentScope) :

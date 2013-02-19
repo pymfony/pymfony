@@ -5,8 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
@@ -28,7 +26,12 @@ from pymfony.component.console_kernel.event import GetResponseForExceptionEvent
 from pymfony.component.console_kernel.interface import ConsoleTerminableInterface;
 from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
 from pymfony.component.console.output import OutputInterface
+from pymfony.component.console.input import InputDefinition
+from pymfony.component.console.input import InputOption
+from pymfony.component.console.input import InputArgument
 
+"""
+"""
 
 @final
 class ConsoleKernelEvents(Object):
@@ -105,6 +108,7 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
         self._resolver = None;
         self.__name = None;
         self.__version = None;
+        self.__definition = None;
 
         self._dispatcher = dispatcher;
         self._resolver = resolver;
@@ -289,6 +293,26 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
 
         return self.__filterResponse(response, request, requestType);
+
+    def getDefinition(self):
+        """Gets the default input definition.
+
+        @return InputDefinition An InputDefinition instance
+
+        """
+        if self.__definition is None:
+            self.__definition = InputDefinition([
+                InputArgument('command', InputArgument.REQUIRED, 'The command to execute'),
+    
+                InputOption('--help', '-h', InputOption.VALUE_NONE, 'Display this help message.'),
+                InputOption('--quiet', '-q', InputOption.VALUE_NONE, 'Do not output any message.'),
+                InputOption('--verbose', '-v', InputOption.VALUE_NONE, 'Increase verbosity of messages.'),
+                InputOption('--version', '-V', InputOption.VALUE_NONE, 'Display this application version.'),
+                InputOption('--ansi', '', InputOption.VALUE_NONE, 'Force ANSI output.'),
+                InputOption('--no-ansi', '', InputOption.VALUE_NONE, 'Disable ANSI output.'),
+                InputOption('--no-interaction', '-n', InputOption.VALUE_NONE, 'Do not ask any interactive question.'),
+            ]);
+        return self.__definition;
 
 
     def __filterResponse(self, response, request, requestType):

@@ -1068,7 +1068,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         """
         assert isinstance(aliases, dict);
 
-        for identifier, alias in aliases.items():
+        for alias, identifier in aliases.items():
             self.setAlias(alias, identifier);
 
 

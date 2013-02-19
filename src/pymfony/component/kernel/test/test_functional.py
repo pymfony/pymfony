@@ -6,9 +6,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import unittest
@@ -19,6 +16,9 @@ from pymfony.component.config import FileLocator;
 from pymfony.bundle.framework_bundle import FrameworkBundle;
 from pymfony.component.console import Request
 from pymfony.component.console.output import OutputInterface
+
+"""
+"""
 
 class AppKernel(Kernel):
     def registerBundles(self):
@@ -38,7 +38,7 @@ class AppKernel(Kernel):
 class Test(unittest.TestCase):
     def setUp(self):
         self._kernel = AppKernel("test", True);
-        self._request = Request.create(["script"]);
+        self._request = Request.create(["script", "-q"]);
         self._response = self._kernel.getConsoleKernel().handle(self._request);
         self._response.setVerbosity(OutputInterface.VERBOSITY_QUIET);
         self.container = self._kernel.getContainer();
@@ -69,7 +69,7 @@ class Test(unittest.TestCase):
 
     def testExtensionConfig(self):
         self.assertEqual(
-            self.container.getParameter('framework.default_locale'),
+            self.container.getParameter('kernel.default_locale'),
             'en'
         );
         self.assertEqual(

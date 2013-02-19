@@ -25,7 +25,7 @@ class FileLoaderLoadException(StandardException):
             );
 
         # Is the resource located inside a bundle?
-        if '@' == resource[0]:
+        if resource.startswith('@'):
             bundle = str(resource).split('/', 1)[1:];
             message += ' Make sure the "{0}" bundle is correctly registered '
             'and loaded in the application kernel class.'

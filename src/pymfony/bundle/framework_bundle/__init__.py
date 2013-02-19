@@ -5,8 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
@@ -15,6 +13,14 @@ from pymfony.component.dependency import ContainerBuilder;
 from pymfony.bundle.framework_bundle.dependency.compiler import RegisterKernelListenersPass;
 from pymfony.component.dependency.compiler import PassConfig;
 from pymfony.component.dependency import Scope
+from pymfony.bundle.framework_bundle.dependency.compiler import ConsoleRoutingResolverPass
+from pymfony.component.console_kernel.routing import Route
+from pymfony.component.console_kernel.routing import Router
+from pymfony.component.console.input import InputArgument
+from pymfony.component.console.input import InputOption
+
+"""
+"""
 
 class FrameworkBundle(Bundle):
     """Bundle.
@@ -29,4 +35,15 @@ class FrameworkBundle(Bundle):
 
         container.addScope(Scope('request'));
 
+        container.addCompilerPass(ConsoleRoutingResolverPass());
         container.addCompilerPass(RegisterKernelListenersPass(), PassConfig.TYPE_AFTER_REMOVING);
+
+    def boot(self):
+        route = Route('list');
+        route.setDefault('_controller', "FrameworkBundle:List:show");
+        route.setDescription('Lists commands');
+
+        router = self._container.get('console.router');
+        assert isinstance(router, Router);
+        router.getRouteCollection().add('list', route);
+        router.getRouteCollection().add('_default', route);

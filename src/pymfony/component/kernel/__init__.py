@@ -5,8 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
@@ -39,12 +37,30 @@ from pymfony.component.dependency.extension import Extension as BaseExtension;
 from pymfony.component.config import FileLocator as BaseFileLocator;
 from pymfony.component.config.loader import LoaderResolver;
 from pymfony.component.config.loader import DelegatingLoader;
+from pymfony.component.dependency.compilerpass import ResolveDefinitionTemplatesPass
 
 from pymfony.component.kernel.bundle import BundleInterface;
 from pymfony.component.kernel.config import FileLocator;
 from pymfony.component.kernel.config import FileResourceLocatorInterface;
 from pymfony.component.kernel.dependency import MergeExtensionConfigurationPass;
 from pymfony.component.kernel.debug import ExceptionHandler;
+from pymfony.component.dependency.compilerpass import CheckDefinitionValidityPass
+from pymfony.component.dependency.compilerpass import ResolveReferencesToAliasesPass
+from pymfony.component.dependency.compilerpass import ResolveInvalidReferencesPass
+from pymfony.component.dependency.compilerpass import AnalyzeServiceReferencesPass
+from pymfony.component.dependency.compilerpass import CheckCircularReferencesPass
+from pymfony.component.dependency.compilerpass import CheckReferenceValidityPass
+from pymfony.component.dependency.compilerpass import RemovePrivateAliasesPass
+from pymfony.component.dependency.compilerpass import RemoveAbstractDefinitionsPass
+from pymfony.component.dependency.compilerpass import ReplaceAliasByActualDefinitionPass
+from pymfony.component.dependency.compiler import RepeatedPass
+from pymfony.component.dependency.compilerpass import InlineServiceDefinitionsPass
+from pymfony.component.dependency.compilerpass import RemoveUnusedDefinitionsPass
+from pymfony.component.dependency.compilerpass import CheckExceptionOnInvalidReferenceBehaviorPass
+
+"""
+"""
+
 
 @interface
 class KernelInterface(FileResourceLocatorInterface):
@@ -383,7 +399,27 @@ class Kernel(KernelInterface):
         );
 
         container.getCompilerPassConfig().setOptimizationPasses([
-            ResolveParameterPlaceHoldersPass()
+            ResolveDefinitionTemplatesPass(),
+            ResolveParameterPlaceHoldersPass(),
+            CheckDefinitionValidityPass(),
+            ResolveReferencesToAliasesPass(),
+            ResolveInvalidReferencesPass(),
+            AnalyzeServiceReferencesPass(),
+            CheckCircularReferencesPass(),
+            CheckReferenceValidityPass(),
+        ]);
+
+        container.getCompilerPassConfig().setRemovingPasses([
+            RemovePrivateAliasesPass(),
+            RemoveAbstractDefinitionsPass(),
+            ReplaceAliasByActualDefinitionPass(),
+            RepeatedPass([
+                AnalyzeServiceReferencesPass(),
+                InlineServiceDefinitionsPass(),
+                AnalyzeServiceReferencesPass(),
+                RemoveUnusedDefinitionsPass(),
+            ]),
+            CheckExceptionOnInvalidReferenceBehaviorPass(),
         ]);
 
         cont = self.registerContainerConfiguration(

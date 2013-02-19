@@ -178,6 +178,12 @@ class ParameterBag(ParameterBagInterface):
                 args[k] = self.resolveValue(v, resolving);
             return args;
 
+        elif isinstance(value, list):
+            args = list();
+            for v in value:
+                args.append(self.resolveValue(v, resolving));
+            return args;
+
         if not isinstance(value, String):
             return value;
 

@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import sys
@@ -22,10 +19,18 @@ from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.console.input import ArgvInput;
 from pymfony.component.system.types import ParameterBag;
 from pymfony.component.console.input import InputInterface
+from pymfony.component.system import clone
+"""
+"""
+
 
 class Request(ArgvInput):
     def __init__(self, argv = None, attributes = dict()):
+        self.__argv = list(argv);
         self.initialize(argv, attributes);
+
+    def __clone__(self):
+        self.attributes = clone(self.attributes);
 
     def initialize(self, argv = None, attributes = dict()):
         self.attributes = ParameterBag(attributes);
@@ -64,6 +69,12 @@ class Request(ArgvInput):
         request = cls(StringInput(string), dict());
         return request;
 
+    def getArgv(self):
+        """
+
+        @return list
+        """
+        return list(self.__argv);
 
 
 class Response(ConsoleOutput):

@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 from os.path import dirname;
@@ -18,6 +15,12 @@ from pymfony.component.kernel.dependency import ConfigurableExtension;
 from pymfony.component.config.definition import ConfigurationInterface;
 from pymfony.component.config.definition.builder import TreeBuilder;
 from pymfony.component.config import FileLocator;
+from pymfony.component.config.definition.builder import ArrayNodeDefinition
+from pymfony.component.console_kernel.routing import Router
+from pymfony.component.console_kernel.routing import Route
+
+"""
+"""
 
 
 class FrameworkExtension(ConfigurableExtension):
@@ -32,28 +35,26 @@ class FrameworkExtension(ConfigurableExtension):
         loader.load("services.json");
         loader.load("console.json");
 
-        for name, value in config.items():
-            container.getParameterBag().set(self.getAlias()+'.'+name, value);
+
+#        for name, value in config.items():
+#            container.getParameterBag().set(self.getAlias()+'.'+name, value);
 
         container.setParameter('kernel.default_locale', config['default_locale']);
 
-        container.setParameter('console.default_command', 'list');
-        # command register TODO do a better way
-        if container.hasParameter('console.commands'):
-            commands = container.getParameter('console.commands');
-        else:
-            commands = dict();
-
-        commands['list'] = {
-            "_description": "Show command list",
-            "_controller": "FrameworkBundle:List:show",
-        };
-
-        container.setParameter('console.commands', commands);
+        if 'console' in config:
+            self.__registerConsoleConfiguration(config['console'], container, loader);
+        container.setParameter('console.router.resource', "");
 
 
     def getAlias(self):
         return 'framework';
+
+
+    def __registerConsoleConfiguration(self, config, container, loader):
+        assert isinstance(config, dict);
+
+        container.setParameter('console.router.resource', config['resource']);
+
 
 
 class Configuration(ConfigurationInterface):
@@ -67,4 +68,22 @@ class Configuration(ConfigurationInterface):
         node =      node.end();
         node =  node.end();
 
+        self.__addConsoleSection(rootNode);
+
         return treeBuilder;
+
+    def __addConsoleSection(self, rootNode):
+        assert isinstance(rootNode, ArrayNodeDefinition);
+
+        rootNode\
+            .children()\
+                .arrayNode('console')\
+                    .info('console configuration')\
+                    .canBeUnset()\
+                    .children()\
+                        .scalarNode('resource').isRequired().end()\
+                    .end()\
+                .end()\
+            .end()\
+        ;
+

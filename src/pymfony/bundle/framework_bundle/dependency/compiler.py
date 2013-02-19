@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 
@@ -16,6 +13,10 @@ from pymfony.component.system import ClassLoader
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.compilerpass import CompilerPassInterface;
 from pymfony.component.event_dispatcher import EventSubscriberInterface;
+from pymfony.component.dependency.definition import Reference
+
+"""
+"""
 
 class RegisterKernelListenersPass(CompilerPassInterface):
     def process(self, container):
@@ -69,3 +70,43 @@ class RegisterKernelListenersPass(CompilerPassInterface):
                 identifier,
                 qualClassName
             ]);
+
+
+
+class RoutingResolverPass(CompilerPassInterface):
+    """Adds tagged routing.loader services to routing.resolver service
+
+    @author: Fabien Potencier <fabien@symfony.com>
+
+    """
+
+    def process(self, container):
+        assert isinstance(container, ContainerBuilder);
+
+        if (False is container.hasDefinition('routing.resolver')) :
+            return;
+
+
+        definition = container.getDefinition('routing.resolver');
+
+        for identifier, attributes in container.findTaggedServiceIds('routing.loader').items():
+            definition.addMethodCall('addLoader', [Reference(identifier)]);
+
+class ConsoleRoutingResolverPass(CompilerPassInterface):
+    """Adds tagged routing.loader services to routing.resolver service
+
+    @author: Fabien Potencier <fabien@symfony.com>
+
+    """
+
+    def process(self, container):
+        assert isinstance(container, ContainerBuilder);
+
+        if (False is container.hasDefinition('console.routing.resolver')) :
+            return;
+
+
+        definition = container.getDefinition('console.routing.resolver');
+
+        for identifier, attributes in container.findTaggedServiceIds('console.routing.loader').items():
+            definition.addMethodCall('addLoader', [Reference(identifier)]);

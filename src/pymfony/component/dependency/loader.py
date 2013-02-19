@@ -9,6 +9,9 @@
 from __future__ import absolute_import;
 
 import sys;
+from pymfony.component.system.types import String
+from pymfony.component.dependency.definition import Alias
+from pymfony.component.dependency.definition import DefinitionDecorator
 if sys.version_info[0] >= 3:
     from configparser import ConfigParser;
 else:
@@ -196,10 +199,29 @@ class JsonFileLoader(FileLoader):
             self.__parseDefinition(identifier, service, path);
 
     def __parseDefinition(self, identifier, service, path):
-        definition = Definition();
+
+        if isinstance(service, String) and service.startswith('@') :
+            self._container.setAlias(identifier, service[1:]);
+
+            return;
+        elif 'alias' in service :
+            public = 'public' not in service or service['public'] in ("true", True, 1, "1");
+            self._container.setAlias(identifier, Alias(service['alias'], public));
+
+            return;
+
+
+        if 'parent' in service :
+            definition = DefinitionDecorator(service['parent']);
+        else :
+            definition = Definition();
 
         if 'class' in service:
             definition.setClass(service['class']);
+
+        if 'scope' in service:
+            definition.setScope(service['scope']);
+
         if 'arguments' in service:
             definition.setArguments(
                 self.__resolveServices(service['arguments'])

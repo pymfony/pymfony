@@ -161,6 +161,7 @@ class ControllerResolver(ControllerResolverInterface):
         """
         assert isinstance(request, Request);
 
+        # TODO: make more efficient PYTHON arguments binding
         args = self.__getRequiredArgs(controller);
 
         arguments = list();
@@ -170,10 +171,8 @@ class ControllerResolver(ControllerResolverInterface):
                 continue;
             if name == 'request':
                 arguments.append(request);
-            elif request.hasArgument(name):
-                arguments.append(request.getArgument(name));
-            elif request.hasOption(name):
-                arguments.append(request.getOption(name));
+            elif request.attribute.has(name):
+                arguments.append(request.attribute.get(name));
             else:
                 raise RuntimeException(
                     'Controller "{0}" requires that you provide a value for '

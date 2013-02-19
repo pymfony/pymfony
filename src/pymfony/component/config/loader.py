@@ -70,7 +70,7 @@ class LoaderInterface(Object):
 
 
 class LoaderResolver(LoaderResolverInterface):
-    def __init__(self, loaders=None):
+    def __init__(self, loaders=list()):
         self.__loaders = list();
         for loader in list(loaders):
             self.addLoader(loader);

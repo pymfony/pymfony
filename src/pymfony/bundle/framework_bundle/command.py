@@ -9,28 +9,30 @@ from __future__ import absolute_import;
 
 from pymfony.component.console import Response
 from pymfony.component.dependency import ContainerAware
-from pymfony.component.kernel import KernelInterface
 from pymfony.component.system.exception import InvalidArgumentException
 from pymfony.component.system import ReflectionClass
 from pymfony.bundle.framework_bundle.controller import ControllerNameParser
+from pymfony.component.console_kernel.routing import Router
+from pymfony.component.console_kernel.routing import Route
 
 """
 """
 
 class ListCommand(ContainerAware):
     def showAction(self):
-        commands = self._container.getParameter('console.commands');
-
+        router = self._container.get('console.router');
+        assert isinstance(router, Router);
         commandList = list();
-        for name, command in commands.items():
-            if '_description' in command:
-                description = command['_description'];
-            else:
-                description = "no desciption";
+        for name, route in router.getRouteCollection().all().items():
+            assert isinstance(route, Route);
 
-            commandList.append("<info>{0}</info>: <comment>{1}</comment>".format(
-                name,
-                description
+            if name == '_default':
+                continue;
+
+            commandList.append(
+                "<info>{0}</info>: <comment>{1}</comment>".format(
+                route.getCommandName(),
+                route.getDescription(),
             ));
 
         return Response("Command List:\n- "+"\n- ".join(commandList));
