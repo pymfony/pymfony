@@ -17,7 +17,9 @@
 			"class": "%cli_kernel.class%",
 			"arguments": [
 				"@event_dispatcher",
-				"@cli.controller_resolver"
+				"@cli.controller_resolver",
+				"%kernel.name%",
+				"%kernel.version%"
 			]
 		},
 		"cli.router_listener": {

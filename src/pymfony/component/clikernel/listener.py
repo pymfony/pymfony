@@ -68,7 +68,7 @@ class RouterListener(EventSubscriberInterface):
             request.setInteractive(False);
 
         if request.hasParameterOption(['--version', '-V']):
-            return Response(self.getLongVersion()); # TODO: 
+            return Response(self.__container.get('cli_kernel').getLongVersion()); 
 
         # add attributes based on the request (routing)
         if not self.__container.hasParameter('console.commands'):

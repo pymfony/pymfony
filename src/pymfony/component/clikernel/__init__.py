@@ -89,7 +89,7 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
 
     """
 
-    def __init__(self, dispatcher, resolver):
+    def __init__(self, dispatcher, resolver, name = 'UNKNOWN', version = 'UNKNOWN'):
         """Constructor
      *
      * @param EventDispatcherInterface    dispatcher An EventDispatcherInterface instance
@@ -103,10 +103,13 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
 
         self._dispatcher = None;
         self._resolver = None;
+        self.__name = None;
+        self.__version = None;
 
         self._dispatcher = dispatcher;
         self._resolver = resolver;
-
+        self.__name = name;
+        self.__version = version;
 
     def handle(self, request, requestType = CliKernelInterface.MASTER_REQUEST, catch = True):
         """Handles a Request to convert it to a Response.
@@ -153,6 +156,70 @@ class CliKernel(CliKernelInterface, CliTerminableInterface):
             CliKernelEvents.TERMINATE,
             PostResponseEvent(self, request, response)
         );
+
+    def getName(self):
+        """Gets the name of the application.
+
+        @return: string The application name
+
+        @api
+
+        """
+
+        return self.__name;
+
+
+    def setName(self, name):
+        """Sets the application name.
+
+        @param: string name The application name
+
+        @api
+
+        """
+
+        self.__name = name;
+
+
+    def getVersion(self):
+        """Gets the application version.
+
+        @return: string The application version
+
+        @api
+
+        """
+
+        return self.__version;
+
+
+    def setVersion(self, version):
+        """Sets the application version.
+
+        @param: string version The application version
+
+        @api
+
+        """
+
+        self.__version = version;
+
+
+    def getLongVersion(self):
+        """Returns the long version of the application.
+
+        @return: string The long application version
+
+        @api
+
+        """
+
+        if ('UNKNOWN' != self.getName() and 'UNKNOWN' != self.getVersion()) :
+            return '<info>{0}</info> version <comment>{1}</comment>'.format(
+                self.getName(), self.getVersion()
+            );
+
+        return '<info>Console Tool</info>';
 
 
     def __handleRaw(self, request, requestType = CliKernelInterface.MASTER_REQUEST):

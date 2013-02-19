@@ -61,7 +61,6 @@ class AnalyzeServiceReferencesPassTest(unittest.TestCase):
 
         edges = graph.getNode('b').getInEdges();
         self.assertEqual(4, len(edges));
-        # FIXME: order
         self.assertEqual(ref1, edges[0].getValue());
         self.assertEqual(ref4, edges[1].getValue());
         self.assertEqual(ref5, edges[2].getValue());

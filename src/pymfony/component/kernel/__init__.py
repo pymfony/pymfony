@@ -173,6 +173,13 @@ class KernelInterface(FileResourceLocatorInterface):
 
 
 class Kernel(KernelInterface):
+    VERSION = '2.2.0-BETA2';
+    VERSION_ID = '20100';
+    MAJOR_VERSION = '2';
+    MINOR_VERSION = '2';
+    RELEASE_VERSION = '0';
+    EXTRA_VERSION = 'BETA2';
+
     def __init__(self, environment, debug):
         self._environment = environment;
         self._debug = bool(debug);
@@ -187,6 +194,7 @@ class Kernel(KernelInterface):
 
         self._rootDir = self.getRootDir();
         self._name = self.getName();
+        self._version = self.getVersion();
 
         if self._debug:
             self._startTime = time();
@@ -218,6 +226,7 @@ class Kernel(KernelInterface):
             'kernel.name': self._name,
             'kernel.bundles': bundles,
             'kernel.charset': self.getCharset(),
+            'kernel.version': self.getVersion(),
         };
         parameters.update(self.getEnvParameters());
         return parameters;
@@ -441,9 +450,11 @@ class Kernel(KernelInterface):
 
     def getName(self):
         if self._name is None:
-            self._name = str(type(self).__name__);
-            self._name = re.sub(r"/Kernel$/", "", self._name);
+            self._name = re.sub(r"[^a-zA-Z0-9_]+", "", os.path.basename(self._rootDir));
         return self._name;
+
+    def getVersion(self):
+        return self.VERSION+' - '+self.getEnvironment()+('/debug' if self.isDebug() else '');
 
     def getEnvironment(self):
         return self._environment;
@@ -536,7 +547,7 @@ class Kernel(KernelInterface):
                         if first:
                             return filename;
                         files.append(filename);
-    
+
                 filename = os.path.join(bundle.getPath(), path);
                 if os.path.exists(filename):
                     if first and not isResource:
