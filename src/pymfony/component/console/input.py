@@ -1873,7 +1873,10 @@ class ArgvInput(Input):
                         return token[pos + 1:];
 
                     return tokens.pop(0);
-            token = tokens.pop(0);
+            if tokens:
+                token = tokens.pop(0);
+            else:
+                break;
 
         return default;
 

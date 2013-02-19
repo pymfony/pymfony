@@ -998,6 +998,22 @@ class ArgvInputTest(unittest.TestCase):
             (['app/console', 'foo:bar', '--env=dev'], ['-e', '--env'], 'dev'),
         ];
 
+    def testGetParameterOptionMissingOption(self):
+        """@dataProvider provideGetParameterOptionOptionMissingValues
+
+        """
+
+        for argv, key, default, expected in self.provideGetParameterOptionMissingOptionValues():
+            inputv = ArgvInput(argv);
+            self.assertEqual(expected, inputv.getParameterOption(key, default), '->getParameterOption() returns the expected value');
+
+
+    def provideGetParameterOptionMissingOptionValues(self):
+
+        return [
+            (['app/console', 'foo:bar'], ['-e', '--env'], 'dev', 'dev'),
+            (['app/console'], ['-e', '--env'], 'dev', 'dev'),
+        ];
 
 class ArrayInputTest(unittest.TestCase):
 
