@@ -18,6 +18,7 @@ from pymfony.component.console_kernel.routing import Route
 from pymfony.component.console_kernel.routing import Router
 from pymfony.component.console.input import InputArgument
 from pymfony.component.console.input import InputOption
+from pymfony.component.console_kernel.routing import RouteCollection
 
 """
 """
@@ -43,7 +44,7 @@ class FrameworkBundle(Bundle):
         route.setDefault('_controller', "FrameworkBundle:List:show");
         route.setDescription('Lists commands');
 
-        router = self._container.get('console.router');
-        assert isinstance(router, Router);
-        router.getRouteCollection().add('list', route);
-        router.getRouteCollection().add('_default', route);
+        routeCollection = self._container.get('console.route_collection');
+        assert isinstance(routeCollection, RouteCollection);
+        routeCollection.add('list', route);
+        routeCollection.add('_default', route);
