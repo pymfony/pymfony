@@ -583,8 +583,6 @@ class RouteCompiler(RouteCompilerInterface):
         preCompiledRoute = clone(route);
         assert isinstance(preCompiledRoute, Route);
 
-        preCompiledRoute = self.__mergeWithParent(preCompiledRoute, route);
-
         parent = preCompiledRoute.getParent();
         while parent:
             preCompiledRoute = self.__mergeWithParent(preCompiledRoute, parent);
