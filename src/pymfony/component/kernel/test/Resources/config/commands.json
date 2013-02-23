@@ -1,0 +1,5 @@
+{
+    "framework":{
+        "resource": "@FrameworkBundle/Resources/config/commands.json"
+    }
+}

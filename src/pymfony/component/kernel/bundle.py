@@ -11,6 +11,7 @@
 from __future__ import absolute_import;
 
 import re;
+from os.path import dirname;
 
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.oop import abstract;
@@ -152,7 +153,7 @@ class Bundle(ContainerAware, BundleInterface):
     def getPath(self):
         if self._reflected is None:
             self._reflected = ReflectionObject(self);
-        return self._reflected.getFileName();
+        return dirname(self._reflected.getFileName());
 
     def getName(self):
         if self._name is None:

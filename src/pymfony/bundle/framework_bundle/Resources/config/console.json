@@ -1,6 +1,6 @@
 {
 	"parameters": {
-		"console.command_name_converter.class": "pymfony.bundle.framework_bundle.command.CommandNameParser",
+		"console.controller_name_converter.class": "pymfony.bundle.framework_bundle.console.ControllerNameParser",
 		"console_kernel.class": "pymfony.component.console_kernel.ConsoleKernel",
 		"console.command_resolver.class": "pymfony.bundle.framework_bundle.controller.ControllerResolver",
 		"console.router_listener.class": "pymfony.component.console_kernel.listener.RouterListener",
@@ -8,13 +8,11 @@
 		"console.router.class": "pymfony.component.console_kernel.routing.Router",
 		"console.routing.loader.json.class": "pymfony.component.console_kernel.routing.JsonFileLoader",
 		"console.routing.loader.class": "pymfony.bundle.framework_bundle.routing.DelegatingLoader",
-		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver",
-		"console.route_collection.class": "pymfony.component.console_kernel.routing.CompliedRouteCollection",
-		"console.route_compiler.class": "pymfony.component.console_kernel.routing.RouteCompiler"
+		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver"
 	},
 	"services": {
-		"console.command_name_converter": {
-			"class": "%console.command_name_converter.class%",
+		"console.controller_name_converter": {
+			"class": "%console.controller_name_converter.class%",
 			"arguments": [
 				"@kernel"
 			]
@@ -23,7 +21,7 @@
 			"class": "%console.command_resolver.class%",
 			"arguments": [
 				"@service_container",
-				"@console.command_name_converter"
+				"@console.controller_name_converter"
 			]
 		},
 		"console_kernel": {
@@ -65,7 +63,7 @@
 		"console.routing.loader":{
 			"class": "%console.routing.loader.class%",
 			"arguments":[
-				"@console.command_name_converter",
+				"@console.controller_name_converter",
 				"@console.routing.resolver"
 			]
 		},
@@ -76,24 +74,11 @@
 			"class": "%console.router.class%",
 			"arguments":[
 				"@console.routing.loader",
-				"%console.router.resource%",
-				"@console.route_collection"
+				"%console.router.resource%"
 			]
 		},
 		"console.router":{
 			"alias": "console.router.default"
-		},
-		"console.route_compiler":{
-			"class": "%console.route_compiler.class%",
-			"arguments":[
-				"@service_container"
-			]
-		},
-		"console.route_collection":{
-			"class": "%console.route_collection.class%",
-			"arguments":[
-				"@console.route_compiler"
-			]
 		}
 	}
 }

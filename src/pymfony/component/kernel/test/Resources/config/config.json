@@ -3,6 +3,11 @@
         {"resource": "parameters.ini"}
     ],
     "framework":{
-        "default_locale": "%locale%"
+        "default_locale": "%locale%",
+        "console":{
+            "router":{
+                "resource": "%kernel.root_dir%/Resources/config/commands.json"
+            }
+        }
     }
 }

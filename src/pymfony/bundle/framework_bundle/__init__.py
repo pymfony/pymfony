@@ -15,9 +15,6 @@ from pymfony.component.dependency.compiler import PassConfig;
 from pymfony.component.dependency import Scope
 from pymfony.bundle.framework_bundle.dependency.compiler import ConsoleRoutingResolverPass
 from pymfony.component.console_kernel.routing import Route
-from pymfony.component.console_kernel.routing import Router
-from pymfony.component.console.input import InputArgument
-from pymfony.component.console.input import InputOption
 from pymfony.component.console_kernel.routing import RouteCollection
 
 """
@@ -40,11 +37,13 @@ class FrameworkBundle(Bundle):
         container.addCompilerPass(RegisterKernelListenersPass(), PassConfig.TYPE_AFTER_REMOVING);
 
     def boot(self):
-        route = Route('list');
-        route.setDefault('_controller', "FrameworkBundle:List:show");
-        route.setDescription('Lists commands');
 
-        routeCollection = self._container.get('console.route_collection');
+        routeCollection = self._container.get('console.router').getRouteCollection();
         assert isinstance(routeCollection, RouteCollection);
-        routeCollection.add('list', route);
-        routeCollection.add('_default', route);
+
+        routeCollection.add('_list', Route("list", "Lists commands", {
+            '_controller': "FrameworkBundle:List:show",
+        }));
+        routeCollection.add('_default', Route("list", "Lists commands", {
+            '_controller': "FrameworkBundle:List:show",
+        }));

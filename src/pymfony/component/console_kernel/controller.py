@@ -167,12 +167,16 @@ class ControllerResolver(ControllerResolverInterface):
         arguments = list();
 
         for name in args:
-            if name == 'self':
+            attr = name.replace('_', '-');
+            if attr.startswith('-'):
+                attr[0] = '_';
+            arg = [name, attr];
+            if arg[0] == 'self':
                 continue;
-            if name == 'request':
+            if arg[0] == 'request':
                 arguments.append(request);
-            elif request.attribute.has(name):
-                arguments.append(request.attribute.get(name));
+            elif request.attribute.has(arg[1]):
+                arguments.append(request.attribute.get(arg[1]));
             else:
                 raise RuntimeException(
                     'Controller "{0}" requires that you provide a value for '

@@ -10,15 +10,12 @@ from __future__ import absolute_import;
 
 import json
 import os
-from pickle import dumps as serialize;
-from pickle import loads as unserialize;
 
 from pymfony.component.system.oop import interface
 from pymfony.component.system import Object
 from pymfony.component.console import Request
-from pymfony.component.config.loader import LoaderInterface
+from pymfony.component.config.loader import LoaderInterface as BaseLoaderInterface
 from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system import SerializableInterface
 from pymfony.component.system.types import String
 from pymfony.component.system import CountableInterface
 from pymfony.component.system import IteratorAggregateInterface
@@ -32,7 +29,6 @@ from pymfony.component.console.input import InputDefinition
 from pymfony.component.console.input import InputArgument
 from pymfony.component.console.input import InputOption
 from pymfony.component.config.exception import FileLoaderLoadException
-from pymfony.component.dependency.interface import ContainerInterface
 
 """
 """
@@ -63,7 +59,6 @@ class RequestMatcherInterface(Object):
         assert isinstance(request, Request);
 
 
-
 @interface
 class RouterInterface(RequestMatcherInterface):
     """RouterInterface is the interface that all Router classes must implement.
@@ -79,7 +74,17 @@ class RouterInterface(RequestMatcherInterface):
 
         """
 
+@interface
+class LoaderInterface(BaseLoaderInterface):
+    def load(self, resource, resourceType=None):
+        """Loads a resource.
 
+        @param resource: mixed
+        @param resourceType: string The resource type
+
+        @return: RouteCollection
+        """
+        pass
 
 class Router(RouterInterface):
     """The Router class is(, an example of the integration of all pieces of the):
@@ -89,38 +94,24 @@ class Router(RouterInterface):
 
     """
 
-
-
-
-    def __init__(self, loader, resource, collection, options = dict()):
+    def __init__(self, loader, resource, options = dict()):
         """Constructor.
 
-        @param: LoaderInterface loader   A LoaderInterface instance
-        @param mixed           resource The main resource to load
-        @param collection       RouteCollection The main resource to load
-        @param dict            options  A dictionary of options
+        @param: LoaderInterface loader    A LoaderInterface instance
+        @param mixed           resource   The main resource to load
+        @param dict            options    A dictionary of options
 
         """
-        assert isinstance(options, dict);
         assert isinstance(loader, LoaderInterface);
-        assert isinstance(collection, RouteCollection);
+        assert isinstance(options, dict);
 
-        self._matcher = None;
-        # @var: RequestMatcherInterface|None
-
-        self._loader = None;
-        # @var: LoaderInterface
-
+        self._matcher = None;  # @var: RequestMatcherInterface|None
+        self._loader = None; # @var: LoaderInterface
         self.__isLoaded = False;
-
-        self._collection = collection;
-        # @var: RouteCollection|None
-
-        self._resource = None;
-        # @var: mixed
-
-        self._options = dict();
-        # @var: array
+        self._collection = None; # @var: RouteCollection|None
+        self._resource = None; # @var: mixed
+        self._options = dict(); # @var: dict
+        self.__definition = None; # @var InputDefinition
 
         self._loader = loader;
         self._resource = resource;
@@ -205,21 +196,38 @@ class Router(RouterInterface):
 
         return self.options[key];
 
+    def getDefinition(self):
+        """Gets the default input definition.
+
+        @return InputDefinition An InputDefinition instance
+
+        """
+        if self.__definition is None:
+            self.__definition = InputDefinition([
+                InputArgument('command', InputArgument.REQUIRED, 'The command to execute'),
+
+                InputOption('--help', '-h', InputOption.VALUE_NONE, 'Display this help message.'),
+                InputOption('--quiet', '-q', InputOption.VALUE_NONE, 'Do not output any message.'),
+                InputOption('--verbose', '-v', InputOption.VALUE_NONE, 'Increase verbosity of messages.'),
+                InputOption('--version', '-V', InputOption.VALUE_NONE, 'Display this application version.'),
+                InputOption('--ansi', '', InputOption.VALUE_NONE, 'Force ANSI output.'),
+                InputOption('--no-ansi', '', InputOption.VALUE_NONE, 'Disable ANSI output.'),
+                InputOption('--no-interaction', '-n', InputOption.VALUE_NONE, 'Do not ask any interactive question.'),
+            ]);
+
+        return self.__definition;
 
     def getRouteCollection(self):
         """@inheritdoc
 
         """
 
-        if not self.__isLoaded :
-            try:
+        if None is self._collection :
+            self._collection = RouteCollection(self.getDefinition());
+            if self._resource:
                 self._collection.addCollection(self._loader.load(
                     self._resource, self._options['resource_type']
                 ));
-            except FileLoaderLoadException:
-                pass;
-            finally:
-                self.__isLoaded = True;
 
 
         return self._collection;
@@ -281,12 +289,6 @@ class RequestMatcher(RequestMatcherInterface):
         """
         assert isinstance(request, Request);
 
-        if not request.getFirstArgument():
-            if '_default' in self._routes.all():
-                route = self._routes.get('_default');
-                self._handleRouteBinding(request, '_default', route);
-                return self._getAttributes(route, '_default', request);
-
         ret = self._matchCollection(request, self._routes)
         if (ret) :
             return ret;
@@ -312,8 +314,10 @@ class RequestMatcher(RequestMatcherInterface):
         for name, route in routes.all().items():
             assert isinstance(route, Route);
 
-            if request.getFirstArgument() != route.getCommandName():
+            if request.getCommandName() != route.getPath():
                 continue;
+
+            # FIXME: requirements
 
             # bind the input against the command specific arguments/options
             status = self._handleRouteBinding(request, name, route);
@@ -349,7 +353,6 @@ class RequestMatcher(RequestMatcherInterface):
 
         attributes = dict();
         attributes.update(route.getDefaults());
-        attributes.update(request.getOptions());
         attributes.update(request.getArguments());
         attributes['_route'] = name;
 
@@ -385,78 +388,103 @@ class Route(InputDefinition):
 
     """
 
-    def __init__(self, commandName, parentName = "", definition=list(), description="", defaults = dict()):
+    def __init__(self, path, description="", defaults = dict(), definition = list(), requirements = dict()):
+        """Constructor.
+
+        @param: string path The path pattern to match
+        @param: string description The description
+        @param: dict defaults An array of default parameter values
+        @param: list definition The definition list
+        @param: dict requirements An array of requirements for parameters (regexes)
+
+        @api:
+        """
+        assert isinstance(path, String);
+        assert isinstance(description, String);
+        assert isinstance(defaults, dict);
         assert isinstance(definition, list);
-        assert isinstance(parentName, String);
+        assert isinstance(requirements, dict);
+
+        self.__path = None; # @var: string
+        self.__defaults = None; # @var: dict
+        self.__requirements = None; # @var: dict
+        self.__decription = None; # @var: string
+        self.__synopsis = None; # @var: string
 
 
-        self.__decription = None;
-        # @var: string
-
-        self.__commandName = None;
-        # @var: string
-
-        self.__defaults = None;
-        # @var: dict
-
-        self.__compiled = None;
-        # @var: CompiledRoute
-
-        self.__parentName = parentName;
-        self.__parent = None;
-
-        self.setCommandName(commandName);
-        self.setDescription(description);
+        self.setPath(path);
         self.setDefaults(defaults);
+        self.setRequirements(requirements);
+        self.setDescription(description);
 
         InputDefinition.__init__(self, definition);
 
-    def setDescription(self, description):
-        self.__decription = str(description);
+    def getPath(self):
+        """Returns the path.
 
-    def getDescription(self):
-        return self.__decription;
-
-    def getCommandName(self):
-        """Returns the command name.
-
-        @return: string The command name
+        @return: string The path
 
         """
+        return self.__path;
 
-        return self.__commandName;
-
-
-    def setCommandName(self, commandName):
-        """Sets the command name.
+    def setPath(self, path):
+        """Sets the path of the input.
 
         This method implements a fluent interface.
 
-        @param: string commandName The command name
+        @param string path The path
 
         @return Route The current Route instance
 
+        @api
         """
-        self.__commandName = str(commandName).strip();
+        assert isinstance(path, String);
+
+        self.__path = str(path);
 
         return self;
 
-    def setParentName(self, parentName):
-        assert isinstance(parentName, String);
+    def getDescription(self):
+        """Returns the route decription.
 
-        self.__parentName = parentName;
+        @return: string The route decription
 
-    def getParentName(self):
-        return self.__parentName;
+        """
+        return self.__decription;
 
-    def setParent(self, parent):
-        if parent is not None:
-            assert isinstance(parent, Route);
+    def setDescription(self, description):
+        """Sets the description of the command.
 
-        self.__parent = parent;
+        This method implements a fluent interface.
 
-    def getParent(self):
-        return self.__parent;
+        @param string description The description
+
+        @return Route The current Route instance
+
+        @api
+        """
+        assert isinstance(description, String);
+
+        self.__decription = str(description);
+
+        return self;
+
+    def setDefinition(self, definition):
+        """Sets the definition of the input.
+
+        This method implements a fluent interface.
+
+        @param list definition The definition list
+
+        @return Route The current Route instance
+
+        @api
+        """
+
+        InputDefinition.setDefinition(self, definition);
+
+        return self;
+
 
     def getDefaults(self):
         """Returns the defaults.
@@ -543,89 +571,127 @@ class Route(InputDefinition):
 
         return self;
 
-@interface
-class RouteCompilerInterface(Object):
-    """RouteCompilerInterface is the interface that all RouteCompiler classes
-    must implement.
-    """
-    def compile(self, route):
-        """Compiles the current route instance.
+    def getRequirements(self):
+        """Returns the requirements.
 
-        @param Route $route A Route instance
-
-        @return CompiledRoute A CompiledRoute instance
+        @return: array The requirements
 
         """
-        assert isinstance(route, Route);
+
+        return self.__requirements;
 
 
-class RouteCompiler(RouteCompilerInterface):
-    """RouteCompiler compiles Route instances to CompiledRoute instances.
-    """
-    def __init__(self, container):
-        assert isinstance(container, ContainerInterface);
+    def setRequirements(self, requirements):
+        """Sets the requirements.
 
-        self._container = container;
+        This method implements a fluent interface.
 
-    def compile(self, route):
-        """Compiles the current route instance.
+        @param: array requirements The requirements
 
-        @param Route $route A Route instance
-
-        @return CompiledRoute A CompiledRoute instance
+        @return Route The current Route instance
 
         """
-        assert isinstance(route, Route);
+        assert isinstance(requirements, dict);
 
-        if isinstance(route, CompiledRoute):
-            return route;
+        self.__requirements = dict();
 
-        preCompiledRoute = clone(route);
-        assert isinstance(preCompiledRoute, Route);
-
-        parent = preCompiledRoute.getParent();
-        while parent:
-            preCompiledRoute = self.__mergeWithParent(preCompiledRoute, parent);
-            parent = preCompiledRoute.getParent();
-
-        parent = preCompiledRoute.getParent();
-        parentName = preCompiledRoute.getParentName();
-        if parentName and not parent:
-            return preCompiledRoute;
-
-        compiledRoute = CompiledRoute(preCompiledRoute.getCommandName());
-
-        compiledRoute.setArguments(preCompiledRoute.getArguments());
-        compiledRoute.setDefaults(preCompiledRoute.getDefaults());
-        compiledRoute.setDescription(preCompiledRoute.getDescription());
-        compiledRoute.setOptions(preCompiledRoute.getOptions());
-        compiledRoute.setParent(preCompiledRoute.getParent());
-        compiledRoute.setParentName(preCompiledRoute.getParentName());
-
-        compiledRoute = self.__finalize(compiledRoute);
+        return self.addRequirements(requirements);
 
 
-        return compiledRoute;
+    def addRequirements(self, requirements):
+        """Adds requirements.
 
-    def __mergeWithParent(self, route, parent):
-        assert isinstance(route, Route);
-        assert isinstance(parent, InputDefinition);
+        This method implements a fluent interface.
 
-        currentArguments = route.getArguments();
-        route.setArguments(parent.getArguments());
-        route.addArguments(currentArguments);
+        @param: array requirements The requirements
 
-        route.addOptions(parent.getOptions());
+        @return Route The current Route instance
 
-        return route;
+        """
+        assert isinstance(requirements, dict);
 
-    def __finalize(self, route):
-        return self.__mergeWithParent(route, self._container.get('console_kernel').getDefinition());
+        for key, regex in requirements.items():
+            self.setRequirement(key, regex);
 
-class CompiledRoute(Route):
-    """CompiledRoutes are returned by the RouteCompiler class.
-    """
-    pass;
+        return self;
+
+
+    def getRequirement(self, key):
+        """Returns the requirement for the given key.
+
+        @param: string key The key
+
+        @return string|None The regex or None when not given
+
+        """
+
+        return self.__requirements[key] if key in self.__requirements else None;
+
+
+    def hasRequirement(self, key):
+        """Checks if a requirement is set for the given key.:
+
+        @param: string key A variable name
+
+        @return Boolean True if a requirement is specified, False otherwise:
+
+        """
+
+        return key in self.__requirements.keys();
+
+
+    def setRequirement(self, key, regex):
+        """Sets a requirement for the given key.
+
+        @param: string key   The key
+        @param string regex The regex
+
+        @return Route The current Route instance
+
+        @api
+
+        """
+
+        self.__requirements[key] = self.__sanitizeRequirement(key, regex);
+
+        return self;
+
+    def getSynopsis(self):
+        """Returns the synopsis for the command.
+
+        @return: string The synopsis
+
+        """
+
+        if None is self.__synopsis:
+            self.__synopsis = InputDefinition.getSynopsis(self);
+
+        return self.__synopsis;
+
+
+    def __sanitizeRequirement(self, key, regex):
+
+        if not isinstance(regex, String) :
+            raise InvalidArgumentException(
+                'Routing requirement for "{0}" must be a string.'.format(key)
+            );
+
+
+        if regex and regex.startswith('^') :
+            regex = regex[1:]; # returns False for a single character
+
+
+        if regex.endswith('$') :
+            regex = regex[:-1];
+
+
+        if not regex :
+            raise InvalidArgumentException(
+                'Routing requirement for "{0}" cannot be empty.'.format(key)
+            );
+
+        return regex;
+
 
 
 class RouteCollection(IteratorAggregateInterface, CountableInterface):
@@ -642,13 +708,14 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
     """
 
-    def __init__(self):
+    def __init__(self, definition = InputDefinition()):
+        assert isinstance(definition, InputDefinition);
 
-        self.__routes = Array();
-        # @var: Route[]
+        self.__routes = Array(); # @var: Route[]
 
-        self.__resources = list();
-        # @var: array
+        self.__resources = list(); # @var: list
+
+        self.__definition = definition; # @var: InputDefinition
 
 
     def __clone__(self):
@@ -694,7 +761,11 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         self.__routes.pop(name, None);
 
-        route.setParent(self.get(route.getParentName()));
+        # Force the creation of the synopsis before the merge with
+        # the collection definition
+        route.getSynopsis();
+
+        self.__mergeDefinition(route, self.__definition);
 
         self.__routes[name] = route;
 
@@ -724,9 +795,6 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
     def remove(self, name):
         """Removes a route or an array of routes by name from the collection
 
-        For BC it's also removed from the root, which will not be the case in 2.3
-        as the RouteCollection won't be a tree structure.
-
         @param: string|list name The route name or an array of route names
 
         """
@@ -750,8 +818,6 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         """
         assert isinstance(collection, RouteCollection);
 
-        # we need to remove all routes with the same names first because just replacing them
-        # would not place the new route at the end of the merged array
         for name, route in collection.all().items():
             self.add(name, route);
 
@@ -780,27 +846,110 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         self.__resources.append(resource);
 
 
-class CompliedRouteCollection(RouteCollection):
-    def __init__(self, compiler):
-        assert isinstance(compiler, RouteCompilerInterface);
+    def getDefinition(self):
+        """Returns the definition of this collection.
 
-        self.__compiler = compiler;
-        # @var: RouteCompilerInterface
+        @return: InputDefinition The InputDefinition of this collection
 
-        RouteCollection.__init__(self);
+        """
 
-    def add(self, name, route):
-        assert isinstance(route, Route);
+        return self.__definition;
 
-        route.setParent(self.get(route.getParentName()));
+    def setDefinition(self, definition):
+        """Sets the definition of this collection.
 
-        compiledRoute = self.__compiler.compile(route);
+        @param: InputDefinition definition A resource instance
 
-        RouteCollection.add(self, name, compiledRoute);
+        """
+        assert isinstance(definition, InputDefinition);
+
+        self.__definition = definition;
 
 
-class JsonFileLoader(FileLoader):
-    """JsonFileLoader loads Yaml routing files.
+    def prependDefinition(self, definition):
+        """Prepends a definition to the definition of all child routes.
+
+        @param: InputDefinition  definition   A definition to prepend
+        """
+        assert isinstance(definition, InputDefinition);
+
+        self.__mergeDefinition(self.__definition, definition);
+
+        for route in self.__routes.values():
+            self.__mergeDefinition(route, definition);
+
+
+    def addPrefix(self, prefix):
+        """Adds a prefix to the path of all child routes.
+
+        @param: string prefix       An optional prefix to add before each pattern of the route collection
+
+        @api
+
+        """
+
+        prefix = prefix.strip().strip(':');
+
+        if not prefix :
+            return;
+
+        for route in self.__routes.values():
+            route.setPath(prefix + ':' + route.getPath());
+
+
+    def addDefaults(self, defaults):
+        """Adds defaults to all routes.
+
+        An existing default value under the same name in a route will be overridden.
+
+        @param: dict defaults An array of default values
+
+        """
+        assert isinstance(defaults, dict);
+
+        if defaults :
+            for route in self.__routes.values():
+                route.addDefaults(defaults);
+
+
+
+    def addRequirements(self, requirements):
+        """Adds requirements to all routes.
+
+        An existing requirement under the same name in a route will be overridden.
+
+        @param: dict requirements An array of requirements
+
+        """
+        assert isinstance(requirements, dict);
+
+        if requirements :
+            for route in self.__routes.values():
+                route.addRequirements(requirements);
+
+    def __mergeDefinition(self, definition, parentDefinition):
+        """Merges the definition with the parentDefinition.
+
+        @param: InputDefinition  definition        Initial definition to merge
+        @param: InputDefinition  parentDefinition  A definition from merge
+
+        @return: RouteCollection The current instance
+        """
+        assert isinstance(definition, InputDefinition);
+        assert isinstance(parentDefinition, InputDefinition);
+
+        currentArguments = definition.getArguments();
+        definition.setArguments(parentDefinition.getArguments());
+        definition.addArguments(currentArguments);
+
+        definition.addOptions(parentDefinition.getOptions());
+
+        return self;
+
+
+
+class JsonFileLoader(FileLoader, LoaderInterface):
+    """JsonFileLoader loads Json routing files.
 
     @author: Fabien Potencier <fabien@symfony.com>
     @author Tobias Schultze <http://tobion.de>
@@ -810,14 +959,15 @@ class JsonFileLoader(FileLoader):
     """
     # TODO: pymfony/component/console/test/Fixtures/definition_asxml.txt
     __availableKeys = [
+        'defaults',
+        'definition',
+        'requirements',
+
         'resource',
         'type',
         'prefix',
-        'pattern',
+
         'path',
-        'defaults',
-        'requirements',
-        'options',
         'description',
     ];
 
@@ -834,7 +984,7 @@ class JsonFileLoader(FileLoader):
         @api
 
         """
-        return
+
         path = self._locator.locate(filename);
 
         configs = self._parseFile(path);
@@ -847,26 +997,14 @@ class JsonFileLoader(FileLoader):
             return collection;
 
 
-        # not an array
+        # not an dict
         if not isinstance(configs, dict) :
             raise InvalidArgumentException(
-                'The file "{0}" must contain a Json array.'.format(path)
+                'The file "{0}" must contain a Json dict.'.format(path)
             );
 
 
         for name, config in configs.items():
-            if 'pattern' in config :
-                if 'path' in config :
-                    raise InvalidArgumentException(
-                        'The file "{0}" cannot define both a "path" and a '
-                        '"pattern" attribute. Use only "path".'
-                        ''.format(path)
-                    );
-
-
-                config['path'] = config['pattern'];
-                del config['pattern'];
-
 
             self._validate(config, name, path);
 
@@ -874,7 +1012,6 @@ class JsonFileLoader(FileLoader):
                 self._parseImport(collection, config, path, filename);
             else :
                 self._parseRoute(collection, name, config, path);
-
 
 
         return collection;
@@ -926,11 +1063,12 @@ class JsonFileLoader(FileLoader):
         assert isinstance(config, dict);
         assert isinstance(collection, RouteCollection);
 
+        description = config['description'] if 'description' in config else '';
         defaults = config['defaults'] if 'defaults' in config else dict();
         requirements = config['requirements'] if 'requirements' in config else dict();
-        options = config['options'] if 'options' in config else dict();
+        definition = self._parseDefinition(config['definition'], defaults) if 'definition' in config else list();
 
-        route = Route(config['path'], defaults, requirements, options);
+        route = Route(config['path'], description, defaults, definition, requirements);
 
         collection.add(name, route);
 
@@ -951,19 +1089,45 @@ class JsonFileLoader(FileLoader):
         prefix = config['prefix'] if 'prefix' in config else '';
         defaults = config['defaults'] if 'defaults' in config else dict();
         requirements = config['requirements'] if 'requirements' in config else dict();
-        options = config['options'] if 'options' in config else dict();
+        definition = self._parseDefinition(config['definition'], defaults) if 'definition' in config else list();
 
         self.setCurrentDir(os.path.dirname(path));
 
         subCollection = self.imports(config['resource'], resource_type, False, filename);
-        subCollection.addPrefix(prefix);
+        assert isinstance(subCollection, RouteCollection);
         # @var subCollection RouteCollection
 
+        subCollection.addPrefix(prefix);
+        subCollection.prependDefinition(InputDefinition(definition));
         subCollection.addDefaults(defaults);
         subCollection.addRequirements(requirements);
-        subCollection.addOptions(options);
 
         collection.addCollection(subCollection);
+
+    def _parseDefinition(self, definition, defaults):
+        definitionList = list();
+        if 'arguments' in definition:
+            for argument in definition['arguments']:
+                name = argument['name'];
+                mode = InputArgument.OPTIONAL if name in defaults else InputArgument.REQUIRED;
+                mode = mode | InputArgument.IS_ARRAY if 'is_array' in argument and argument['is_array'] is True else mode;
+                description = argument['description'] if 'description' in argument else "";
+                default = defaults[name] if name in defaults else None;
+
+                definitionList.append(InputArgument(name, mode, description, default));
+
+        if 'options' in definition:
+            for option in definition['options']:
+                name = option['name'];
+                shortcut = option['shortcut'] if 'shortcut' in option else None;
+                default = defaults[name] if name in defaults else None;
+                mode = InputOption.VALUE_NONE if default is None else InputOption.VALUE_OPTIONAL if name in defaults else InputOption.VALUE_REQUIRED;
+                mode = mode | InputOption.VALUE_IS_ARRAY if 'is_array' in option and option['is_array'] is True else mode;
+                description = option['description'] if 'description' in option else "";
+
+                definitionList.append(InputOption(name, shortcut, mode, description, default));
+
+        return definitionList;
 
 
     def _validate(self, config, name, path):
@@ -992,7 +1156,7 @@ class JsonFileLoader(FileLoader):
                 path,
                 name,
                 '", "'.join(extraKeys),
-                '", "'.joihn(self.availableKeys),
+                '", "'.join(self.__availableKeys),
             ));
 
         if 'resource' in config and 'path' in config :
@@ -1000,6 +1164,14 @@ class JsonFileLoader(FileLoader):
                 'The routing file "{0}" must not specify both the "resource" '
                 'key and the "path" key for "{1}". Choose between an import '
                 'and a route definition.'.format(
+                path, name
+            ));
+
+        if 'resource' in config and 'description' in config :
+            raise InvalidArgumentException(
+                'The routing file "{0}" must not specify both the "resource" '
+                'key and the "description" key for "{1}". Choose between an '
+                'import and a route definition.'.format(
                 path, name
             ));
 
@@ -1011,8 +1183,8 @@ class JsonFileLoader(FileLoader):
                 name, path
             ));
 
-        if 'resource' not in config and  'path' not in config :
+        if 'resource' not in config and 'path' not in config :
             raise InvalidArgumentException(
                 'You must define a "path" for the route "{0}" in file "{1}".'
-                ''.format(name, path
-            ));
+                ''.format(name, path)
+            );

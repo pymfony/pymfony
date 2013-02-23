@@ -64,15 +64,20 @@ class RouterListener(EventSubscriberInterface):
                 request.attributes.set('_want_help', True);
 
         if request.hasParameterOption(['--no-interaction', '-n']):
-            request.setInteractive(False);
+            request.attributes.set('_interaction', False);
 
         if request.hasParameterOption(['--version', '-V']):
             event.setResponse(Response(self.__container.get('console_kernel').getLongVersion()));
             return;
 
         if not cmdName:
-            cmdName = 'list';
+            cmdName = self.__container.get('console.router')\
+                .getRouteCollection()\
+                .get(self.__container.getParameter('console.router.default_route'))\
+                .getPath()\
+            ;
 
+        request.setCommandName(cmdName);
 
         # add attributes based on the request (routing)
         try:

@@ -43,7 +43,10 @@ class FrameworkExtension(ConfigurableExtension):
 
         if 'console' in config:
             self.__registerConsoleConfiguration(config['console'], container, loader);
-        container.setParameter('console.router.resource', "");
+        if not container.hasParameter('console.router.resource'):
+            container.setParameter('console.router.resource', "");
+        if not container.hasParameter('console.router.default_route'):
+            container.setParameter('console.router.default_route', "_list");
 
 
     def getAlias(self):
@@ -53,7 +56,14 @@ class FrameworkExtension(ConfigurableExtension):
     def __registerConsoleConfiguration(self, config, container, loader):
         assert isinstance(config, dict);
 
+        if 'router' in config:
+            self.__registerConsoleRouterConfiguration(config['router'], container, loader);
+
+    def __registerConsoleRouterConfiguration(self, config, container, loader):
+        assert isinstance(config, dict);
+
         container.setParameter('console.router.resource', config['resource']);
+        container.setParameter('console.router.default_route', config['default_route']);
 
 
 
@@ -75,15 +85,20 @@ class Configuration(ConfigurationInterface):
     def __addConsoleSection(self, rootNode):
         assert isinstance(rootNode, ArrayNodeDefinition);
 
-        rootNode\
-            .children()\
-                .arrayNode('console')\
-                    .info('console configuration')\
-                    .canBeUnset()\
-                    .children()\
-                        .scalarNode('resource').isRequired().end()\
-                    .end()\
-                .end()\
-            .end()\
-        ;
-
+        n = rootNode;
+        n =     n.children();
+        n =         n.arrayNode('console');
+        n =             n.info('console configuration');
+        n =             n.canBeUnset();
+        n =             n.children();
+        n =                 n.arrayNode('router');
+        n =                     n.info('console router configuration');
+        n =                     n.canBeUnset();
+        n =                     n.children();
+        n =                         n.scalarNode('resource').isRequired().end();
+        n =                         n.scalarNode('default_route').defaultValue('_list').end();
+        n =                     n.end();
+        n =                 n.end();
+        n =             n.end();
+        n =         n.end();
+        n =     n.end();

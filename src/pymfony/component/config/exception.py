@@ -26,10 +26,11 @@ class FileLoaderLoadException(StandardException):
 
         # Is the resource located inside a bundle?
         if resource.startswith('@'):
-            bundle = str(resource).split('/', 1)[1:];
-            message += ' Make sure the "{0}" bundle is correctly registered '
-            'and loaded in the application kernel class.'
-            ''.format(bundle);
+            bundle = str(resource)[1:].split('/', 1)[0];
+            message += (' Make sure the "{0}" bundle is correctly registered '
+                'and loaded in the application kernel class.'
+                ''.format(bundle)
+            );
 
         StandardException.__init__(self, message, code, previous);
 

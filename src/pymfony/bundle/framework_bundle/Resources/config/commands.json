@@ -1,0 +1,9 @@
+{
+    "_list": {
+        "path": "list",
+        "description": "Lists commands",
+        "defaults": {
+             "_controller": "FrameworkBundle:List:show"
+        }
+    }
+}

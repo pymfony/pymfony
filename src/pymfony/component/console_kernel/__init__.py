@@ -294,26 +294,6 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
         return self.__filterResponse(response, request, requestType);
 
-    def getDefinition(self):
-        """Gets the default input definition.
-
-        @return InputDefinition An InputDefinition instance
-
-        """
-        if self.__definition is None:
-            self.__definition = InputDefinition([
-                InputArgument('command', InputArgument.REQUIRED, 'The command to execute'),
-    
-                InputOption('--help', '-h', InputOption.VALUE_NONE, 'Display this help message.'),
-                InputOption('--quiet', '-q', InputOption.VALUE_NONE, 'Do not output any message.'),
-                InputOption('--verbose', '-v', InputOption.VALUE_NONE, 'Increase verbosity of messages.'),
-                InputOption('--version', '-V', InputOption.VALUE_NONE, 'Display this application version.'),
-                InputOption('--ansi', '', InputOption.VALUE_NONE, 'Force ANSI output.'),
-                InputOption('--no-ansi', '', InputOption.VALUE_NONE, 'Disable ANSI output.'),
-                InputOption('--no-interaction', '-n', InputOption.VALUE_NONE, 'Do not ask any interactive question.'),
-            ]);
-        return self.__definition;
-
 
     def __filterResponse(self, response, request, requestType):
         """Filters a response object.

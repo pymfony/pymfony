@@ -76,6 +76,14 @@ class Request(ArgvInput):
         """
         return list(self.__argv);
 
+    def setCommandName(self, command):
+        self.attributes.set('_command', command);
+
+    def getCommandName(self):
+        if self.attributes.has('_command'):
+            return self.attributes.get('_command');
+        return self.getFirstArgument();
+
 
 class Response(ConsoleOutput):
     statusTexts = {
