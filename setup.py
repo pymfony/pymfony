@@ -41,6 +41,7 @@ def find_packages():
         'pymfony.component.system.py2',
         'pymfony.component.system.py2.minor6',
         'pymfony.component.system.py3',
+        'pymfony.component.yaml',
     ];
 
 def find_package_data():

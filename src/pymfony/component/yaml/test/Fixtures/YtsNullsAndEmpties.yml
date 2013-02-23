@@ -1,0 +1,45 @@
+--- %YAML:1.0
+test: Empty Sequence
+brief: >
+    You can represent the empty sequence
+    with an empty inline sequence.
+yaml: |
+    empty: []
+python: |
+    OrderedDict([('empty' , [])])
+---
+test: Empty Mapping
+brief: >
+    You can represent the empty mapping
+    with an empty inline mapping.
+yaml: |
+    empty: {}
+python: |
+    OrderedDict([('empty' , OrderedDict())])
+---
+test: Empty Sequence as Entire Document
+yaml: |
+    []
+python: |
+    []
+---
+test: Empty Mapping as Entire Document
+yaml: |
+    {}
+python: |
+    OrderedDict()
+---
+test: Null as Document
+yaml: |
+    ~
+python: |
+    None
+---
+test: Empty String
+brief: >
+    You can represent an empty string
+    with a pair of quotes.
+yaml: |
+    ''
+python: |
+    ''
