@@ -89,6 +89,8 @@ class ControllerResolver(ControllerResolverInterface):
 
     """
 
+    PREFIX_OPTION = "_o_";
+
     def __init__(self):
         """Constructor.
         """
@@ -167,16 +169,22 @@ class ControllerResolver(ControllerResolverInterface):
         arguments = list();
 
         for name in args:
-            attr = name.replace('_', '-');
+            attr = name;
+            # strip option prefix
+            if name.startswith(self.PREFIX_OPTION):
+                attr = attr[len(self.PREFIX_OPTION):];
+            attr = attr.replace('_', '-');
             if attr.startswith('-'):
-                attr[0] = '_';
+                attr = '_' + attr[1:];
             arg = [name, attr];
             if arg[0] == 'self':
                 continue;
             if arg[0] == 'request':
                 arguments.append(request);
-            elif request.attribute.has(arg[1]):
-                arguments.append(request.attribute.get(arg[1]));
+            elif request.attributes.has(arg[1]):
+                arguments.append(request.attributes.get(arg[1]));
+            elif request.hasOption(arg[1]):
+                arguments.append(request.getOption(arg[1]));
             else:
                 raise RuntimeException(
                     'Controller "{0}" requires that you provide a value for '
