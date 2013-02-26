@@ -41,9 +41,6 @@ class FrameworkBundle(Bundle):
         routeCollection = self._container.get('console.router').getRouteCollection();
         assert isinstance(routeCollection, RouteCollection);
 
-        routeCollection.add('_list', Route("list", "Lists commands", {
-            '_controller': "FrameworkBundle:List:show",
-        }));
-        routeCollection.add('_default', Route("list", "Lists commands", {
+        routeCollection.add('framework_list', Route("list", "Lists commands", {
             '_controller': "FrameworkBundle:List:show",
         }));

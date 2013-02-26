@@ -6,7 +6,8 @@
         "default_locale": "%locale%",
         "console":{
             "router":{
-                "resource": "%kernel.root_dir%/Resources/config/commands.json"
+                "resource": "%kernel.root_dir%/Resources/config/commands.json",
+                "default_route": "framework_test_list"
             }
         }
     }

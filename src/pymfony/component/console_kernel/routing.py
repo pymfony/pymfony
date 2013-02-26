@@ -314,7 +314,7 @@ class RequestMatcher(RequestMatcherInterface):
         for name, route in routes.all().items():
             assert isinstance(route, Route);
 
-            if request.getCommandName() != route.getPath():
+            if request.getFirstArgument() != route.getPath():
                 continue;
 
             # FIXME: requirements

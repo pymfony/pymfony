@@ -256,7 +256,7 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
             raise NotFoundConsoleException(
                 'Unable to find the controller for path "{0}". Maybe you '
                 'forgot to add the matching route in your routing '
-                'configuration?'.format(request.getFirstArgument())
+                'configuration?'.format(request.getArgv()[1:])
             );
 
 

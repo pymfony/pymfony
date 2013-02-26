@@ -76,13 +76,9 @@ class Request(ArgvInput):
         """
         return list(self.__argv);
 
-    def setCommandName(self, command):
-        self.attributes.set('_command', command);
-
-    def getCommandName(self):
-        if self.attributes.has('_command'):
-            return self.attributes.get('_command');
-        return self.getFirstArgument();
+    def setFirstArgument(self, command):
+        if not self.getFirstArgument():
+            self._setTokens([command] + self.__argv[1:]);
 
 
 class Response(ConsoleOutput):

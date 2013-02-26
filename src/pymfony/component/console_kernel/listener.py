@@ -77,10 +77,11 @@ class RouterListener(EventSubscriberInterface):
                 .getPath()\
             ;
 
-        request.setCommandName(cmdName);
+        # Sets the first argument if argv not contains argument
+        request.setFirstArgument(cmdName);
 
-        # add attributes based on the request (routing)
         try:
+            # add attributes based on the request (routing)
             parameters = self.__matcher.matchRequest(request);
 
             request.attributes.add(parameters);

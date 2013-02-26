@@ -17,6 +17,7 @@ from pymfony.component.system.exception import InvalidArgumentException
 from pymfony.component.system import ReflectionClass
 from pymfony.component.system import ReflectionObject
 from pymfony.component.system.exception import RuntimeException
+from pymfony.component.system.types import String
 
 """
 """
@@ -126,7 +127,7 @@ class ControllerResolver(ControllerResolverInterface):
             return controller;
 
 
-        if not isinstance(controller, str):
+        if not isinstance(controller, String):
             return False;
 
         controller, method = self._createController(controller);

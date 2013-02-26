@@ -1,5 +1,5 @@
 {
-    "_list": {
+    "framework_test_list": {
         "path": "list",
         "description": "Lists commands",
         "defaults": {

@@ -46,7 +46,7 @@ class FrameworkExtension(ConfigurableExtension):
         if not container.hasParameter('console.router.resource'):
             container.setParameter('console.router.resource', "");
         if not container.hasParameter('console.router.default_route'):
-            container.setParameter('console.router.default_route', "_list");
+            container.setParameter('console.router.default_route', "framework_list");
 
 
     def getAlias(self):
@@ -96,7 +96,8 @@ class Configuration(ConfigurationInterface):
         n =                     n.canBeUnset();
         n =                     n.children();
         n =                         n.scalarNode('resource').isRequired().end();
-        n =                         n.scalarNode('default_route').defaultValue('_list').end();
+        n =                         n.scalarNode('type').end();
+        n =                         n.scalarNode('default_route').defaultValue('framework_list').end();
         n =                     n.end();
         n =                 n.end();
         n =             n.end();
