@@ -166,16 +166,14 @@ class ParameterBag(ParameterBagInterface):
         self._parameters = params;
         self._resolved = True;
 
-    def resolveValue(self, value, resolving=None):
-        if resolving is None:
-            resolving = dict();
+    def resolveValue(self, value, resolving=dict()):
         assert isinstance(resolving, dict);
+        resolving = resolving.copy();
 
         if isinstance(value, dict):
             args = dict();
             for k, v in value.items():
-                k = self.resolveValue(k, resolving);
-                args[k] = self.resolveValue(v, resolving);
+                args[self.resolveValue(k, resolving)] = self.resolveValue(v, resolving);
             return args;
 
         elif isinstance(value, list):
@@ -189,11 +187,13 @@ class ParameterBag(ParameterBagInterface):
 
         return self.resolveString(value, resolving);
 
-    def resolveString(self, value, resolving=None):
-        if resolving is None:
-            resolving = dict();
+    def resolveString(self, value, resolving=dict()):
         assert isinstance(resolving, dict);
+        resolving = resolving.copy();
 
+        # we do this to deal with non string values (Boolean, integer, ...)
+        # as the preg_replace_callback throw an exception when trying
+        # a non-string in a parameter value
         match = re.search(r"^%([^%\s]+)%$", value);
         if match:
             key = match.group(1).lower();
@@ -208,16 +208,17 @@ class ParameterBag(ParameterBagInterface):
                 return self.resolveValue(self.get(key), resolving);
 
         def callback(match):
+            _resolving = resolving.copy();
             key = match.group(1);
-            if key is None:
+            if not key:
                 return "%%";
             key = key.lower();
-            if key in resolving.keys():
+            if key in _resolving.keys():
                 raise ParameterCircularReferenceException(
-                    list(resolving.keys())
+                    list(_resolving.keys())
                 );
             resolved = self.get(key);
-            if not isinstance(resolved, (str, float, int)):
+            if not isinstance(resolved, (String, float, int, complex)):
                 raise RuntimeException(
                     'A string value must be composed of strings and/or '
                     'numbers, but found parameter "{0}" of type {1} inside '
@@ -225,11 +226,11 @@ class ParameterBag(ParameterBagInterface):
                     "".format(key, type(resolved), value)
                 );
             resolved = str(resolved);
-            resolving[key] = True;
+            _resolving[key] = True;
             if self.isResolved():
                 return resolved;
             else:
-                return self.resolveString(resolved, resolving);
+                return self.resolveString(resolved, _resolving);
 
         return re.sub(r"%%|%([^%\s]+)%", callback, value);
 
