@@ -1,9 +1,12 @@
 {
-    "framework_test_list": {
+    "_test_list": {
         "path": "list",
         "description": "Lists commands",
         "defaults": {
              "_controller": "FrameworkBundle:List:show"
         }
+    },
+    "_main":{
+        "resource": "commands.json"
     }
 }

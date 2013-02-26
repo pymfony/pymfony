@@ -1,5 +1,13 @@
 {
     "imports": [
         {"resource": "config.json"}
-    ]
+    ],
+    "framework":{
+        "console":{
+            "router":{
+                "resource": "%kernel.root_dir%/Resources/config/commands_test.json",
+                "default_route": "_test_list"
+            }
+        }
+    }
 }
