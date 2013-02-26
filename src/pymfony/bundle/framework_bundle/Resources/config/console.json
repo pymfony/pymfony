@@ -5,7 +5,7 @@
 		"console.command_resolver.class": "pymfony.bundle.framework_bundle.controller.ControllerResolver",
 		"console.router_listener.class": "pymfony.component.console_kernel.listener.RouterListener",
 		"console.response_listener.class": "pymfony.component.console_kernel.listener.ResponseListener",
-		"console.router.class": "pymfony.component.console_kernel.routing.Router",
+		"console.router.class": "pymfony.bundle.framework_bundle.console.Router",
 		"console.routing.loader.json.class": "pymfony.component.console_kernel.routing.JsonFileLoader",
 		"console.routing.loader.class": "pymfony.bundle.framework_bundle.routing.DelegatingLoader",
 		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver"
@@ -74,7 +74,8 @@
 			"class": "%console.router.class%",
 			"arguments":[
 				"@console.routing.loader",
-				"%console.router.resource%"
+				"%console.router.resource%",
+				"@kernel"
 			]
 		},
 		"console.router":{

@@ -11,6 +11,11 @@ from __future__ import absolute_import;
 from pymfony.component.system.exception import InvalidArgumentException
 from pymfony.component.system import ReflectionClass
 from pymfony.bundle.framework_bundle.controller import ControllerNameParser as BaseControllerNameParser
+from pymfony.component.console_kernel.routing import Router as BaseRouter
+from pymfony.component.console.input import InputDefinition
+from pymfony.component.console.input import InputArgument
+from pymfony.component.console.input import InputOption
+from pymfony.component.kernel import KernelInterface
 
 """
 """
@@ -75,3 +80,21 @@ class ControllerNameParser(BaseControllerNameParser):
 
 
         raise InvalidArgumentException(msg);
+
+class Router(BaseRouter):
+    def __init__(self, loader, resource, kernel, options=dict()):
+        """Constructor.
+
+        @param: LoaderInterface loader     A LoaderInterface instance
+        @param: mixed           resource   The main resource to load
+        @param: KernelInterface kernel     A KernelInterface instance
+        @param: dict            options    A dictionary of options
+        """
+        assert isinstance(kernel, KernelInterface);
+
+        BaseRouter.__init__(self, loader, resource, options=options);
+
+        self.__kernel = kernel;
+
+        self.getDefinition().addOption(InputOption('--env', '-e', InputOption.VALUE_REQUIRED, 'The Environment name.', kernel.getEnvironment()));
+        self.getDefinition().addOption(InputOption('--no-debug', None, InputOption.VALUE_NONE, 'Switches off debug mode.'));
