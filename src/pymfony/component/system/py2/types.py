@@ -12,7 +12,7 @@ import sys;
 
 from pymfony.component.system import Object;
 
-if sys.version_info <= (2, 6):
+if sys.version_info < (2, 7):
     from pymfony.component.system.py2.minor6.types import AbstractOrderedDict;
 else:
     from collections import OrderedDict as AbstractOrderedDict;

@@ -17,7 +17,7 @@ __all__ = [
     'AbstractJSONDecoderOrderedDict',
 ];
 
-if sys.version_info <= (2, 6):
+if sys.version_info < (2, 7):
     from pymfony.component.system.py2.minor6.json import AbstractJSONDecoderOrderedDict;
 else:
     from json import JSONDecoder;
