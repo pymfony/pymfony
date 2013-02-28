@@ -8,6 +8,7 @@
 from __future__ import absolute_import;
 
 import re
+import shutil
 
 from pymfony.component.console import Response
 from pymfony.component.dependency import ContainerAware
@@ -46,7 +47,7 @@ class ExceptionCommand(ContainerAware):
         while e:
             title = '  [{0}]  '.format(ReflectionObject(e).getName());
             lenght = len(title);
-            width = 80; # TODO: console width - 1
+            width = shutil.get_terminal_size()[0] - 1;
             lines = list();
             message = e.getMessage() if isinstance(e, StandardException) else str(e);
             for line in list(re.split('\r?\n', message)):
