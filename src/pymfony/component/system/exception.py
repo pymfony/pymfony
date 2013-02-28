@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import sys;
@@ -15,6 +12,9 @@ import linecache;
 
 from pymfony.component.system import Object;
 from pymfony.component.system.oop import final;
+
+"""
+"""
 
 class StandardException(Exception, Object):
     STACK_PATTERN = 'File "{filename}", line {lineno}, in {name}';
@@ -70,34 +70,28 @@ class StandardException(Exception, Object):
             name = f.f_code.co_name;
             argcount = f.f_code.co_argcount;
             allLines = linecache.getlines(filename, f.f_globals);
-            if allLines:
-                line = allLines[lineno - 1].strip();
-            else:
-                line = "";
-
-            upAndDown = 5;
-
-            startLineno = lineno + 1;
-            while startLineno > 1 and lineno - startLineno < upAndDown:
-                startLineno -= 1;
+            line = "";
+            lines = list();
 
             nbLines = len(allLines);
-            endLineno = lineno;
-            while endLineno < nbLines and endLineno - lineno < upAndDown:
-                endLineno += 1;
+            if 1 <= lineno <= nbLines:
+                line = allLines[lineno - 1].strip();
+                upAndDown = 5;
 
-            lines = dict();
-            i = startLineno;
-            while i <= endLineno:
-                lines[i] = allLines[i-1];
-                i += 1;
+                startLineno = lineno - upAndDown;
+                startLineno = 1 if startLineno <= 1 else startLineno;
+                endLineno = lineno + upAndDown;
+                endLineno = nbLines if endLineno >= nbLines else endLineno;
+
+                for i in range(startLineno, endLineno + 1):
+                    lines.append( (i, allLines[i-1]) );
 
             stack = {
                 'filename'  : filename,
                 'lineno'    : lineno,
                 'name'      : name,
                 'line'      : line,
-                'lines'     : lines, # {int: string, ...}
+                'lines'     : lines, # [(int, string), ...]
                 'locals'    : localVars,
                 'argcount'  : argcount,
             };
@@ -190,7 +184,7 @@ class StandardException(Exception, Object):
         """Return lines content where the exception was raise.
 
         @return: dict lines content where the exception was raise.
-                      {int: string, ...}
+                      [(int, string), ...]
         """
         if self._lines:
             return self._lines;
@@ -226,6 +220,7 @@ class StandardException(Exception, Object):
             return self.__string;
 
         self.__string = '';
+        trace = self.getTrace();
         if self._previous:
             if not isinstance(self._previous, self.__class__):
                 self.__string += "An exception '{0}' was previously raised with message '{1}'\n".format(
@@ -234,19 +229,23 @@ class StandardException(Exception, Object):
                 );
             else:
                 self.__string += str(self._previous);
+
+                trace = list();
+                for stack in self.getTrace():
+                    if stack in self._previous.getTrace():
+                        break;
+                    trace.append(stack);
             self.__string += '\nNext ';
 
-        self.__string += \
-        "exception '{0}' with message '{1}'\n".format(
+        self.__string += "exception '{0}' with message '{1}'\n".format(
             type(self).__name__,
             self._message,
             self._file,
             self._line,
         );
         self.__string += "Traceback (most recent call last):\n";
-        self.__string += self.getTraceAsString();
-        self.__string += \
-        "{0}: {1}\n".format(
+        self.__string += self.__formatTrace(trace) if trace != self.getTraceAsString() else self.getTraceAsString();
+        self.__string += "{0}: {1}\n".format(
             type(self).__name__,
             self._message
         );
