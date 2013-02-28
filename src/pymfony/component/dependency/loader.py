@@ -136,9 +136,12 @@ class JsonFileLoader(FileLoader):
         @raise InvalidArgumentException: When JSON file is not valid
         """
         f = open(filename);
-        s = f.read();
+        s = f.read().strip();
         f.close();
         del f;
+
+        if not s:
+            return dict();
 
         try:
             result = json.loads(s);

@@ -1037,9 +1037,12 @@ class JsonFileLoader(FileLoader, LoaderInterface):
         @raise InvalidArgumentException: When JSON file is not valid
         """
         f = open(filename);
-        s = f.read();
+        s = f.read().strip();
         f.close();
         del f;
+
+        if not s:
+            return OrderedDict();
 
         try:
             result = JSONDecoderOrderedDict().decode(s);
