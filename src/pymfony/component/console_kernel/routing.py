@@ -9,6 +9,7 @@
 from __future__ import absolute_import;
 
 import os
+import re
 
 from pymfony.component.system.oop import interface
 from pymfony.component.system import Object
@@ -94,6 +95,8 @@ class Router(RouterInterface):
     @author: Fabien Potencier <fabien@symfony.com>
 
     """
+
+    COMMAND_KEY = 'command';
 
     def __init__(self, loader, resource, options = dict()):
         """Constructor.
@@ -205,7 +208,7 @@ class Router(RouterInterface):
         """
         if self.__definition is None:
             self.__definition = InputDefinition([
-                InputArgument('command', InputArgument.REQUIRED, 'The command to execute'),
+                InputArgument(self.COMMAND_KEY, InputArgument.REQUIRED, 'The command to execute'),
 
                 InputOption('--help', '-h', InputOption.VALUE_NONE, 'Display this help message.'),
                 InputOption('--quiet', '-q', InputOption.VALUE_NONE, 'Do not output any message.'),
@@ -267,6 +270,8 @@ class RequestMatcher(RequestMatcherInterface):
     REQUIREMENT_MATCH     = 0;
     REQUIREMENT_MISMATCH  = 1;
     ROUTE_MATCH           = 2;
+    BIND_MISMATCH         = 3;
+    BIND_MATCH            = 4;
 
     def __init__(self, routes):
         """Constructor.
@@ -315,17 +320,17 @@ class RequestMatcher(RequestMatcherInterface):
         for name, route in routes.all().items():
             assert isinstance(route, Route);
 
-            if request.getFirstArgument() != route.getPath():
+            # bind the input against the command specific arguments/options
+            status = self._handleRouteBinds(request, name, route);
+
+            if (self.BIND_MISMATCH == status[0]) :
                 continue;
 
-            # FIXME: requirements
+            if request.hasArgument(Router.COMMAND_KEY):
+                if request.getArgument(Router.COMMAND_KEY) != route.getPath():
+                    continue;
 
-            # bind the input against the command specific arguments/options
-            status = self._handleRouteBinding(request, name, route);
-
-            if (self.ROUTE_MATCH == status[0]) :
-                return status[1];
-
+            status = self._handleRouteRequirements(request, name, route);
 
             if (self.REQUIREMENT_MISMATCH == status[0]) :
                 continue;
@@ -353,20 +358,19 @@ class RequestMatcher(RequestMatcherInterface):
         assert isinstance(request, Request);
 
         attributes = dict();
-        attributes.update(route.getDefaults());
-        attributes.update(request.getArguments());
         attributes['_route'] = name;
+        attributes.update(request.getArguments());
 
         return attributes;
 
-    def _handleRouteBinding(self, request, name, route):
-        """Handles specific route requirements.:
+    def _handleRouteBinds(self, request, name, route):
+        """Handles specific route binding.:
 
         @param: Request request The path
         @param string name     The route name
         @param Route  route    The route
 
-        @return array The first element represents the status, the second contains additional information
+        @return list The first element represents the status, the second contains additional information
 
         """
         assert isinstance(route, Route);
@@ -374,11 +378,35 @@ class RequestMatcher(RequestMatcherInterface):
 
         try:
             request.bind(route);
+            request.validate();
         except Exception:
-            return [self.REQUIREMENT_MISMATCH, None];
+            return [self.BIND_MISMATCH, None];
         else:
-            return [self.REQUIREMENT_MATCH, None];
+            return [self.BIND_MATCH, None];
 
+
+    def _handleRouteRequirements(self, request, name, route):
+        """Handles specific route requirements.:
+
+        @param: Request request The path
+        @param string name     The route name
+        @param Route  route    The route
+
+        @return list The first element represents the status, the second contains additional information
+
+        """
+        assert isinstance(route, Route);
+        assert isinstance(request, Request);
+
+        for key, regexp in route.getRequirements().items():
+            if not re.match(regexp, request.getArgument(key)):
+                return [self.REQUIREMENT_MISMATCH, None];
+            elif not re.match(regexp, request.getOption(key)):
+                return [self.REQUIREMENT_MISMATCH, None];
+            else:
+                return [self.REQUIREMENT_MISMATCH, None];
+
+        return [self.REQUIREMENT_MATCH, None];
 
 
 

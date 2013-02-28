@@ -55,31 +55,6 @@ class RouterListener(EventSubscriberInterface):
             # routing is already done
             return;
 
-        cmdName = request.getFirstArgument();
-
-        if request.hasParameterOption(['--help', '-h']):
-            if not cmdName:
-                cmdName = 'help';
-            else:
-                request.attributes.set('_want_help', True);
-
-        if request.hasParameterOption(['--no-interaction', '-n']):
-            request.attributes.set('_interaction', False);
-
-        if request.hasParameterOption(['--version', '-V']):
-            event.setResponse(Response(self.__container.get('console_kernel').getLongVersion()));
-            return;
-
-        if not cmdName:
-            cmdName = self.__container.get('console.router')\
-                .getRouteCollection()\
-                .get(self.__container.getParameter('console.router.default_route'))\
-                .getPath()\
-            ;
-
-        # Sets the first argument if argv not contains argument
-        request.setFirstArgument(cmdName);
-
         try:
             # add attributes based on the request (routing)
             parameters = self.__matcher.matchRequest(request);
