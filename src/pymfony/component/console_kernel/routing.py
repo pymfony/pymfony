@@ -1122,9 +1122,9 @@ class JsonFileLoader(FileLoader, LoaderInterface):
                 name = option['name'];
                 shortcut = option['shortcut'] if 'shortcut' in option else None;
                 default = defaults[name] if name in defaults else None;
-                # FIXME: mode
-                mode = InputOption.VALUE_NONE if default is None else InputOption.VALUE_OPTIONAL if name in defaults else InputOption.VALUE_REQUIRED;
+                mode = InputOption.VALUE_OPTIONAL if name in defaults else InputOption.VALUE_REQUIRED;
                 mode = mode | InputOption.VALUE_IS_ARRAY if 'is_array' in option and option['is_array'] is True else mode;
+                mode = InputOption.VALUE_NONE if not ('accept_value' in option and option['accept_value'] is True) else mode;
                 description = option['description'] if 'description' in option else "";
 
                 definitionList.append(InputOption(name, shortcut, mode, description, default));
