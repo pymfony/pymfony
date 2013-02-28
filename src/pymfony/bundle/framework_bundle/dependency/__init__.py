@@ -55,9 +55,12 @@ class FrameworkExtension(ConfigurableExtension):
 
     def __registerConsoleConfiguration(self, config, container, loader):
         assert isinstance(config, dict);
+        assert isinstance(container, ContainerBuilder);
 
         if 'router' in config:
             self.__registerConsoleRouterConfiguration(config['router'], container, loader);
+
+        container.setParameter('console.exception_controller', config['exception_controller']);
 
     def __registerConsoleRouterConfiguration(self, config, container, loader):
         assert isinstance(config, dict);
@@ -99,6 +102,9 @@ class Configuration(ConfigurationInterface):
         n =                         n.scalarNode('type').end();
         n =                         n.scalarNode('default_route').defaultValue('framework_list').end();
         n =                     n.end();
+        n =                 n.end();
+        n =                 n.scalarNode('exception_controller');
+        n =                     n.defaultValue('FrameworkBundle:Exception:show');
         n =                 n.end();
         n =             n.end();
         n =         n.end();

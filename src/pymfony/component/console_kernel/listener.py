@@ -115,12 +115,19 @@ class ResponseListener(EventSubscriberInterface):
 
 
 class ExceptionListener(EventSubscriberInterface):
+    __handling = False;
+
     def __init__(self, controller):
         self.__controller = controller;
 
 
     def onKernelException(self, event):
         assert isinstance(event, GetResponseForExceptionEvent);
+
+        if self.__handling is True:
+            return False;
+
+        self.__handling = True;
 
         exception = event.getException();
         request = event.getRequest();
@@ -136,10 +143,15 @@ class ExceptionListener(EventSubscriberInterface):
         try:
             response = event.getKernel().handle(request, ConsoleKernelInterface.SUB_REQUEST, True);
         except Exception:
+            # set handling to false otherwise it wont be able to handle further more
+            self.__handling = False;
+
+            # re-throw the exception from within ConsoleKernel as this is a catch-all
             return;
 
         event.setResponse(response);
 
+        self.__handling = False;
 
     @classmethod
     def getSubscribedEvents(cls):

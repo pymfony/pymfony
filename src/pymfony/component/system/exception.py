@@ -19,7 +19,6 @@ from pymfony.component.system.oop import final;
 class StandardException(Exception, Object):
     STACK_PATTERN = 'File "{filename}", line {lineno}, in {name}';
 
-
     def __init__(self, message="", code=None, previous=None):
         """Construct the exception
 
@@ -61,10 +60,10 @@ class StandardException(Exception, Object):
         f = tb.tb_frame.f_back.f_back;
 
         while f is not None:
-            localVars = {};
-            for name, value in f.f_locals.items():
-                localVars[name] = repr(value);
-
+            localVars = f.f_locals;
+            if 'self' in localVars and isinstance(localVars['self'], self.__class__):
+                f = f.f_back;
+                continue;
             filename = f.f_code.co_filename;
             lineno = f.f_lineno;
             name = f.f_code.co_name;

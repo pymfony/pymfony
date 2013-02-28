@@ -38,15 +38,10 @@ class StandardExceptionTest(unittest.TestCase):
         self.assertTrue(isinstance(e.getPrevious(), (BaseException, type(None))));
         self.assertEqual(e.getLineno(), 26);
         self.assertEqual(e.getFile(), currentFile);
-        expectedLocals = {
-            'arg1': 'None',
-            'arg2': '[]',
-            'e': "Exception('Basic exception message',)",
-            'self': repr(self),
-        };
 
         self.assertEqual(e.getTrace()[0]['name'], "__raiseException");
-        self.assertEqual(e.getTrace()[0]['locals'], expectedLocals);
+        self.assertEqual(str(e.getTrace()[0]['locals']['e']), 'Basic exception message');
+
 
     def testFormatStack(self):
         stack = {

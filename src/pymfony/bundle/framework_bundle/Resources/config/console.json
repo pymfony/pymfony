@@ -8,7 +8,8 @@
 		"console.router.class": "pymfony.bundle.framework_bundle.console.Router",
 		"console.routing.loader.json.class": "pymfony.component.console_kernel.routing.JsonFileLoader",
 		"console.routing.loader.class": "pymfony.bundle.framework_bundle.routing.DelegatingLoader",
-		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver"
+		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver",
+		"console.exception_listener.class": "pymfony.component.console_kernel.listener.ExceptionListener"
 	},
 	"services": {
 		"console.controller_name_converter": {
@@ -80,6 +81,15 @@
 		},
 		"console.router":{
 			"alias": "console.router.default"
+		},
+		"console.exception_listener": {
+			"class": "%console.exception_listener.class%",
+			"tags": [
+				{"name": "kernel.event_subscriber"}
+			],
+			"arguments": [
+				"%console.exception_controller%"
+			]
 		}
 	}
 }

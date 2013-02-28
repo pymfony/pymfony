@@ -248,10 +248,12 @@ class Tool(Object):
         abstractclass = getattr(obj, '__abstractclass__', False);
         return inspect.isabstract(obj) or obj is abstractclass;
 
-
     @classmethod
     def isCallable(cls, closure):
-        if isinstance(closure, basestring):
+        if hasattr(closure, '__call__'):
+            return True;
+
+        elif isinstance(closure, basestring):
             if '.' in closure:
                 # Static class method call
                 try:
@@ -265,7 +267,11 @@ class Tool(Object):
                 except Exception:
                     return False;
 
-        elif isinstance(closure, list):
+        return False;
+
+    @classmethod
+    def isPhpCallable(cls, closure):
+        if isinstance(closure, list):
             if len(closure) != 2:
                 return False;
 
@@ -287,20 +293,7 @@ class Tool(Object):
                 if closure is False:
                     return False;
 
-
-        try:
-            if hasattr(closure, '__call__'):
-                    return True;
-            if repr(closure).startswith("<") and repr(closure).endswith(">"):
-                if " at 0x" in repr(closure):
-                    return True;
-                if "'function'" in str(type(closure)):
-                    return True;
-                if "'builtin_function_or_method'" in str(type(closure)):
-                    return True;
-        except BaseException:
-            pass;
-        return False;
+        return cls.isCallable(closure);
 
     @classmethod
     def split(cls, string, sep="."):
@@ -448,7 +441,7 @@ class ReflectionClass(Object):
 
 class ReflectionObject(ReflectionClass):
     def __init__(self, argument):
-        assert isinstance(argument, Object);
+        assert isinstance(argument, object);
         ReflectionClass.__init__(self, argument.__class__);
 
 
