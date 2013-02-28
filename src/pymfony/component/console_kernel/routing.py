@@ -1108,8 +1108,7 @@ class JsonFileLoader(FileLoader, LoaderInterface):
     def _parseDefinition(self, definition, defaults):
         definitionList = list();
         if 'arguments' in definition:
-            for argument in definition['arguments']:
-                name = argument['name'];
+            for name, argument in definition['arguments'].items():
                 mode = InputArgument.OPTIONAL if name in defaults else InputArgument.REQUIRED;
                 mode = mode | InputArgument.IS_ARRAY if 'is_array' in argument and argument['is_array'] is True else mode;
                 description = argument['description'] if 'description' in argument else "";
@@ -1118,14 +1117,13 @@ class JsonFileLoader(FileLoader, LoaderInterface):
                 definitionList.append(InputArgument(name, mode, description, default));
 
         if 'options' in definition:
-            for option in definition['options']:
-                name = option['name'];
+            for name, option in definition['options'].items():
                 shortcut = option['shortcut'] if 'shortcut' in option else None;
-                default = defaults[name] if name in defaults else None;
                 mode = InputOption.VALUE_OPTIONAL if name in defaults else InputOption.VALUE_REQUIRED;
                 mode = mode | InputOption.VALUE_IS_ARRAY if 'is_array' in option and option['is_array'] is True else mode;
                 mode = InputOption.VALUE_NONE if not ('accept_value' in option and option['accept_value'] is True) else mode;
                 description = option['description'] if 'description' in option else "";
+                default = defaults[name] if name in defaults else None;
 
                 definitionList.append(InputOption(name, shortcut, mode, description, default));
 
@@ -1190,3 +1188,19 @@ class JsonFileLoader(FileLoader, LoaderInterface):
                 'You must define a "path" for the route "{0}" in file "{1}".'
                 ''.format(name, path)
             );
+
+        if 'definition' in config:
+            if 'arguments' in config['definition']:
+                if not isinstance(config['definition']['arguments'], OrderedDict):
+                    raise InvalidArgumentException(
+                        'The definition.arguments key should be a JSON object '
+                        'in route "{0}" in file "{1}".'
+                        ''.format(name, path)
+                    );
+            if 'options' in config['definition']:
+                if not isinstance(config['definition']['options'], dict):
+                    raise InvalidArgumentException(
+                        'The definition.options key should be a JSON object '
+                        'in route "{0}" in file "{1}".'
+                        ''.format(name, path)
+                    );
