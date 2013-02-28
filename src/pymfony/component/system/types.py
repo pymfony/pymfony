@@ -9,6 +9,7 @@
 from __future__ import absolute_import;
 
 import re;
+import sys;
 
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system import Object;
@@ -20,10 +21,10 @@ from pymfony.component.system import AbstractString;
 """
 """
 
-try:
+if sys.version_info > (2, 6):
     from collections import OrderedDict;
-except ImportError: # < Python 2.7
-    from pymfony.component.system.py2.types import OrderedDict;
+else:
+    from pymfony.component.system.py26.types import OrderedDict;
 
 class String(AbstractString):
     """Base string to provide back compatibility"""

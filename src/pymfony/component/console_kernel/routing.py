@@ -8,7 +8,6 @@
 
 from __future__ import absolute_import;
 
-import json
 import os
 
 from pymfony.component.system.oop import interface
@@ -29,6 +28,8 @@ from pymfony.component.console.input import InputDefinition
 from pymfony.component.console.input import InputArgument
 from pymfony.component.console.input import InputOption
 from pymfony.component.config.exception import FileLoaderLoadException
+from pymfony.component.system.json import JSONDecoderOrderedDict
+from pymfony.component.system.types import OrderedDict
 
 """
 """
@@ -946,8 +947,6 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         return self;
 
-
-
 class JsonFileLoader(FileLoader, LoaderInterface):
     """JsonFileLoader loads Json routing files.
 
@@ -957,7 +956,6 @@ class JsonFileLoader(FileLoader, LoaderInterface):
     @api
 
     """
-    # TODO: pymfony/component/console/test/Fixtures/definition_asxml.txt
     __availableKeys = [
         'defaults',
         'definition',
@@ -997,10 +995,10 @@ class JsonFileLoader(FileLoader, LoaderInterface):
             return collection;
 
 
-        # not an dict
-        if not isinstance(configs, dict) :
+        # not a OrderedDict
+        if not isinstance(configs, OrderedDict) :
             raise InvalidArgumentException(
-                'The file "{0}" must contain a Json dict.'.format(path)
+                'The file "{0}" must contain a Json object.'.format(path)
             );
 
 
@@ -1044,7 +1042,7 @@ class JsonFileLoader(FileLoader, LoaderInterface):
         del f;
 
         try:
-            result = json.loads(s);
+            result = JSONDecoderOrderedDict().decode(s);
         except ValueError as e:
             raise InvalidArgumentException(e);
 
@@ -1121,6 +1119,7 @@ class JsonFileLoader(FileLoader, LoaderInterface):
                 name = option['name'];
                 shortcut = option['shortcut'] if 'shortcut' in option else None;
                 default = defaults[name] if name in defaults else None;
+                # FIXME: mode
                 mode = InputOption.VALUE_NONE if default is None else InputOption.VALUE_OPTIONAL if name in defaults else InputOption.VALUE_REQUIRED;
                 mode = mode | InputOption.VALUE_IS_ARRAY if 'is_array' in option and option['is_array'] is True else mode;
                 description = option['description'] if 'description' in option else "";
@@ -1144,7 +1143,7 @@ class JsonFileLoader(FileLoader, LoaderInterface):
 
         if not isinstance(config, dict) :
             raise InvalidArgumentException(
-                'The definition of "{0}" in "{1}" must be a Json array.'
+                'The definition of "{0}" in "{1}" must be a Json object.'
                 ''.format(name, path)
             );
 
