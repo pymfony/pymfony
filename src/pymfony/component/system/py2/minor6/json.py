@@ -11,7 +11,7 @@ from __future__ import absolute_import;
 from json import decoder;
 from json import scanner;
 
-from pymfony.component.system.py26.types import OrderedDict;
+from pymfony.component.system.types import OrderedDict;
 
 """
 """

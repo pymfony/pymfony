@@ -16,15 +16,17 @@ from pymfony.component.system import Object;
 from pymfony.component.system import IteratorAggregateInterface;
 from pymfony.component.system import CountableInterface;
 from pymfony.component.system.exception import InvalidArgumentException;
-from pymfony.component.system import AbstractString;
 
-"""
-"""
-
-if sys.version_info > (2, 6):
-    from collections import OrderedDict;
+if sys.version_info < (3,):
+    from pymfony.component.system.py2.types import *;
 else:
-    from pymfony.component.system.py26.types import OrderedDict;
+    from pymfony.component.system.py3.types import *;
+
+"""
+"""
+
+class OrderedDict(AbstractOrderedDict):
+    pass;
 
 class String(AbstractString):
     """Base string to provide back compatibility"""

@@ -38,6 +38,7 @@ def find_packages():
         'pymfony.component.kernel',
         'pymfony.component.system',
         'pymfony.component.system.py2',
+        'pymfony.component.system.minor6',
         'pymfony.component.system.py3',
     ];
 

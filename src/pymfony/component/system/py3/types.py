@@ -6,16 +6,8 @@
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
 
-from __future__ import absolute_import;
-
-import sys;
-
+from collections import OrderedDict as AbstractOrderedDict;
 from pymfony.component.system import Object;
-
-if sys.version_info <= (2, 6):
-    from pymfony.component.system.py2.minor6.types import AbstractOrderedDict;
-else:
-    from collections import OrderedDict as AbstractOrderedDict;
 
 """
 """
@@ -28,6 +20,6 @@ __all__ = [
 class AbstractString(str, Object):
     @classmethod
     def __subclasshook__(cls, subclass):
-        if issubclass(subclass, basestring):
+        if issubclass(subclass, str):
             return True;
         return NotImplemented;

@@ -8,8 +8,7 @@
 
 from __future__ import absolute_import;
 
-from json import decoder;
-from collections import OrderedDict;
+import sys
 
 """
 """
@@ -18,10 +17,18 @@ __all__ = [
     'AbstractJSONDecoderOrderedDict',
 ];
 
-class AbstractJSONDecoderOrderedDict(decoder.JSONDecoder):
-    def __init__(self, parse_float=None, parse_int=None, parse_constant=None,
-                       strict=True):
-        decoder.JSONDecoder.__init__(self, object_hook=None, parse_float=parse_float, parse_int=parse_int, parse_constant=parse_constant, strict=strict, object_pairs_hook=self.__object_pairs_hook);
+if sys.version_info <= (2, 6):
+    from pymfony.component.system.py2.minor6.json import AbstractJSONDecoderOrderedDict;
+else:
+    from json import JSONDecoder;
+    from pymfony.component.system.types import OrderedDict
 
-    def __object_pairs_hook(self, seq):
-        return OrderedDict(seq);
+    class AbstractJSONDecoderOrderedDict(JSONDecoder):
+        def __init__(self, parse_float=None, parse_int=None,
+            parse_constant=None, strict=True):
+            JSONDecoder.__init__(self, object_hook=None, parse_float=parse_float,
+                parse_int=parse_int, parse_constant=parse_constant,
+                strict=strict, object_pairs_hook=self.__object_pairs_hook);
+
+        def __object_pairs_hook(self, seq):
+            return OrderedDict(seq);

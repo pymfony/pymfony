@@ -16,9 +16,11 @@ from pymfony.component.system.oop import abstract
 
 __all__ = [
     'OOPObject',
-    'AbstractString',
+    'basestring',
     'AbstractCloneBuilder',
 ];
+
+basestring = str;
 
 class Abstract():
     __abstractclass__ = None;
@@ -32,13 +34,6 @@ class Abstract():
 @abstract
 class OOPObject(Abstract, metaclass=OOPMeta):
     pass;
-
-class AbstractString(str, OOPObject):
-    @classmethod
-    def __subclasshook__(cls, subclass):
-        if issubclass(subclass, str):
-            return True;
-        return NotImplemented;
 
 class AbstractCloneBuilder(OOPObject):
     TYPES_MAP = {
@@ -56,4 +51,3 @@ class AbstractCloneBuilder(OOPObject):
         'dict': dict,
         'bool': bool,
     };
-

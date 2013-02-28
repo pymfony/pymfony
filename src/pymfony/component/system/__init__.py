@@ -14,7 +14,7 @@ import inspect;
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
 
-if sys.version_info[0] == 2:
+if sys.version_info < (3,):
     from pymfony.component.system.py2 import *;
 else:
     from pymfony.component.system.py3 import *;
@@ -166,7 +166,7 @@ class CloneBuilder(AbstractCloneBuilder):
                                 setattr(self, name, cloneMethod);
                             else:
                                 setattr(self, name, value);
-                        except AttributeError:
+                        except Exception:
                             pass;
 
                 for classType in instance.__class__.__mro__:
@@ -251,7 +251,7 @@ class Tool(Object):
 
     @classmethod
     def isCallable(cls, closure):
-        if isinstance(closure, AbstractString):
+        if isinstance(closure, basestring):
             if '.' in closure:
                 # Static class method call
                 try:
@@ -269,7 +269,7 @@ class Tool(Object):
             if len(closure) != 2:
                 return False;
 
-            if not isinstance(closure[1], AbstractString):
+            if not isinstance(closure[1], basestring):
                 return False;
 
             if not isinstance(closure[0], object):
@@ -376,7 +376,7 @@ class Tool(Object):
 
 class ReflectionClass(Object):
     def __init__(self, argument):
-        if isinstance(argument, AbstractString):
+        if isinstance(argument, basestring):
             qualClassName = argument;
             try:
                 argument = ClassLoader.load(argument);

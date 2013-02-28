@@ -1,4 +1,23 @@
 # -*- coding: utf-8 -*-
+# This file is part of the pymfony package.
+#
+# (c) Alexandre Quercia <alquerci@email.com>
+#
+# For the full copyright and license information, please view the LICENSE
+# file that was distributed with this source code.
+
+from __future__ import absolute_import;
+
+from UserDict import DictMixin;
+
+"""
+"""
+
+__all__ = [
+    'AbstractOrderedDict',
+];
+
+class AbstractOrderedDict(dict, DictMixin):
 # Copyright (c) 2009 Raymond Hettinger
 #
 # Permission is hereby granted, free of charge, to any person
@@ -20,11 +39,6 @@
 #     WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 #     FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 #     OTHER DEALINGS IN THE SOFTWARE.
-
-from UserDict import DictMixin
-
-class OrderedDict(dict, DictMixin):
-
     def __init__(self, *args, **kwds):
         if len(args) > 1:
             raise TypeError('expected at most 1 arguments, got %d' % len(args))

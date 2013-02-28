@@ -10,9 +10,7 @@ from __future__ import absolute_import;
 
 import sys;
 
-if sys.version_info <= (2, 6):
-    from pymfony.component.system.py26.json import *;
-elif sys.version_info < (3, 0):
+if sys.version_info < (3,):
     from pymfony.component.system.py2.json import *;
 else:
     from pymfony.component.system.py3.json import *;

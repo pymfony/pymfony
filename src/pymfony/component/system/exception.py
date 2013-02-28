@@ -70,7 +70,10 @@ class StandardException(Exception, Object):
             name = f.f_code.co_name;
             argcount = f.f_code.co_argcount;
             allLines = linecache.getlines(filename, f.f_globals);
-            line = allLines[lineno - 1].strip();
+            if allLines:
+                line = allLines[lineno - 1].strip();
+            else:
+                line = "";
 
             upAndDown = 5;
 
