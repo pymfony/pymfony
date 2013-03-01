@@ -376,6 +376,7 @@ class RequestMatcher(RequestMatcherInterface):
 
         attributes = dict();
         attributes['_route'] = name;
+        attributes['_controller'] = route.getDefault('_controller');
         attributes.update(request.getArguments());
 
         return attributes;
