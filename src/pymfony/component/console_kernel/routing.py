@@ -31,6 +31,7 @@ from pymfony.component.console.input import InputOption
 from pymfony.component.config.exception import FileLoaderLoadException
 from pymfony.component.system.json import JSONDecoderOrderedDict
 from pymfony.component.system.types import OrderedDict
+from pymfony.component.system.exception import RuntimeException
 
 """
 """
@@ -55,8 +56,6 @@ class RequestMatcherInterface(Object):
         @return dict An array of parameters
 
         @raise ResourceNotFoundException If no matching resource could be found
-        @raise MethodNotAllowedException If a matching resource was found but the request method is not allowed
-
         """
         assert isinstance(request, Request);
 
@@ -87,6 +86,28 @@ class LoaderInterface(BaseLoaderInterface):
         @return: RouteCollection
         """
         pass
+
+@interface
+class ExceptionInterface(Object):
+    """ExceptionInterface
+
+    @author: Alexandre Salomé <alexandre.salome@gmail.com>
+
+    @api:
+    """
+    pass;
+
+class ResourceNotFoundException(RuntimeException, ExceptionInterface):
+    """The resource was not found.
+
+    This exception should trigger an exit code 127 in your application code.
+
+    @author: Kris Wallsmith <kris@symfony.com>
+
+    @api:
+    """
+    pass;
+
 
 class Router(RouterInterface):
     """The Router class is(, an example of the integration of all pieces of the):
@@ -299,7 +320,7 @@ class RequestMatcher(RequestMatcherInterface):
         if (ret) :
             return ret;
 
-        raise NotFoundConsoleException();
+        raise ResourceNotFoundException();
 
 
     def _matchCollection(self, request, routes):
@@ -309,10 +330,6 @@ class RequestMatcher(RequestMatcherInterface):
         @param RouteCollection routes   The set of routes
 
         @return dict An array of parameters
-
-        @raise ResourceNotFoundException If the resource could not be found
-        @raise MethodNotAllowedException If the resource was found but the request method is not allowed
-
         """
         assert isinstance(routes, RouteCollection);
         assert isinstance(request, Request);

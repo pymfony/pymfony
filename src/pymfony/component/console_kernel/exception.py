@@ -69,5 +69,5 @@ class NotFoundConsoleException(ConsoleException):
 
         """
 
-        ConsoleException.__init__(self, 1, message, previous, code);
+        ConsoleException.__init__(self, 127, message, previous, code);
 

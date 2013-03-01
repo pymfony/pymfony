@@ -22,6 +22,7 @@ from pymfony.component.console_kernel.exception import NotFoundConsoleException
 from pymfony.component.console_kernel.event import GetResponseForExceptionEvent
 from pymfony.component.console_kernel.interface import ConsoleKernelInterface
 from pymfony.component.system import clone
+from pymfony.component.console_kernel.routing import ResourceNotFoundException
 
 """
 """
@@ -55,15 +56,15 @@ class RouterListener(EventSubscriberInterface):
             # routing is already done
             return;
 
+        # add attributes based on the request (routing)
         try:
-            # add attributes based on the request (routing)
             parameters = self.__matcher.matchRequest(request);
 
             request.attributes.add(parameters);
             parameters.pop('_route', None);
             parameters.pop('_controller', None);
             request.attributes.set('_route_params', parameters);
-        except NotFoundConsoleException as e:
+        except ResourceNotFoundException as e:
             message = 'No route found for "{0}"'.format(
                 " ".join(request.getArgv()[1:])
             );
