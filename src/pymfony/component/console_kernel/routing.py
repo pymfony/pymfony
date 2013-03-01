@@ -399,10 +399,13 @@ class RequestMatcher(RequestMatcherInterface):
         assert isinstance(request, Request);
 
         for key, regexp in route.getRequirements().items():
-            if not re.match(regexp, request.getArgument(key)):
-                return [self.REQUIREMENT_MISMATCH, None];
-            elif not re.match(regexp, request.getOption(key)):
-                return [self.REQUIREMENT_MISMATCH, None];
+            regexp = "^" + regexp + "$";
+            if request.hasArgument(key):
+                if not re.match(regexp, request.getArgument(key)):
+                    return [self.REQUIREMENT_MISMATCH, None];
+            elif request.hasOption(key):
+                if not re.match(regexp, request.getOption(key)):
+                    return [self.REQUIREMENT_MISMATCH, None];
             else:
                 return [self.REQUIREMENT_MISMATCH, None];
 
