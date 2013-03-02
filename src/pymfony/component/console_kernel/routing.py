@@ -268,7 +268,7 @@ class Router(RouterInterface):
 
 
     def getRequestMatcher(self):
-        """Gets the UrlMatcher instance associated with this Router.
+        """Gets the RequestMatcher instance associated with this Router.
 
         @return: RequestMatcherInterface A RequestMatcherInterface instance
 

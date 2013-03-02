@@ -34,16 +34,14 @@ class RouterListener(EventSubscriberInterface):
 
     """
 
-    def __init__(self, container, matcher):
+    def __init__(self, matcher):
         """Constructor.
      *
      * @param ContainerInterface
 
         """
-        assert isinstance(container, ContainerInterface);
         assert isinstance(matcher, RequestMatcherInterface);
 
-        self.__container = container;
         self.__matcher = matcher;
 
     def onKernelRequest(self, event):

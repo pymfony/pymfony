@@ -48,7 +48,6 @@
 				{"name": "kernel.event_subscriber"}
 			],
 			"arguments": [
-				"@service_container",
 				"@console.router"
 			]
 		},
@@ -76,7 +75,8 @@
 			"arguments":[
 				"@console.routing.loader",
 				"%console.router.resource%",
-				"@kernel"
+				"@kernel",
+				"%console.router.default_route%"
 			]
 		},
 		"console.router":{

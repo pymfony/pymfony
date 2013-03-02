@@ -16,6 +16,8 @@ from pymfony.component.console.input import InputDefinition
 from pymfony.component.console.input import InputArgument
 from pymfony.component.console.input import InputOption
 from pymfony.component.kernel import KernelInterface
+from pymfony.component.console_kernel.routing import RequestMatcher as BaseRequestMatcher
+from pymfony.component.console_kernel.routing import ResourceNotFoundException
 
 """
 """
@@ -82,7 +84,7 @@ class ControllerNameParser(BaseControllerNameParser):
         raise InvalidArgumentException(msg);
 
 class Router(BaseRouter):
-    def __init__(self, loader, resource, kernel, options=dict()):
+    def __init__(self, loader, resource, kernel, defaultRouteName, options=dict()):
         """Constructor.
 
         @param: LoaderInterface loader     A LoaderInterface instance
@@ -95,6 +97,29 @@ class Router(BaseRouter):
         BaseRouter.__init__(self, loader, resource, options=options);
 
         self.__kernel = kernel;
+        self.__defaultRouteName = defaultRouteName;
 
         self.getDefinition().addOption(InputOption('--env', '-e', InputOption.VALUE_REQUIRED, 'The Environment name.', kernel.getEnvironment()));
         self.getDefinition().addOption(InputOption('--no-debug', None, InputOption.VALUE_NONE, 'Switches off debug mode.'));
+
+    def getRequestMatcher(self):
+        if self._matcher is None:
+            self._matcher = RequestMatcher(self.getRouteCollection(), self.__defaultRouteName)
+        return self._matcher
+
+class RequestMatcher(BaseRequestMatcher):
+    def __init__(self, routes, defaultRouteName = ''):
+        BaseRequestMatcher.__init__(self, routes);
+
+        self.__defaultRouteName = defaultRouteName;
+
+    def matchRequest(self, request):
+        try:
+            return BaseRequestMatcher.matchRequest(self, request);
+        except ResourceNotFoundException as e:
+            if self.__defaultRouteName:
+                route = self._routes.get(self.__defaultRouteName);
+                self._handleRouteBinds(request, self.__defaultRouteName, route);
+                return self._getAttributes(route, self.__defaultRouteName, request);
+            else:
+                raise e;
