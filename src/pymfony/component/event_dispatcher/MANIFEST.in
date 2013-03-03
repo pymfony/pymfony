@@ -1,0 +1,3 @@
+include LICENSE *.md *.txt *.in
+recursive-include . *
+global-exclude *.py[cod]
