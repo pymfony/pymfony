@@ -32,6 +32,7 @@ def find_packages():
         'pymfony.component.config.definition',
         'pymfony.component.console',
         'pymfony.component.console_kernel',
+        'pymfony.component.console_routing',
         'pymfony.component.dependency',
         'pymfony.component.event_dispatcher',
         'pymfony.component.httpkernel',

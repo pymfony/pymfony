@@ -11,10 +11,10 @@ import re
 
 from pymfony.component.console import Response
 from pymfony.component.dependency import ContainerAware
-from pymfony.component.console_kernel.routing import Router
-from pymfony.component.console_kernel.routing import Route
 from pymfony.component.system.exception import StandardException
 from pymfony.component.system import ReflectionObject
+from pymfony.component.console_routing import Router
+from pymfony.component.console_routing import Route
 
 """
 """

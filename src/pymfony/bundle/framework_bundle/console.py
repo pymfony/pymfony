@@ -11,13 +11,12 @@ from __future__ import absolute_import;
 from pymfony.component.system.exception import InvalidArgumentException
 from pymfony.component.system import ReflectionClass
 from pymfony.bundle.framework_bundle.controller import ControllerNameParser as BaseControllerNameParser
-from pymfony.component.console_kernel.routing import Router as BaseRouter
-from pymfony.component.console.input import InputDefinition
-from pymfony.component.console.input import InputArgument
 from pymfony.component.console.input import InputOption
 from pymfony.component.kernel import KernelInterface
-from pymfony.component.console_kernel.routing import RequestMatcher as BaseRequestMatcher
-from pymfony.component.console_kernel.routing import ResourceNotFoundException
+from pymfony.component.console_routing import Router as BaseRouter
+from pymfony.component.console_routing.matcher import RequestMatcher as BaseRequestMatcher
+from pymfony.component.console_routing.exception import ResourceNotFoundException
+
 
 """
 """
@@ -101,11 +100,6 @@ class Router(BaseRouter):
 
         self.getDefinition().addOption(InputOption('--env', '-e', InputOption.VALUE_REQUIRED, 'The Environment name.', kernel.getEnvironment()));
         self.getDefinition().addOption(InputOption('--no-debug', None, InputOption.VALUE_NONE, 'Switches off debug mode.'));
-
-    def getRequestMatcher(self):
-        if self._matcher is None:
-            self._matcher = RequestMatcher(self.getRouteCollection(), self.__defaultRouteName)
-        return self._matcher
 
 class RequestMatcher(BaseRequestMatcher):
     def __init__(self, routes, defaultRouteName = ''):

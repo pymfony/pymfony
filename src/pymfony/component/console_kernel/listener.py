@@ -9,20 +9,18 @@
 from __future__ import absolute_import;
 
 
-from pymfony.component.console_kernel import ConsoleKernelEvents
+from pymfony.component.system import clone
 from pymfony.component.event_dispatcher import EventSubscriberInterface
-from pymfony.component.dependency import ContainerInterface
-from pymfony.component.console_kernel.event import GetResponseEvent
-from pymfony.component.console import Response
-from pymfony.component.console.output import OutputInterface
 from pymfony.component.console import Request
+from pymfony.component.console.output import OutputInterface
+from pymfony.component.console_kernel import ConsoleKernelEvents
+from pymfony.component.console_kernel.event import GetResponseEvent
 from pymfony.component.console_kernel.event import FilterResponseEvent
-from pymfony.component.console_kernel.routing import RequestMatcherInterface
 from pymfony.component.console_kernel.exception import NotFoundConsoleException
 from pymfony.component.console_kernel.event import GetResponseForExceptionEvent
 from pymfony.component.console_kernel.interface import ConsoleKernelInterface
-from pymfony.component.system import clone
-from pymfony.component.console_kernel.routing import ResourceNotFoundException
+from pymfony.component.console_routing.matcher import RequestMatcherInterface
+from pymfony.component.console_routing.exception import ResourceNotFoundException
 
 """
 """

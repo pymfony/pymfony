@@ -11,7 +11,7 @@ from __future__ import absolute_import;
 from pymfony.component.config.loader import DelegatingLoader as BaseDelegatingLoader
 from pymfony.component.config.loader import LoaderResolverInterface
 from pymfony.bundle.framework_bundle.controller import ControllerNameParser
-from pymfony.component.console_kernel.routing import LoaderInterface
+from pymfony.component.console_routing.interface import LoaderInterface
 
 """
 """

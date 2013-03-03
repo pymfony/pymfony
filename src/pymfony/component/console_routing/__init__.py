@@ -8,105 +8,24 @@
 
 from __future__ import absolute_import;
 
-import os
-import re
-
 from pymfony.component.system.oop import interface
-from pymfony.component.system import Object
-from pymfony.component.console import Request
-from pymfony.component.config.loader import LoaderInterface as BaseLoaderInterface
-from pymfony.component.system.exception import InvalidArgumentException
 from pymfony.component.system.types import String
-from pymfony.component.system import CountableInterface
-from pymfony.component.system import IteratorAggregateInterface
-from pymfony.component.system import clone
-from pymfony.component.config.resource import FileResource
-from pymfony.component.console_kernel.exception import NotFoundConsoleException
 from pymfony.component.system.types import Array
-from pymfony.component.config.loader import FileLoader
-from pymfony.component.config.resource import ResourceInterface
+from pymfony.component.system import IteratorAggregateInterface
+from pymfony.component.system import CountableInterface
+from pymfony.component.system import clone
+from pymfony.component.system.exception import InvalidArgumentException
+from pymfony.component.console import Request
 from pymfony.component.console.input import InputDefinition
 from pymfony.component.console.input import InputArgument
 from pymfony.component.console.input import InputOption
-from pymfony.component.config.exception import FileLoaderLoadException
-from pymfony.component.system.json import JSONDecoderOrderedDict
-from pymfony.component.system.types import OrderedDict
-from pymfony.component.system.exception import RuntimeException
+from pymfony.component.console_routing.interface import RouterInterface
+from pymfony.component.console_routing.interface import LoaderInterface
+from pymfony.component.config.resource import ResourceInterface
+from pymfony.component.system import ReflectionClass
 
 """
 """
-
-
-@interface
-class RequestMatcherInterface(Object):
-    """RequestMatcherInterface is the interface that all request matcher classes must implement.
-
-    @author: Fabien Potencier <fabien@symfony.com>
-
-    """
-
-    def matchRequest(self, request):
-        """Tries to match a request with a set of routes.
-
-        If the matcher can not find information, it must raise one of the exceptions documented
-        below.
-
-        @param: Request request The request to match
-
-        @return dict An array of parameters
-
-        @raise ResourceNotFoundException If no matching resource could be found
-        """
-        assert isinstance(request, Request);
-
-
-@interface
-class RouterInterface(RequestMatcherInterface):
-    """RouterInterface is the interface that all Router classes must implement.
-
-    @author: Fabien Potencier <fabien@symfony.com>
-
-    """
-
-    def getRouteCollection(self):
-        """Gets the RouteCollection instance associated with this Router.
-
-        @return: RouteCollection A RouteCollection instance
-
-        """
-
-@interface
-class LoaderInterface(BaseLoaderInterface):
-    def load(self, resource, resourceType=None):
-        """Loads a resource.
-
-        @param resource: mixed
-        @param resourceType: string The resource type
-
-        @return: RouteCollection
-        """
-        pass
-
-@interface
-class ExceptionInterface(Object):
-    """ExceptionInterface
-
-    @author: Alexandre Salomé <alexandre.salome@gmail.com>
-
-    @api:
-    """
-    pass;
-
-class ResourceNotFoundException(RuntimeException, ExceptionInterface):
-    """The resource was not found.
-
-    This exception should trigger an exit code 127 in your application code.
-
-    @author: Kris Wallsmith <kris@symfony.com>
-
-    @api:
-    """
-    pass;
 
 
 class Router(RouterInterface):
@@ -161,6 +80,8 @@ class Router(RouterInterface):
 
         self._options = {
             'resource_type'          : None,
+            'matcher_class'          : "pymfony.component.console_routing.matcher.RequestMatcher",
+            'matcher_base_class'     : "pymfony.component.console_routing.matcher.RequestMatcher",
         };
 
         # check option names and live merge, if errors are encountered Exception will be thrown:
@@ -219,7 +140,7 @@ class Router(RouterInterface):
             ));
 
 
-        return self.options[key];
+        return self._options[key];
 
     def getDefinition(self):
         """Gets the default input definition.
@@ -275,160 +196,8 @@ class Router(RouterInterface):
         """
 
         if self._matcher is None:
-            self._matcher = RequestMatcher(self.getRouteCollection());
+            self._matcher = ReflectionClass(self.getOption('matcher_class')).newInstance(self.getRouteCollection());
         return self._matcher;
-
-
-class RequestMatcher(RequestMatcherInterface):
-    """RequestMatcher matches Request based on a set of routes.
-
-    @author: Fabien Potencier <fabien@symfony.com>
-
-    @api
-
-    """
-
-    REQUIREMENT_MATCH     = 0;
-    REQUIREMENT_MISMATCH  = 1;
-    ROUTE_MATCH           = 2;
-    BIND_MISMATCH         = 3;
-    BIND_MATCH            = 4;
-
-    def __init__(self, routes):
-        """Constructor.
-
-        @param: RouteCollection routes  A RouteCollection instance
-
-        @api
-
-        """
-        assert isinstance(routes, RouteCollection);
-
-        self._routes = None;
-        # @var: RouteCollection
-
-        self._routes = routes;
-
-
-    def matchRequest(self, request):
-        """@inheritdoc}
-
-        """
-        assert isinstance(request, Request);
-
-        ret = self._matchCollection(request, self._routes)
-        if (ret) :
-            return ret;
-
-        raise ResourceNotFoundException();
-
-
-    def _matchCollection(self, request, routes):
-        """Tries to match a request with a set of routes.
-
-        @param: Request          request The path info to be parsed
-        @param RouteCollection routes   The set of routes
-
-        @return dict An array of parameters
-        """
-        assert isinstance(routes, RouteCollection);
-        assert isinstance(request, Request);
-
-        for name, route in routes.all().items():
-            assert isinstance(route, Route);
-
-            # bind the input against the command specific arguments/options
-            status = self._handleRouteBinds(request, name, route);
-
-            if (self.BIND_MISMATCH == status[0]) :
-                continue;
-
-            if request.hasArgument(Router.COMMAND_KEY):
-                if request.getArgument(Router.COMMAND_KEY) != route.getPath():
-                    continue;
-
-            status = self._handleRouteRequirements(request, name, route);
-
-            if (self.REQUIREMENT_MISMATCH == status[0]) :
-                continue;
-
-
-            return self._getAttributes(route, name, request);
-
-
-
-    def _getAttributes(self, route, name, request):
-        """Returns an array of values to use as request attributes.
-
-        As this method requires the Route object, it is not available
-        in matchers that do not have access to the matched Route instance
-        (like the PHP and Apache matcher dumpers).
-
-        @param: Route  route      The route we are matching against
-        @param string name       The name of the route
-        @param: Request          request The path info to be parsed
-
-        @return dict An array of parameters
-
-        """
-        assert isinstance(route, Route);
-        assert isinstance(request, Request);
-
-        attributes = dict();
-        attributes['_route'] = name;
-        attributes['_controller'] = route.getDefault('_controller');
-        attributes.update(request.getArguments());
-
-        return attributes;
-
-    def _handleRouteBinds(self, request, name, route):
-        """Handles specific route binding.:
-
-        @param: Request request The path
-        @param string name     The route name
-        @param Route  route    The route
-
-        @return list The first element represents the status, the second contains additional information
-
-        """
-        assert isinstance(route, Route);
-        assert isinstance(request, Request);
-
-        try:
-            request.bind(route);
-            request.validate();
-        except Exception:
-            return [self.BIND_MISMATCH, None];
-        else:
-            return [self.BIND_MATCH, None];
-
-
-    def _handleRouteRequirements(self, request, name, route):
-        """Handles specific route requirements.:
-
-        @param: Request request The path
-        @param string name     The route name
-        @param Route  route    The route
-
-        @return list The first element represents the status, the second contains additional information
-
-        """
-        assert isinstance(route, Route);
-        assert isinstance(request, Request);
-
-        for key, regexp in route.getRequirements().items():
-            regexp = "^" + regexp + "$";
-            if request.hasArgument(key):
-                if not re.match(regexp, request.getArgument(key)):
-                    return [self.REQUIREMENT_MISMATCH, None];
-            elif request.hasOption(key):
-                if not re.match(regexp, request.getOption(key)):
-                    return [self.REQUIREMENT_MISMATCH, None];
-            else:
-                return [self.REQUIREMENT_MISMATCH, None];
-
-        return [self.REQUIREMENT_MATCH, None];
-
 
 
 class Route(InputDefinition):
@@ -743,7 +512,6 @@ class Route(InputDefinition):
         return regex;
 
 
-
 class RouteCollection(IteratorAggregateInterface, CountableInterface):
     """A RouteCollection represents a set of Route instances.
 
@@ -995,261 +763,3 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         definition.addOptions(parentDefinition.getOptions());
 
         return self;
-
-class JsonFileLoader(FileLoader, LoaderInterface):
-    """JsonFileLoader loads Json routing files.
-
-    @author: Fabien Potencier <fabien@symfony.com>
-    @author Tobias Schultze <http://tobion.de>
-
-    @api
-
-    """
-    __availableKeys = [
-        'defaults',
-        'definition',
-        'requirements',
-
-        'resource',
-        'type',
-        'prefix',
-
-        'path',
-        'description',
-    ];
-
-    def load(self, filename, resource_type = None):
-        """Loads a Yaml file.
-
-        @param: string      file A Yaml file path
-        @param string|None resource_type The resource type
-
-        @return RouteCollection A RouteCollection instance
-
-        @raise InvalidArgumentException When a route can't be parsed because YAML is invalid
-
-        @api
-
-        """
-
-        path = self._locator.locate(filename);
-
-        configs = self._parseFile(path);
-
-        collection = RouteCollection();
-        collection.addResource(FileResource(path));
-
-        # empty file
-        if (None is configs) :
-            return collection;
-
-
-        # not a OrderedDict
-        if not isinstance(configs, OrderedDict) :
-            raise InvalidArgumentException(
-                'The file "{0}" must contain a Json object.'.format(path)
-            );
-
-
-        for name, config in configs.items():
-
-            self._validate(config, name, path);
-
-            if 'resource' in config :
-                self._parseImport(collection, config, path, filename);
-            else :
-                self._parseRoute(collection, name, config, path);
-
-
-        return collection;
-
-
-    def supports(self, resource, resource_type = None):
-        """@inheritdoc
-
-        @api
-
-        """
-        if isinstance(resource, String):
-            if os.path.basename(resource).endswith(".json"):
-                if resource_type is None or resource_type == "json":
-                    return True;
-        return False;
-
-    def _parseFile(self, filename):
-        """Parses a JSON file.
-
-        @param filename: string The path file
-
-        @return: dict The file content
-
-        @raise InvalidArgumentException: When JSON file is not valid
-        """
-        f = open(filename);
-        s = f.read().strip();
-        f.close();
-        del f;
-
-        if not s:
-            return OrderedDict();
-
-        try:
-            result = JSONDecoderOrderedDict().decode(s);
-        except ValueError as e:
-            raise InvalidArgumentException(e);
-
-        return result;
-
-
-    def _parseRoute(self, collection, name, config, path):
-        """Parses a route and adds it to the RouteCollection.
-
-        @param: RouteCollection collection A RouteCollection instance
-        @param string          name       Route name
-        @param dict           config     Route definition
-        @param string          path       Full path of the YAML file being processed
-
-        """
-        assert isinstance(config, dict);
-        assert isinstance(collection, RouteCollection);
-
-        description = config['description'] if 'description' in config else '';
-        defaults = config['defaults'] if 'defaults' in config else dict();
-        requirements = config['requirements'] if 'requirements' in config else dict();
-        definition = self._parseDefinition(config['definition'], defaults) if 'definition' in config else list();
-
-        route = Route(config['path'], description, defaults, definition, requirements);
-
-        collection.add(name, route);
-
-
-    def _parseImport(self, collection, config, path, filename):
-        """Parses an import and adds the routes in the resource to the RouteCollection.
-
-        @param: RouteCollection collection A RouteCollection instance
-        @param dict           config     Route definition
-        @param string          path       Full path of the YAML file being processed
-        @param string          file       Loaded file name
-
-        """
-        assert isinstance(config, dict);
-        assert isinstance(collection, RouteCollection);
-
-        resource_type = config['type'] if 'type' in config else None;
-        prefix = config['prefix'] if 'prefix' in config else '';
-        defaults = config['defaults'] if 'defaults' in config else dict();
-        requirements = config['requirements'] if 'requirements' in config else dict();
-        definition = self._parseDefinition(config['definition'], defaults) if 'definition' in config else list();
-
-        self.setCurrentDir(os.path.dirname(path));
-
-        subCollection = self.imports(config['resource'], resource_type, False, filename);
-        assert isinstance(subCollection, RouteCollection);
-        # @var subCollection RouteCollection
-
-        subCollection.addPrefix(prefix);
-        subCollection.prependDefinition(InputDefinition(definition));
-        subCollection.addDefaults(defaults);
-        subCollection.addRequirements(requirements);
-
-        collection.addCollection(subCollection);
-
-    def _parseDefinition(self, definition, defaults):
-        definitionList = list();
-        if 'arguments' in definition:
-            for name, argument in definition['arguments'].items():
-                mode = InputArgument.OPTIONAL if name in defaults else InputArgument.REQUIRED;
-                mode = mode | InputArgument.IS_ARRAY if 'is_array' in argument and argument['is_array'] is True else mode;
-                description = argument['description'] if 'description' in argument else "";
-                default = defaults[name] if name in defaults else None;
-
-                definitionList.append(InputArgument(name, mode, description, default));
-
-        if 'options' in definition:
-            for name, option in definition['options'].items():
-                shortcut = option['shortcut'] if 'shortcut' in option else None;
-                mode = InputOption.VALUE_OPTIONAL if name in defaults else InputOption.VALUE_REQUIRED;
-                mode = mode | InputOption.VALUE_IS_ARRAY if 'is_array' in option and option['is_array'] is True else mode;
-                mode = InputOption.VALUE_NONE if not ('accept_value' in option and option['accept_value'] is True) else mode;
-                description = option['description'] if 'description' in option else "";
-                default = defaults[name] if name in defaults else None;
-
-                definitionList.append(InputOption(name, shortcut, mode, description, default));
-
-        return definitionList;
-
-
-    def _validate(self, config, name, path):
-        """Validates the route configuration.
-
-        @param: dict  config A resource config
-        @param string name   The config key
-        @param string path   The loaded file path
-
-        @raise InvalidArgumentException If one of the provided config keys is not supported,
-                                          something is missing or the combination is nonsense
-
-        """
-
-        if not isinstance(config, dict) :
-            raise InvalidArgumentException(
-                'The definition of "{0}" in "{1}" must be a Json object.'
-                ''.format(name, path)
-            );
-
-        extraKeys = Array.diff(config.keys(), self.__availableKeys);
-        if (extraKeys) :
-            raise InvalidArgumentException(
-                'The routing file "{0}" contains unsupported keys for "{1}": '
-                '"{2}". Expected one of: "{3}".'.format(
-                path,
-                name,
-                '", "'.join(extraKeys),
-                '", "'.join(self.__availableKeys),
-            ));
-
-        if 'resource' in config and 'path' in config :
-            raise InvalidArgumentException(
-                'The routing file "{0}" must not specify both the "resource" '
-                'key and the "path" key for "{1}". Choose between an import '
-                'and a route definition.'.format(
-                path, name
-            ));
-
-        if 'resource' in config and 'description' in config :
-            raise InvalidArgumentException(
-                'The routing file "{0}" must not specify both the "resource" '
-                'key and the "description" key for "{1}". Choose between an '
-                'import and a route definition.'.format(
-                path, name
-            ));
-
-        if 'resource' not in config and 'type' in config :
-            raise InvalidArgumentException(
-                'The "type" key for the route definition "{0}" in "{1}" is '
-                'unsupported. It is only available for imports in combination '
-                'with the "resource" key.'.format(
-                name, path
-            ));
-
-        if 'resource' not in config and 'path' not in config :
-            raise InvalidArgumentException(
-                'You must define a "path" for the route "{0}" in file "{1}".'
-                ''.format(name, path)
-            );
-
-        if 'definition' in config:
-            if 'arguments' in config['definition']:
-                if not isinstance(config['definition']['arguments'], OrderedDict):
-                    raise InvalidArgumentException(
-                        'The definition.arguments key should be a JSON object '
-                        'in route "{0}" in file "{1}".'
-                        ''.format(name, path)
-                    );
-            if 'options' in config['definition']:
-                if not isinstance(config['definition']['options'], dict):
-                    raise InvalidArgumentException(
-                        'The definition.options key should be a JSON object '
-                        'in route "{0}" in file "{1}".'
-                        ''.format(name, path)
-                    );

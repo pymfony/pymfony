@@ -14,8 +14,8 @@ from pymfony.bundle.framework_bundle.dependency.compiler import RegisterKernelLi
 from pymfony.component.dependency.compiler import PassConfig;
 from pymfony.component.dependency import Scope
 from pymfony.bundle.framework_bundle.dependency.compiler import ConsoleRoutingResolverPass
-from pymfony.component.console_kernel.routing import Route
-from pymfony.component.console_kernel.routing import RouteCollection
+from pymfony.component.console_routing import RouteCollection
+from pymfony.component.console_routing import Route
 
 """
 """
