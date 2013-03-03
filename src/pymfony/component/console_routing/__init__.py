@@ -22,7 +22,7 @@ from pymfony.component.console.input import InputOption
 from pymfony.component.console_routing.interface import RouterInterface
 from pymfony.component.console_routing.interface import LoaderInterface
 from pymfony.component.config.resource import ResourceInterface
-from pymfony.component.system import ReflectionClass
+from pymfony.component.system.reflection import ReflectionClass
 
 """
 """

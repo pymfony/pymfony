@@ -10,7 +10,7 @@ from __future__ import absolute_import;
 from pymfony.component.system import Object
 from pymfony.component.kernel import KernelInterface
 from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system import ReflectionClass
+from pymfony.component.system.reflection import ReflectionClass
 from pymfony.component.console_kernel.controller import ControllerResolver as BaseControllerResolver
 from pymfony.component.dependency.interface import ContainerInterface
 from pymfony.component.system.exception import LogicException

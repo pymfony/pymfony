@@ -19,7 +19,7 @@ from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.types import Array;
 from pymfony.component.system.oop import final;
-from pymfony.component.system import ReflectionObject;
+from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import RuntimeException;

@@ -9,7 +9,7 @@
 from __future__ import absolute_import;
 
 from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system import ReflectionClass
+from pymfony.component.system.reflection import ReflectionClass
 from pymfony.bundle.framework_bundle.controller import ControllerNameParser as BaseControllerNameParser
 from pymfony.component.console.input import InputOption
 from pymfony.component.kernel import KernelInterface

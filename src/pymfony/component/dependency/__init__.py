@@ -20,12 +20,12 @@ from pymfony.component.dependency.interface import ContainerAwareInterface
 from pymfony.component.dependency.interface import TaggedContainerInterface
 from pymfony.component.dependency.interface import ExtensionInterface
 from pymfony.component.dependency.exception import ServiceCircularReferenceException
-from pymfony.component.system import ReflectionClass
+from pymfony.component.system.reflection import ReflectionClass
 from pymfony.component.system import ClassLoader
 from pymfony.component.system import Object;
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
-from pymfony.component.system import ReflectionObject;
+from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system import Tool;
 from pymfony.component.system.types import Array
 from pymfony.component.config.loader import FileLoader as BaseFileLoader;

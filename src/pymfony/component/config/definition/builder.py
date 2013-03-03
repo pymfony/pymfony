@@ -14,7 +14,7 @@ from __future__ import absolute_import;
 from pymfony.component.system import clone
 from pymfony.component.system.types import String
 from pymfony.component.system import ClassLoader
-from pymfony.component.system import ReflectionClass
+from pymfony.component.system.reflection import ReflectionClass
 from pymfony.component.system.types import Array
 from pymfony.component.system import Object;
 from pymfony.component.system.oop import abstract;

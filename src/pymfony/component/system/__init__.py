@@ -367,84 +367,6 @@ class Tool(Object):
 
 
 
-class ReflectionClass(Object):
-    def __init__(self, argument):
-        if isinstance(argument, basestring):
-            qualClassName = argument;
-            try:
-                argument = ClassLoader.load(argument);
-            except ImportError:
-                argument = False;
-
-        if argument is not False:
-            assert issubclass(argument, object);
-            self.__exists = True;
-            self._class = argument;
-            self._fileName = None;
-            self._mro = None;
-            self._namespaceName = None;
-            self._parentClass = None;
-            self._name = None;
-        else:
-            self.__exists = False;
-            self._name = qualClassName;
-            self._fileName = '';
-            self._mro = tuple();
-            self._namespaceName = Tool.split(qualClassName)[0];
-            self._parentClass = False;
-            self._class = None;
-
-
-    def getFileName(self):
-        if self._fileName is not None:
-            return self._fileName;
-
-        try:
-            self._fileName = inspect.getabsfile(self._class);
-        except TypeError:
-            self._fileName = False;
-        return self._fileName;
-
-    def getParentClass(self):
-        """
-        @return: ReflexionClass|False
-        """
-        if self._parentClass is None:
-            if len(self.getmro()) > 1:
-                self._parentClass = ReflectionClass(self.getmro()[1]);
-            else:
-                self._parentClass = False;
-        return self._parentClass;
-
-
-    def getmro(self):
-        if self._mro is None:
-            self._mro = inspect.getmro(self._class);
-        return self._mro;
-
-    def getNamespaceName(self):
-        if self._namespaceName is None:
-            self._namespaceName = str(self._class.__module__);
-        return self._namespaceName;
-
-    def getName(self):
-        if self._name is None:
-            self._name = self.getNamespaceName()+'.'+str(self._class.__name__);
-        return self._name;
-
-    def exists(self):
-        return self.__exists;
-
-    def newInstance(self, *args, **kargs):
-        return self._class(*args, **kargs);
-
-
-class ReflectionObject(ReflectionClass):
-    def __init__(self, argument):
-        assert isinstance(argument, object);
-        ReflectionClass.__init__(self, argument.__class__);
-
-
 class ClassLoader(Object):
     __classes = {};
     __badClasses = {};
@@ -458,16 +380,23 @@ class ClassLoader(Object):
         elif qualClassName in cls.__classes:
             return cls.__classes[qualClassName];
 
-        moduleName, className = Tool.split(qualClassName);
-        try:
-            module = __import__(moduleName, globals(), {}, [className], 0);
-        except TypeError:
-            module = __import__(moduleName, globals(), {}, ["__init__"], 0);
-        except ImportError as e:
-            cls.__badClasses[qualClassName] = True;
-            raise e;
+        if '.' in qualClassName:
+            moduleName, className = Tool.split(qualClassName);
+            try:
+                module = __import__(moduleName, globals(), {}, [className], 0);
+            except TypeError:
+                module = __import__(moduleName, globals(), {}, ["__init__"], 0);
+            except ImportError as e:
+                cls.__badClasses[qualClassName] = True;
+                raise e;
 
-        classType = getattr(module, className, False);
+            classType = getattr(module, className, False);
+        else:
+            try:
+                classType = eval(qualClassName);
+            except Exception:
+                classType = None;
+
         if classType:
             cls.__classes[qualClassName] = classType;
         else:

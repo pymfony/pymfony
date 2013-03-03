@@ -12,7 +12,7 @@ from __future__ import absolute_import;
 
 from pymfony.component.system import Object;
 from pymfony.component.system.oop import interface;
-from pymfony.component.system import ReflectionObject;
+from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.types import OrderedDict;
 
 from pymfony.component.dependency.exception import InvalidArgumentException;

@@ -14,10 +14,13 @@ from pymfony.component.system import Object;
 from pymfony.component.console import Request
 from pymfony.component.system import Tool
 from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system import ReflectionClass
-from pymfony.component.system import ReflectionObject
-from pymfony.component.system.exception import RuntimeException
 from pymfony.component.system.types import String
+from pymfony.component.system.exception import RuntimeException
+from pymfony.component.system.reflection import ReflectionClass
+from pymfony.component.system.reflection import ReflectionObject
+from pymfony.component.system.reflection import ReflectionMethod
+from pymfony.component.system.reflection import ReflectionFunction
+from pymfony.component.system.reflection import ReflectionParameter
 
 """
 """
@@ -130,6 +133,13 @@ class ControllerResolver(ControllerResolverInterface):
         if not isinstance(controller, String):
             return False;
 
+        if ':' not in controller:
+            r = ReflectionClass(controller);
+            if r.exists():
+                instance = r.newInstance();
+                if Tool.isCallable(instance):
+                    return instance;
+
         controller, method = self._createController(controller);
 
         if not hasattr(controller, method) :
@@ -141,19 +151,12 @@ class ControllerResolver(ControllerResolverInterface):
 
         return getattr(controller, method);
 
-    # TODO: add this in to a ReflectionFunction class
-    def __getRequiredArgs(self, func):
-        args, varargs, varkw, defaults = inspect.getargspec(func);
-        if defaults:
-            args = args[:-len(defaults)];
-        return args;   # *args and **kwargs are not required, so ignore them.
-
 
     def getArguments(self, request, controller):
         """Returns the arguments to pass to the controller.
      *
      * @param Request request    A Request instance
-     * @param mixed   controller A PHP callable
+     * @param mixed   controller A PYTHON callable
      *
      * @return list
      *
@@ -164,28 +167,46 @@ class ControllerResolver(ControllerResolverInterface):
         """
         assert isinstance(request, Request);
 
-        # TODO: make more efficient PYTHON arguments binding
-        args = self.__getRequiredArgs(controller);
+        if inspect.ismethod(controller):
+            r = ReflectionMethod(controller);
+        elif inspect.isfunction(controller) or isinstance(controller, String):
+            r = ReflectionFunction(controller);
+        else:
+            r = ReflectionObject(controller);
+            r = r.getMethod('__call__');
 
+        return self._doGetArguments(request, controller, r.getParameters());
+
+    def _doGetArguments(self, request, controller, parameters):
+        assert isinstance(request, Request);
+        assert isinstance(parameters, list);
+
+        attributes = request.attributes.all();
         arguments = list();
 
-        for name in args:
+        for param in parameters:
+            assert isinstance(param, ReflectionParameter);
+            name = param.getName();
             attr = name;
             # strip option prefix
             if name.startswith(self.PREFIX_OPTION):
                 attr = attr[len(self.PREFIX_OPTION):];
+
             attr = attr.replace('_', '-');
+
             if attr.startswith('-'):
                 attr = '_' + attr[1:];
+
             arg = [name, attr];
-            if arg[0] == 'self':
-                continue;
+
             if arg[0] == 'request':
                 arguments.append(request);
-            elif request.attributes.has(arg[1]):
-                arguments.append(request.attributes.get(arg[1]));
+            elif arg[1] in attributes:
+                arguments.append(attributes[arg[1]]);
             elif request.hasOption(arg[1]):
                 arguments.append(request.getOption(arg[1]));
+            elif param.isDefaultValueAvailable():
+                arguments.append(param.getDefaultValue());
             else:
                 raise RuntimeException(
                     'Controller "{0}" requires that you provide a value for '

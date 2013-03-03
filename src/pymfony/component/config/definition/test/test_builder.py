@@ -21,7 +21,7 @@ from pymfony.component.config.definition.exception import InvalidConfigurationEx
 
 from pymfony.component.config.definition.builder import TreeBuilder
 from pymfony.component.config.definition.builder import NodeBuilder
-from pymfony.component.system import ReflectionObject
+from pymfony.component.system.reflection import ReflectionObject
 from pymfony.component.config.definition.builder import VariableNodeDefinition as BaseVariableNodeDefinition
 from pymfony.component.config.definition.builder import NodeDefinition
 from pymfony.component.config.definition.builder import EnumNodeDefinition
