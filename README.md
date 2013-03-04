@@ -16,7 +16,7 @@ productivity on stetorids for the development of Web Applications.
 Symfony target version
 ----------------------
 
-[symfony@v2.2.0-BETA2](https://github.com/symfony/symfony/tree/v2.2.0-BETA2)
+[symfony@v2.2.0](https://github.com/symfony/symfony/tree/v2.2.0)
 
 Requirements
 ------------

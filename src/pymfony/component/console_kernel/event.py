@@ -319,7 +319,6 @@ class GetResponseForControllerResultEvent(GetResponseEvent):
      * @api
 
         """
-        assert isinstance(controllerResult, dict);
 
         self.__controllerResult = controllerResult;
 

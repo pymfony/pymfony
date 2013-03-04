@@ -118,7 +118,7 @@ class ExceptionListener(EventSubscriberInterface):
     __handling = False;
 
     def __init__(self, controller):
-        self.__controller = controller;
+        self._controller = controller;
 
 
     def onKernelException(self, event):
@@ -133,7 +133,7 @@ class ExceptionListener(EventSubscriberInterface):
         request = event.getRequest();
 
         attributes = {
-            '_controller': self.__controller,
+            '_controller': self._controller,
             'exception': exception,
         };
 
