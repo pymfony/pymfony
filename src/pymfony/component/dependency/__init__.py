@@ -388,8 +388,9 @@ class Container(IntrospectableContainerInterface):
             self._scopedServices.pop(name, None);
 
             for child in self._scopeChildren[name]:
-                services[child] = self._scopedServices[child];
-                self._scopedServices(child, None);
+                if child in self._scopedServices:
+                    services[child] = self._scopedServices[child];
+                    self._scopedServices.pop(child, None);
 
 
             # update global map
