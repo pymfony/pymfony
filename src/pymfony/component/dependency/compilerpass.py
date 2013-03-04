@@ -7,24 +7,25 @@
 # file that was distributed with this source code.
 from __future__ import absolute_import;
 
-from pymfony.component.system import clone
-from pymfony.component.system.types import Array
+from pymfony.component.system import clone;
+from pymfony.component.system.types import Array;
+
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.extension import PrependExtensionInterface;
-from pymfony.component.dependency.definition import DefinitionDecorator
-from pymfony.component.dependency.definition import Definition
-from pymfony.component.dependency.definition import Alias
-from pymfony.component.dependency.definition import Reference
-from pymfony.component.dependency.exception import ServiceCircularReferenceException
-from pymfony.component.dependency.exception import ScopeWideningInjectionException
-from pymfony.component.dependency.exception import ScopeCrossingInjectionException
-from pymfony.component.dependency.exception import ServiceNotFoundException
+from pymfony.component.dependency.definition import DefinitionDecorator;
+from pymfony.component.dependency.definition import Definition;
+from pymfony.component.dependency.definition import Alias;
+from pymfony.component.dependency.definition import Reference;
+from pymfony.component.dependency.exception import ServiceCircularReferenceException;
+from pymfony.component.dependency.exception import ScopeWideningInjectionException;
+from pymfony.component.dependency.exception import ScopeCrossingInjectionException;
+from pymfony.component.dependency.exception import ServiceNotFoundException;
 from pymfony.component.dependency.exception import ParameterNotFoundException;
-from pymfony.component.dependency.exception import RuntimeException
-from pymfony.component.dependency.exception import InvalidArgumentException
-from pymfony.component.dependency.interface import RepeatablePassInterface
-from pymfony.component.dependency.interface import CompilerPassInterface
-from pymfony.component.dependency.interface import ContainerInterface
+from pymfony.component.dependency.exception import RuntimeException;
+from pymfony.component.dependency.exception import InvalidArgumentException;
+from pymfony.component.dependency.interface import RepeatablePassInterface;
+from pymfony.component.dependency.interface import CompilerPassInterface;
+from pymfony.component.dependency.interface import ContainerInterface;
 
 """
 """

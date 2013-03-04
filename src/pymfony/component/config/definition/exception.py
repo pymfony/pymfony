@@ -5,12 +5,12 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 from pymfony.component.system.exception import RuntimeException;
+
+"""
+"""
 
 class DefinitionException(RuntimeException):
     pass;

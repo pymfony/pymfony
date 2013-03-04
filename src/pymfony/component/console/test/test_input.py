@@ -5,24 +5,25 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
-import unittest
-import os
-import sys
+import os;
+import sys;
+import unittest;
 
-from pymfony.component.system.exception import RuntimeException
-from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system.exception import LogicException
-from pymfony.component.console.input import ArrayInput
-from pymfony.component.console.input import InputDefinition
-from pymfony.component.console.input import InputArgument
-from pymfony.component.console.input import InputOption
-from pymfony.component.console.input import StringInput
-from pymfony.component.console.input import ArgvInput
+from pymfony.component.system.exception import RuntimeException;
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.exception import LogicException;
+
+from pymfony.component.console.input import ArrayInput;
+from pymfony.component.console.input import InputDefinition;
+from pymfony.component.console.input import InputArgument;
+from pymfony.component.console.input import InputOption;
+from pymfony.component.console.input import StringInput;
+from pymfony.component.console.input import ArgvInput;
+
+"""
+"""
 
 class StringInputTest(unittest.TestCase):
 

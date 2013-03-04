@@ -5,29 +5,29 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import unittest;
 
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.exception import RuntimeException;
+from pymfony.component.system.reflection import ReflectionObject;
+
 from pymfony.component.config.definition.builder import ArrayNodeDefinition;
 from pymfony.component.config.definition.builder import ScalarNodeDefinition;
-from pymfony.component.config.definition.exception import InvalidDefinitionException
-from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system.exception import RuntimeException
-from pymfony.component.config.definition.exception import InvalidConfigurationException
+from pymfony.component.config.definition.builder import VariableNodeDefinition as BaseVariableNodeDefinition;
+from pymfony.component.config.definition.builder import NodeDefinition;
+from pymfony.component.config.definition.builder import EnumNodeDefinition;
+from pymfony.component.config.definition.builder import NumericNodeDefinition;
+from pymfony.component.config.definition.builder import IntegerNodeDefinition;
+from pymfony.component.config.definition.builder import FloatNodeDefinition;
+from pymfony.component.config.definition.builder import TreeBuilder;
+from pymfony.component.config.definition.builder import NodeBuilder;
+from pymfony.component.config.definition.exception import InvalidDefinitionException;
+from pymfony.component.config.definition.exception import InvalidConfigurationException;
 
-from pymfony.component.config.definition.builder import TreeBuilder
-from pymfony.component.config.definition.builder import NodeBuilder
-from pymfony.component.system.reflection import ReflectionObject
-from pymfony.component.config.definition.builder import VariableNodeDefinition as BaseVariableNodeDefinition
-from pymfony.component.config.definition.builder import NodeDefinition
-from pymfony.component.config.definition.builder import EnumNodeDefinition
-from pymfony.component.config.definition.builder import NumericNodeDefinition
-from pymfony.component.config.definition.builder import IntegerNodeDefinition
-from pymfony.component.config.definition.builder import FloatNodeDefinition
+"""
+"""
 
 class CustomNodeBuilder(NodeBuilder):
 

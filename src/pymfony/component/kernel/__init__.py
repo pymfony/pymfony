@@ -10,57 +10,48 @@ from __future__ import absolute_import;
 
 import os;
 from time import time;
-import pickle;
 import re;
 
-
-from pymfony.component.system import Object;
-from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.types import Array;
-from pymfony.component.system.oop import final;
 from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import RuntimeException;
-from pymfony.component.dependency import Container;
-from pymfony.component.dependency import ContainerInterface;
-from pymfony.component.dependency import ContainerBuilder;
-from pymfony.component.dependency import ParameterBag;
-from pymfony.component.dependency import ContainerAwareInterface;
-from pymfony.component.dependency import ExtensionInterface;
-from pymfony.component.dependency import ContainerAware;
-from pymfony.component.dependency.compilerpass import ResolveParameterPlaceHoldersPass
-from pymfony.component.dependency.loader import IniFileLoader;
-from pymfony.component.dependency.loader import JsonFileLoader;
-from pymfony.component.dependency.extension import Extension as BaseExtension;
-from pymfony.component.config import FileLocator as BaseFileLocator;
+
 from pymfony.component.config.loader import LoaderResolver;
 from pymfony.component.config.loader import DelegatingLoader;
-from pymfony.component.dependency.compilerpass import ResolveDefinitionTemplatesPass
+
+from pymfony.component.dependency.interface import ContainerInterface;
+from pymfony.component.dependency.interface import ContainerAwareInterface;
+from pymfony.component.dependency import ContainerBuilder;
+from pymfony.component.dependency.parameterbag import ParameterBag;
+from pymfony.component.dependency.loader import IniFileLoader;
+from pymfony.component.dependency.loader import JsonFileLoader;
+from pymfony.component.dependency.compilerpass import CheckDefinitionValidityPass;
+from pymfony.component.dependency.compilerpass import ResolveReferencesToAliasesPass;
+from pymfony.component.dependency.compilerpass import ResolveInvalidReferencesPass;
+from pymfony.component.dependency.compilerpass import AnalyzeServiceReferencesPass;
+from pymfony.component.dependency.compilerpass import CheckCircularReferencesPass;
+from pymfony.component.dependency.compilerpass import CheckReferenceValidityPass;
+from pymfony.component.dependency.compilerpass import RemovePrivateAliasesPass;
+from pymfony.component.dependency.compilerpass import RemoveAbstractDefinitionsPass;
+from pymfony.component.dependency.compilerpass import ReplaceAliasByActualDefinitionPass;
+from pymfony.component.dependency.compilerpass import RepeatedPass;
+from pymfony.component.dependency.compilerpass import InlineServiceDefinitionsPass;
+from pymfony.component.dependency.compilerpass import RemoveUnusedDefinitionsPass;
+from pymfony.component.dependency.compilerpass import CheckExceptionOnInvalidReferenceBehaviorPass;
+from pymfony.component.dependency.compilerpass import ResolveDefinitionTemplatesPass;
+from pymfony.component.dependency.compilerpass import ResolveParameterPlaceHoldersPass;
 
 from pymfony.component.kernel.bundle import BundleInterface;
 from pymfony.component.kernel.config import FileLocator;
 from pymfony.component.kernel.config import FileResourceLocatorInterface;
 from pymfony.component.kernel.dependency import MergeExtensionConfigurationPass;
 from pymfony.component.kernel.debug import ExceptionHandler;
-from pymfony.component.dependency.compilerpass import CheckDefinitionValidityPass
-from pymfony.component.dependency.compilerpass import ResolveReferencesToAliasesPass
-from pymfony.component.dependency.compilerpass import ResolveInvalidReferencesPass
-from pymfony.component.dependency.compilerpass import AnalyzeServiceReferencesPass
-from pymfony.component.dependency.compilerpass import CheckCircularReferencesPass
-from pymfony.component.dependency.compilerpass import CheckReferenceValidityPass
-from pymfony.component.dependency.compilerpass import RemovePrivateAliasesPass
-from pymfony.component.dependency.compilerpass import RemoveAbstractDefinitionsPass
-from pymfony.component.dependency.compilerpass import ReplaceAliasByActualDefinitionPass
-from pymfony.component.dependency.compilerpass import RepeatedPass
-from pymfony.component.dependency.compilerpass import InlineServiceDefinitionsPass
-from pymfony.component.dependency.compilerpass import RemoveUnusedDefinitionsPass
-from pymfony.component.dependency.compilerpass import CheckExceptionOnInvalidReferenceBehaviorPass
 
 """
 """
-
 
 @interface
 class KernelInterface(FileResourceLocatorInterface):

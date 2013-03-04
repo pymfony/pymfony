@@ -5,21 +5,23 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 from __future__ import absolute_import;
 
-import unittest;
 import os;
 import tempfile;
+import unittest;
 
-from pymfony.component.console.output import Output;
-from pymfony.component.console.formatter import OutputFormatterStyle;
 from pymfony.component.system.exception import InvalidArgumentException;
+
 from pymfony.component.console.output import OutputInterface;
 from pymfony.component.console.output import NullOutput;
 from pymfony.component.console.output import StreamOutput;
 from pymfony.component.console.output import ConsoleOutput;
+from pymfony.component.console.output import Output;
+from pymfony.component.console.formatter import OutputFormatterStyle;
+
+"""
+"""
 
 class OutputTest(unittest.TestCase):
 

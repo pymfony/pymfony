@@ -5,22 +5,20 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
-
-from pymfony.component.system.types import String;
 from pymfony.component.system import Object;
+from pymfony.component.system import ArrayAccessInterface;
+from pymfony.component.system import IteratorAggregateInterface;
 from pymfony.component.system.oop import interface;
-from pymfony.component.system import Tool;
+from pymfony.component.system.types import String;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import BadMethodCallException;
-from pymfony.component.system import ArrayAccessInterface
-from pymfony.component.system import IteratorAggregateInterface
 
 from pymfony.component.dependency import ContainerInterface;
+
+"""
+"""
 
 @interface
 class EventDispatcherInterface(Object):

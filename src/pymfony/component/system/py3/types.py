@@ -7,6 +7,7 @@
 # file that was distributed with this source code.
 
 from collections import OrderedDict as AbstractOrderedDict;
+
 from pymfony.component.system import Object;
 
 """

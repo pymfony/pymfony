@@ -5,23 +5,24 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import re;
 import os;
 import sys;
 
-from pymfony.component.system.oop import interface
-from pymfony.component.system import Object
-from pymfony.component.system.oop import abstract
-from pymfony.component.system import Tool
-from pymfony.component.system.exception import RuntimeException
-from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.console.formatter import OutputFormatterInterface
-from pymfony.component.console.formatter import OutputFormatter
+from pymfony.component.system import Object;
+from pymfony.component.system import Tool;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system.oop import abstract;
+from pymfony.component.system.exception import RuntimeException;
+from pymfony.component.system.exception import InvalidArgumentException;
+
+from pymfony.component.console.formatter import OutputFormatterInterface;
+from pymfony.component.console.formatter import OutputFormatter;
+
+"""
+"""
 
 @interface
 class OutputInterface(Object):

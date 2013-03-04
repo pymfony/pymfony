@@ -7,19 +7,19 @@
 # file that was distributed with this source code.
 from __future__ import absolute_import;
 
-import sys
+import sys;
 
-from pymfony.component.console.input import StringInput
-from pymfony.component.system import Object;
+from pymfony.component.system import clone;
 from pymfony.component.system import Tool;
+from pymfony.component.system.types import ParameterBag;
 from pymfony.component.system.exception import UnexpectedValueException;
+from pymfony.component.system.exception import InvalidArgumentException;
+
 from pymfony.component.console.output import OutputInterface;
 from pymfony.component.console.output import ConsoleOutput;
-from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.console.input import StringInput
 from pymfony.component.console.input import ArgvInput;
-from pymfony.component.system.types import ParameterBag;
-from pymfony.component.console.input import InputInterface
-from pymfony.component.system import clone
+
 """
 """
 

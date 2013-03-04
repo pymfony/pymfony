@@ -9,13 +9,16 @@
 from __future__ import absolute_import;
 
 from pymfony.component.kernel.bundle import Bundle;
+
 from pymfony.component.dependency import ContainerBuilder;
-from pymfony.bundle.framework_bundle.dependency.compiler import RegisterKernelListenersPass;
+from pymfony.component.dependency import Scope;
 from pymfony.component.dependency.compiler import PassConfig;
-from pymfony.component.dependency import Scope
-from pymfony.bundle.framework_bundle.dependency.compiler import ConsoleRoutingResolverPass
-from pymfony.component.console_routing import RouteCollection
-from pymfony.component.console_routing import Route
+
+from pymfony.bundle.framework_bundle.dependency.compiler import RegisterKernelListenersPass;
+from pymfony.bundle.framework_bundle.dependency.compiler import ConsoleRoutingResolverPass;
+
+from pymfony.component.console_routing import RouteCollection;
+from pymfony.component.console_routing import Route;
 
 """
 """

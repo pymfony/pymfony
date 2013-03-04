@@ -5,16 +5,16 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
+from pymfony.component.system import Object;
 
-from pymfony.component.system import Object
-from pymfony.component.dependency.exception import OutOfBoundsException
-from pymfony.component.dependency.exception import InvalidArgumentException
-from pymfony.component.dependency.interface import ContainerInterface
+from pymfony.component.dependency.exception import OutOfBoundsException;
+from pymfony.component.dependency.exception import InvalidArgumentException;
+from pymfony.component.dependency.interface import ContainerInterface;
+
+"""
+"""
 
 class Alias(Object):
     def __init__(self, identifier, public=True):

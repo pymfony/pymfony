@@ -8,16 +8,17 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.console import Request
-from pymfony.component.console_kernel import ConsoleKernel
-from pymfony.component.console_kernel.controller import ControllerResolverInterface
-from pymfony.component.console_kernel.interface import ConsoleKernelInterface
-from pymfony.component.dependency.interface import ContainerInterface
-from pymfony.component.event_dispatcher import EventDispatcherInterface
+from pymfony.component.console import Request;
+from pymfony.component.console_kernel import ConsoleKernel;
+from pymfony.component.console_kernel.controller import ControllerResolverInterface;
+from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
+
+from pymfony.component.dependency.interface import ContainerInterface;
+
+from pymfony.component.event_dispatcher import EventDispatcherInterface;
 
 """
 """
-
 
 class ContainerAwareConsoleKernel(ConsoleKernel):
     """This ConsoleKernel is used to manage scope changes of the DI container.

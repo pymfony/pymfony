@@ -5,18 +5,19 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import unittest;
 import inspect;
 
-from pymfony.component.console.formatter import OutputFormatterStyle;
 from pymfony.component.system.exception import InvalidArgumentException;
+
+from pymfony.component.console.formatter import OutputFormatterStyle;
 from pymfony.component.console.formatter import OutputFormatterStyleStack;
 from pymfony.component.console.formatter import OutputFormatter;
+
+"""
+"""
 
 class OutputFormatterStyleTest(unittest.TestCase):
 

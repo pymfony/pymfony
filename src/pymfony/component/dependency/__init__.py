@@ -8,44 +8,36 @@
 from __future__ import absolute_import;
 
 import re;
-import inspect
+import inspect;
 
-from pymfony.component.dependency.interface import ScopeInterface
-from pymfony.component.dependency.interface import ContainerInterface
-from pymfony.component.dependency.interface import IntrospectableContainerInterface
-from pymfony.component.dependency.interface import ContainerAwareInterface
-from pymfony.component.dependency.interface import TaggedContainerInterface
-from pymfony.component.dependency.interface import ExtensionInterface
-from pymfony.component.dependency.exception import ServiceCircularReferenceException
-from pymfony.component.system.reflection import ReflectionClass
-from pymfony.component.system import ClassLoader
+from pymfony.component.system import ClassLoader;
 from pymfony.component.system import Object;
-from pymfony.component.system.oop import abstract;
-from pymfony.component.system.oop import interface;
-from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system import Tool;
-from pymfony.component.system.types import OrderedDict
-from pymfony.component.system.types import Array
-from pymfony.component.config.loader import FileLoader as BaseFileLoader;
+from pymfony.component.system.reflection import ReflectionObject;
+from pymfony.component.system.types import OrderedDict;
+from pymfony.component.system.types import Array;
+
 from pymfony.component.config.resource import FileResource;
 from pymfony.component.config.resource import ResourceInterface;
-from pymfony.component.config.definition import Processor;
 
-from pymfony.component.dependency.definition import Alias
-from pymfony.component.dependency.definition import Definition
-from pymfony.component.dependency.definition import Reference
-
+from pymfony.component.dependency.interface import ScopeInterface;
+from pymfony.component.dependency.interface import ContainerInterface;
+from pymfony.component.dependency.interface import IntrospectableContainerInterface;
+from pymfony.component.dependency.interface import ContainerAwareInterface;
+from pymfony.component.dependency.interface import TaggedContainerInterface;
+from pymfony.component.dependency.interface import ExtensionInterface;
+from pymfony.component.dependency.definition import Alias;
+from pymfony.component.dependency.definition import Definition;
+from pymfony.component.dependency.definition import Reference;
 from pymfony.component.dependency.exception import BadMethodCallException;
 from pymfony.component.dependency.exception import ServiceNotFoundException;
 from pymfony.component.dependency.exception import InvalidArgumentException;
 from pymfony.component.dependency.exception import LogicException;
 from pymfony.component.dependency.exception import RuntimeException;
-from pymfony.component.dependency.exception import OutOfBoundsException;
-
+from pymfony.component.dependency.exception import ServiceCircularReferenceException
 from pymfony.component.dependency.parameterbag import ParameterBag;
 from pymfony.component.dependency.parameterbag import ParameterBagInterface;
 from pymfony.component.dependency.parameterbag import FrozenParameterBag;
-
 from pymfony.component.dependency.compiler import PassConfig;
 from pymfony.component.dependency.compiler import Compiler;
 from pymfony.component.dependency.interface import CompilerPassInterface;
@@ -1496,7 +1488,3 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
     def __formatAlias(self, identifer):
         return self._formatIdentifier(identifer);
-
-
-
-

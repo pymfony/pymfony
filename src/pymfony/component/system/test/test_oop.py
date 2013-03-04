@@ -20,7 +20,6 @@ from pymfony.component.system import OOPObject;
 """
 """
 
-
 @interface
 class ClassInterface(Object):
     def method(self):

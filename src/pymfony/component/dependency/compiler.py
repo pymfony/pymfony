@@ -13,11 +13,9 @@ from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.types import OrderedDict;
 
 from pymfony.component.dependency.exception import InvalidArgumentException;
-
-from pymfony.component.dependency.definition import Alias
-from pymfony.component.dependency.definition import Definition
-
-from pymfony.component.dependency.interface import CompilerPassInterface
+from pymfony.component.dependency.definition import Alias;
+from pymfony.component.dependency.definition import Definition;
+from pymfony.component.dependency.interface import CompilerPassInterface;
 
 """
 """

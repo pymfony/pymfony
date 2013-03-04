@@ -7,13 +7,14 @@
 # file that was distributed with this source code.
 from __future__ import absolute_import;
 
-
+from pymfony.component.system import ClassLoader;
 from pymfony.component.system.exception import InvalidArgumentException;
-from pymfony.component.system import ClassLoader
+
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.compilerpass import CompilerPassInterface;
+from pymfony.component.dependency.definition import Reference;
+
 from pymfony.component.event_dispatcher import EventSubscriberInterface;
-from pymfony.component.dependency.definition import Reference
 
 """
 """

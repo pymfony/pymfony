@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import re;
@@ -17,13 +14,14 @@ from pymfony.component.system.oop import interface;
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system.reflection import ReflectionObject;
-from pymfony.component.system.reflection import ReflectionClass
+from pymfony.component.system.reflection import ReflectionClass;
 
 from pymfony.component.dependency import ContainerAwareInterface;
 from pymfony.component.dependency import ContainerAware;
 from pymfony.component.dependency import ContainerBuilder;
 
-
+"""
+"""
 
 @interface
 class BundleInterface(ContainerAwareInterface):

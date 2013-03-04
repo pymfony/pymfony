@@ -8,19 +8,23 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system.reflection import ReflectionClass
-from pymfony.bundle.framework_bundle.controller import ControllerNameParser as BaseControllerNameParser
-from pymfony.component.console.input import InputOption
-from pymfony.component.kernel import KernelInterface
-from pymfony.component.console_routing import Router as BaseRouter
-from pymfony.component.console_routing.matcher import RequestMatcher as BaseRequestMatcher
-from pymfony.component.console_routing.exception import ResourceNotFoundException
-from pymfony.component.console_kernel.dependency import ContainerAwareConsoleKernel
-from pymfony.component.system import clone
-from pymfony.component.console_kernel.interface import ConsoleKernelInterface
-from pymfony.component.dependency.interface import ContainerInterface
-from pymfony.component.console_routing import RouteCollection
+from pymfony.component.system import clone;
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.reflection import ReflectionClass;
+
+from pymfony.component.console.input import InputOption;
+
+from pymfony.component.console_routing import Router as BaseRouter;
+from pymfony.component.console_routing import RouteCollection;
+from pymfony.component.console_routing.matcher import RequestMatcher as BaseRequestMatcher;
+from pymfony.component.console_routing.exception import ResourceNotFoundException;
+
+from pymfony.component.console_kernel.dependency import ContainerAwareConsoleKernel;
+from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
+
+from pymfony.component.dependency.interface import ContainerInterface;
+
+from pymfony.bundle.framework_bundle.controller import ControllerNameParser as BaseControllerNameParser;
 
 
 """
@@ -121,10 +125,9 @@ class Router(BaseRouter):
     def __init__(self, container, resource, options=dict()):
         """Constructor.
 
-        @param: LoaderInterface loader     A LoaderInterface instance
-        @param: mixed           resource   The main resource to load
-        @param: KernelInterface kernel     A KernelInterface instance
-        @param: dict            options    A dictionary of options
+        @param: ContainerInterface container  A ContainerInterface instance
+        @param: mixed              resource   The main resource to load
+        @param: dict               options    A dictionary of options
         """
         assert isinstance(container, ContainerInterface);
 
@@ -132,10 +135,10 @@ class Router(BaseRouter):
         BaseRouter.__init__(self, loader, resource, options=options);
 
         self.__container = container;
-        self.__kernel = container.get('kernel');
         self.__defaultRouteName = container.getParameter('console.router.default_route');
+        environment = container.getParameter('kernel.environment');
 
-        self.getDefinition().addOption(InputOption('--env', '-e', InputOption.VALUE_REQUIRED, 'The Environment name.', self.__kernel.getEnvironment()));
+        self.getDefinition().addOption(InputOption('--env', '-e', InputOption.VALUE_REQUIRED, 'The Environment name.', environment));
         self.getDefinition().addOption(InputOption('--no-debug', None, InputOption.VALUE_NONE, 'Switches off debug mode.'));
 
     def getRequestMatcher(self):

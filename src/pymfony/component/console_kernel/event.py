@@ -5,17 +5,21 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
+from pymfony.component.system import Tool;
+from pymfony.component.system.exception import LogicException;
+
 from pymfony.component.event_dispatcher import Event;
-from pymfony.component.console import Request
-from pymfony.component.console_kernel.interface import ConsoleKernelInterface
-from pymfony.component.system.exception import LogicException
-from pymfony.component.system import Tool
-from pymfony.component.console import Response
+
+from pymfony.component.console import Request;
+from pymfony.component.console import Response;
+
+from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
+
+"""
+"""
 
 class ConsoleKernelEvent(Event):
     """Base class for events thrown in the ConsoleKernel component):

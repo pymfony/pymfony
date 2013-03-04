@@ -10,13 +10,14 @@ from __future__ import absolute_import;
 
 import unittest
 
-from pymfony.component.console_kernel.controller import ControllerResolver
-from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system.exception import RuntimeException
-from pymfony.component.system import Object
+from pymfony.component.system import Object;
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.exception import RuntimeException;
+
+from pymfony.component.console_kernel.controller import ControllerResolver;
 
 try:
-    from pymfony.component.console import Request
+    from pymfony.component.console import Request;
 except ImportError:
     SKIP_TEST = True;
 else:

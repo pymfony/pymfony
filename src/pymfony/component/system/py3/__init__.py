@@ -9,7 +9,7 @@
 import inspect;
 
 from pymfony.component.system.oop import OOPMeta;
-from pymfony.component.system.oop import abstract
+from pymfony.component.system.oop import abstract;
 
 """
 """

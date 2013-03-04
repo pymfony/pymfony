@@ -5,24 +5,24 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
-import sys
-from xml.dom.minidom import Document
-import json
-import re
+import sys;
+import json;
+import re;
+from xml.dom.minidom import Document;
 
-from pymfony.component.system.types import Array
-from pymfony.component.system import Tool
-from pymfony.component.system.oop import interface;
+from pymfony.component.system import Tool;
 from pymfony.component.system import Object;
+from pymfony.component.system.types import Array;
+from pymfony.component.system.oop import interface;
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.exception import RuntimeException;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import LogicException;
+
+"""
+"""
 
 @interface
 class InputInterface(Object):

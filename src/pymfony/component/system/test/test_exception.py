@@ -6,15 +6,15 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
-import unittest
-import inspect
+import unittest;
+import inspect;
 
-from pymfony.component.system.exception import StandardException
+from pymfony.component.system.exception import StandardException;
+
+"""
+"""
 
 class StandardExceptionTest(unittest.TestCase):
 

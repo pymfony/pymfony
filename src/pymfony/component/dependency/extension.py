@@ -5,24 +5,23 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 from pymfony.component.system import Object;
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.reflection import ReflectionObject;
-from pymfony.component.system.reflection import ReflectionClass
+from pymfony.component.system.reflection import ReflectionClass;
 
 from pymfony.component.config.resource import FileResource;
+from pymfony.component.config.definition import Processor;
 
 from pymfony.component.dependency.exception import BadMethodCallException;
-from pymfony.component.dependency import Processor;
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency import ExtensionInterface;
 
+"""
+"""
 
 @interface
 class ConfigurationExtensionInterface(Object):

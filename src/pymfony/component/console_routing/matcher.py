@@ -8,19 +8,18 @@
 
 from __future__ import absolute_import;
 
-import re
+import re;
 
-from pymfony.component.console import Request
-from pymfony.component.console_routing import RouteCollection
-from pymfony.component.console_routing import Route
-from pymfony.component.console_routing import Router
-from pymfony.component.console_routing.exception import ResourceNotFoundException
-from pymfony.component.console_routing.interface import RequestMatcherInterface
+from pymfony.component.console import Request;
+
+from pymfony.component.console_routing import RouteCollection;
+from pymfony.component.console_routing import Route;
+from pymfony.component.console_routing import Router;
+from pymfony.component.console_routing.exception import ResourceNotFoundException;
+from pymfony.component.console_routing.interface import RequestMatcherInterface;
 
 """
 """
-
-
 
 class RequestMatcher(RequestMatcherInterface):
     """RequestMatcher matches Request based on a set of routes.

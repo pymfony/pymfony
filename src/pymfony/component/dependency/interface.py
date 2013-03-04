@@ -7,8 +7,8 @@
 # file that was distributed with this source code.
 from __future__ import absolute_import;
 
-from pymfony.component.system.oop import interface
-from pymfony.component.system import Object
+from pymfony.component.system import Object;
+from pymfony.component.system.oop import interface;
 
 """
 """

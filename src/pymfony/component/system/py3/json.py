@@ -8,7 +8,7 @@
 
 from json import JSONDecoder;
 
-from pymfony.component.system.types import OrderedDict
+from pymfony.component.system.types import OrderedDict;
 
 """
 """

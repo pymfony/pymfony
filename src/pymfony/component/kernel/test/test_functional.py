@@ -12,10 +12,13 @@ import unittest
 import os.path as op;
 
 from pymfony.component.kernel import Kernel;
+
 from pymfony.component.config import FileLocator;
+
+from pymfony.component.console import Request;
+from pymfony.component.console.output import OutputInterface;
+
 from pymfony.bundle.framework_bundle import FrameworkBundle;
-from pymfony.component.console import Request
-from pymfony.component.console.output import OutputInterface
 
 """
 """

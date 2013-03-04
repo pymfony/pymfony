@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import re;
@@ -20,6 +17,9 @@ from pymfony.component.dependency.exception import ParameterNotFoundException;
 from pymfony.component.dependency.exception import RuntimeException;
 from pymfony.component.dependency.exception import ParameterCircularReferenceException;
 from pymfony.component.dependency.exception import LogicException;
+
+"""
+"""
 
 @interface
 class ParameterBagInterface(Object):

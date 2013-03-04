@@ -5,34 +5,36 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 from __future__ import absolute_import;
 
-import unittest
+import unittest;
 
-from pymfony.component.system.types import OrderedDict
-from pymfony.component.dependency import ContainerBuilder
-from pymfony.component.dependency import Reference
-from pymfony.component.dependency import Definition
-from pymfony.component.dependency.compilerpass import RepeatedPass
-from pymfony.component.dependency.compilerpass import AnalyzeServiceReferencesPass
-from pymfony.component.dependency.exception import RuntimeException
-from pymfony.component.dependency.compiler import Compiler
-from pymfony.component.dependency.compilerpass import CheckCircularReferencesPass
-from pymfony.component.dependency import ContainerInterface
-from pymfony.component.dependency.compilerpass import CheckDefinitionValidityPass
-from pymfony.component.dependency.exception import ServiceNotFoundException
+from pymfony.component.system.types import OrderedDict;
+
+from pymfony.component.dependency import ContainerBuilder;
+from pymfony.component.dependency import Scope;
+from pymfony.component.dependency.interface import ContainerInterface;
+from pymfony.component.dependency.compiler import Compiler;
+from pymfony.component.dependency.exception import RuntimeException;
+from pymfony.component.dependency.exception import ServiceNotFoundException;
+from pymfony.component.dependency.exception import InvalidArgumentException;
+from pymfony.component.dependency.definition import DefinitionDecorator;
+from pymfony.component.dependency.definition import Reference;
+from pymfony.component.dependency.definition import Definition;
+from pymfony.component.dependency.compilerpass import RepeatedPass;
+from pymfony.component.dependency.compilerpass import AnalyzeServiceReferencesPass;
+from pymfony.component.dependency.compilerpass import CheckCircularReferencesPass;
+from pymfony.component.dependency.compilerpass import CheckDefinitionValidityPass;
 from pymfony.component.dependency.compilerpass import CheckExceptionOnInvalidReferenceBehaviorPass
-from pymfony.component.dependency.compilerpass import CheckReferenceValidityPass
-from pymfony.component.dependency.compilerpass import RemoveUnusedDefinitionsPass
-from pymfony.component.dependency.exception import InvalidArgumentException
-from pymfony.component.dependency.compilerpass import ReplaceAliasByActualDefinitionPass
-from pymfony.component.dependency.definition import DefinitionDecorator
-from pymfony.component.dependency.compilerpass import ResolveDefinitionTemplatesPass
-from pymfony.component.dependency.compilerpass import ResolveInvalidReferencesPass
-from pymfony.component.dependency.compilerpass import ResolveReferencesToAliasesPass
-from pymfony.component.dependency import Scope
+from pymfony.component.dependency.compilerpass import CheckReferenceValidityPass;
+from pymfony.component.dependency.compilerpass import RemoveUnusedDefinitionsPass;
+from pymfony.component.dependency.compilerpass import ReplaceAliasByActualDefinitionPass;
+from pymfony.component.dependency.compilerpass import ResolveDefinitionTemplatesPass;
+from pymfony.component.dependency.compilerpass import ResolveInvalidReferencesPass;
+from pymfony.component.dependency.compilerpass import ResolveReferencesToAliasesPass;
+
+"""
+"""
 
 class AnalyzeServiceReferencesPassTest(unittest.TestCase):
 

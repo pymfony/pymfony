@@ -5,28 +5,28 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import json;
 
-from pymfony.component.system.types import String;
 from pymfony.component.system import Object;
+from pymfony.component.system import Tool;
+from pymfony.component.system.types import String;
+from pymfony.component.system.types import Array
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
-from pymfony.component.system import Tool;
-from pymfony.component.system.types import Array
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import RuntimeException;
+
 from pymfony.component.config.definition.exception import ForbiddenOverwriteException;
 from pymfony.component.config.definition.exception import DefinitionException;
 from pymfony.component.config.definition.exception import InvalidConfigurationException;
 from pymfony.component.config.definition.exception import InvalidTypeException;
-from pymfony.component.config.definition.exception import InvalidDefinitionException;
 from pymfony.component.config.definition.exception import UnsetKeyException;
 from pymfony.component.config.definition.exception import DuplicateKeyException;
+
+"""
+"""
 
 
 @interface

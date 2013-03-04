@@ -9,9 +9,6 @@
 from __future__ import absolute_import;
 
 import sys;
-from pymfony.component.system.types import String
-from pymfony.component.dependency.definition import Alias
-from pymfony.component.dependency.definition import DefinitionDecorator
 if sys.version_info[0] >= 3:
     from configparser import ConfigParser;
 else:
@@ -22,6 +19,7 @@ import json;
 
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.types import String;
+
 from pymfony.component.config import FileLocatorInterface;
 from pymfony.component.config.loader import FileLoader as BaseFileLoader;
 from pymfony.component.config.resource import FileResource;
@@ -29,6 +27,8 @@ from pymfony.component.config.resource import FileResource;
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency import Definition;
 from pymfony.component.dependency import Reference;
+from pymfony.component.dependency.definition import Alias;
+from pymfony.component.dependency.definition import DefinitionDecorator
 from pymfony.component.dependency.exception import InvalidArgumentException;
 
 """

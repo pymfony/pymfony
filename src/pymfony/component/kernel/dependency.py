@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 from pymfony.component.system.oop import abstract;
@@ -17,6 +14,8 @@ from pymfony.component.dependency.compilerpass import MergeExtensionConfiguratio
 from pymfony.component.dependency.extension import Extension as BaseExtension;
 from pymfony.component.dependency import ContainerBuilder;
 
+"""
+"""
 
 @abstract
 class Extension(BaseExtension):

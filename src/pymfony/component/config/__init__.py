@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import os.path;
@@ -17,15 +14,15 @@ if sys.version_info[0] >= 3:
 else:
     from urlparse import urlparse;
 
-from pymfony.component.system.types import String;
 from pymfony.component.system import Object;
-from pymfony.component.system.oop import interface;
 from pymfony.component.system import Tool;
-from pymfony.component.system.types import Array
+from pymfony.component.system.oop import interface;
+from pymfony.component.system.types import String;
+from pymfony.component.system.types import Array;
 from pymfony.component.system.exception import InvalidArgumentException;
 
-from pymfony.component.config.exception import FileLoaderImportCircularReferenceException;
-from pymfony.component.config.exception import FileLoaderLoadException;
+"""
+"""
 
 @interface
 class FileLocatorInterface(Object):

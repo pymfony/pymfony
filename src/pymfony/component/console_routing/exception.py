@@ -8,12 +8,12 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.system.exception import RuntimeException
-from pymfony.component.console_routing.interface import ExceptionInterface
+from pymfony.component.system.exception import RuntimeException;
+
+from pymfony.component.console_routing.interface import ExceptionInterface;
 
 """
 """
-
 
 class ResourceNotFoundException(RuntimeException, ExceptionInterface):
     """The resource was not found.

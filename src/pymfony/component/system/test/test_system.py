@@ -14,8 +14,8 @@ import inspect;
 
 from pymfony.component.system import Tool;
 from pymfony.component.system import Object;
-from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system import CloneBuilder;
+from pymfony.component.system.reflection import ReflectionObject;
 
 """
 """

@@ -10,20 +10,21 @@ from __future__ import absolute_import;
 
 import unittest;
 
-from pymfony.component.config.definition import ScalarNode
-from pymfony.component.config.definition import BooleanNode
-from pymfony.component.config.definition import FloatNode
-from pymfony.component.config.definition import IntegerNode
-from pymfony.component.config.definition import EnumNode
-from pymfony.component.config.definition import ArrayNode
-from pymfony.component.config.definition import PrototypedArrayNode
-from pymfony.component.config.definition.builder import TreeBuilder
-from pymfony.component.config.definition import NodeInterface
-from pymfony.component.config.definition import Processor
-from pymfony.component.config.definition.exception import InvalidTypeException
-from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.config.definition.exception import InvalidConfigurationException
-from pymfony.component.config.definition.exception import ForbiddenOverwriteException
+from pymfony.component.system.exception import InvalidArgumentException;
+
+from pymfony.component.config.definition import ScalarNode;
+from pymfony.component.config.definition import BooleanNode;
+from pymfony.component.config.definition import FloatNode;
+from pymfony.component.config.definition import IntegerNode;
+from pymfony.component.config.definition import EnumNode;
+from pymfony.component.config.definition import ArrayNode;
+from pymfony.component.config.definition import PrototypedArrayNode;
+from pymfony.component.config.definition import NodeInterface;
+from pymfony.component.config.definition import Processor;
+from pymfony.component.config.definition.builder import TreeBuilder;
+from pymfony.component.config.definition.exception import InvalidTypeException;
+from pymfony.component.config.definition.exception import InvalidConfigurationException;
+from pymfony.component.config.definition.exception import ForbiddenOverwriteException;
 
 """
 """

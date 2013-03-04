@@ -6,13 +6,13 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
-from distutils.core import setup;
 import os;
+from distutils.core import setup;
+
+"""
+"""
 
 realpathfile = os.path.realpath(os.path.dirname(__file__));
 os.chdir(realpathfile);
