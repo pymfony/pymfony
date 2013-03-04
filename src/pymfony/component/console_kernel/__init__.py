@@ -320,7 +320,7 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
 
     def __handleException(self, e, request, requestType):
-        """Handles and exception by trying to convert it to a Response.
+        """Handles an exception by trying to convert it to a Response.
      *
      * @param Exception  e          An Exception instance
      * @param Request    request  A Request instance
