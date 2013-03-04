@@ -180,12 +180,12 @@ class KernelInterface(FileResourceLocatorInterface):
 
 
 class Kernel(KernelInterface):
-    VERSION = '2.2.0-RC2';
+    VERSION = '2.2.0-DEV';
     VERSION_ID = '20100';
     MAJOR_VERSION = '2';
     MINOR_VERSION = '2';
     RELEASE_VERSION = '0';
-    EXTRA_VERSION = 'RC2';
+    EXTRA_VERSION = 'DEV';
 
     def __init__(self, environment, debug):
         self._environment = environment;
