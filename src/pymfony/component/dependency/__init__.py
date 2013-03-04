@@ -5,9 +5,6 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 import re;
@@ -27,6 +24,7 @@ from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system import Tool;
+from pymfony.component.system.types import OrderedDict
 from pymfony.component.system.types import Array
 from pymfony.component.config.loader import FileLoader as BaseFileLoader;
 from pymfony.component.config.resource import FileResource;
@@ -50,7 +48,10 @@ from pymfony.component.dependency.parameterbag import FrozenParameterBag;
 
 from pymfony.component.dependency.compiler import PassConfig;
 from pymfony.component.dependency.compiler import Compiler;
-from pymfony.component.dependency.compiler import CompilerPassInterface;
+from pymfony.component.dependency.interface import CompilerPassInterface;
+
+"""
+"""
 
 class Scope(ScopeInterface):
     """Scope class.
@@ -256,10 +257,10 @@ class Container(IntrospectableContainerInterface):
         identifier = self._formatIdentifier(identifier);
 
         if (self.SCOPE_CONTAINER  != scope) :
-            if not scope in self.scopedServices :
+            if not scope in self._scopedServices :
                 raise RuntimeException('You cannot set services of inactive scopes.');
 
-            self.scopedServices[scope][identifier] = service;
+            self._scopedServices[scope][identifier] = service;
 
 
         self._services[identifier] = service;
@@ -383,7 +384,9 @@ class Container(IntrospectableContainerInterface):
         # remove all services of this scope, and those of any of its child
         # scopes from the global services map
         if name in self._scopedServices :
-            services = {0: self._services, name: self._scopedServices[name]};
+            services = OrderedDict();
+            services[0] = self._services;
+            services[name] = self._scopedServices[name];
             self._scopedServices.pop(name, None);
 
             for child in self._scopeChildren[name]:
@@ -435,14 +438,15 @@ class Container(IntrospectableContainerInterface):
             services.append(self._scopedServices[child]);
             self._scopedServices.pop(child, None);
 
-        self._services = self.array_diff_key(*services);
+        self._services = Array.diffKey(*services);
 
         # check if we need to restore services of a previous scope of this type:
         if name in self._scopeStacks and self._scopeStacks[name] :
             services = self._scopeStacks[name].pop();
             self._scopedServices.update(services);
 
-            self._services.update(*services);
+            services = [self._services, services];
+            self._services = Array.diffKey(*services);
 
 
 

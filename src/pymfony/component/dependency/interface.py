@@ -5,13 +5,13 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 from pymfony.component.system.oop import interface
 from pymfony.component.system import Object
+
+"""
+"""
 
 @interface
 class ExtensionInterface(Object):
@@ -267,3 +267,31 @@ class ScopeInterface(Object):
 
         """
 
+
+@interface
+class CompilerPassInterface(Object):
+    """Interface that must be implemented by compilation passes
+    """
+    def process(self, container):
+        """You can modify the container here before it is dumped to PHP code.
+
+        @param container: ContainerBuilder
+        """
+        pass;
+
+
+@interface
+class RepeatablePassInterface(CompilerPassInterface):
+    """Interface that must be implemented by passes that are run as part of an
+ * RepeatedPass.
+ *
+ * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
+
+    def setRepeatedPass(self, repeatedPass):
+        """Sets the RepeatedPass interface.
+     *
+     * @param RepeatedPass repeatedPass
+
+        """

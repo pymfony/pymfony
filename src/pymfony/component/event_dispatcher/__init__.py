@@ -658,9 +658,3 @@ class ContainerAwareEventDispatcher(EventDispatcher):
                     );
 
                     self.__listeners[eventName][key] = listener;
-
-
-
-
-
-

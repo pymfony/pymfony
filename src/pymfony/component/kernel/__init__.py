@@ -53,7 +53,7 @@ from pymfony.component.dependency.compilerpass import CheckReferenceValidityPass
 from pymfony.component.dependency.compilerpass import RemovePrivateAliasesPass
 from pymfony.component.dependency.compilerpass import RemoveAbstractDefinitionsPass
 from pymfony.component.dependency.compilerpass import ReplaceAliasByActualDefinitionPass
-from pymfony.component.dependency.compiler import RepeatedPass
+from pymfony.component.dependency.compilerpass import RepeatedPass
 from pymfony.component.dependency.compilerpass import InlineServiceDefinitionsPass
 from pymfony.component.dependency.compilerpass import RemoveUnusedDefinitionsPass
 from pymfony.component.dependency.compilerpass import CheckExceptionOnInvalidReferenceBehaviorPass
@@ -281,6 +281,7 @@ class Kernel(KernelInterface):
     def _initializeContainer(self):
         """Initializes the service container."""
         self._container = self.buildContainer();
+        self._container.set('kernel', self);
 
     def _initializeBundles(self):
         """Initializes the data structures related to the bundle management.
@@ -393,6 +394,8 @@ class Kernel(KernelInterface):
         for bundle in self._bundles.values():
             bundle.build(container);
 
+        container.addObjectResource(self);
+
         # ensure these extensions are implicitly loaded
         container.getCompilerPassConfig().setMergePass(
             MergeExtensionConfigurationPass(extensions)
@@ -428,7 +431,6 @@ class Kernel(KernelInterface):
         if not cont is None:
             container.merge(cont);
 
-        container.set('kernel', self);
         container.compile();
 
         return container;
@@ -556,7 +558,7 @@ class Kernel(KernelInterface):
 
         if path.startswith("Resources") and directory:
             isResource = True;
-        overridePath = path[9:];
+        overridePath = path[10:];
         resourceBundle = None;
         files = [];
 
@@ -578,7 +580,7 @@ class Kernel(KernelInterface):
                                 ''.format(
                                 filename,
                                 resourceBundle,
-                                directory+'/'+bundles[0].getName()+overridePath
+                                directory+'/'+bundles[0].getName()+'/'+overridePath
                             ));
                         if first:
                             return filename;
@@ -591,9 +593,12 @@ class Kernel(KernelInterface):
                     files.append(filename);
                     resourceBundle = bundle.getName();
 
-        elif not isResource:
+        else:
             # check in root_dir when bundle name is empty
-            filename = os.path.join(self._rootDir, path);
+            if isResource:
+                filename = os.path.join(directory, overridePath);
+            else:
+                filename = os.path.join(self._rootDir, path);
             if os.path.exists(filename):
                 if first and not isResource:
                     return filename;

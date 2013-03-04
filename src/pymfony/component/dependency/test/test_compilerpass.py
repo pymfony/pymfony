@@ -15,7 +15,7 @@ from pymfony.component.system.types import OrderedDict
 from pymfony.component.dependency import ContainerBuilder
 from pymfony.component.dependency import Reference
 from pymfony.component.dependency import Definition
-from pymfony.component.dependency.compiler import RepeatedPass
+from pymfony.component.dependency.compilerpass import RepeatedPass
 from pymfony.component.dependency.compilerpass import AnalyzeServiceReferencesPass
 from pymfony.component.dependency.exception import RuntimeException
 from pymfony.component.dependency.compiler import Compiler

@@ -5,30 +5,105 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
-
 from __future__ import absolute_import;
 
 from pymfony.component.system import clone
+from pymfony.component.system.types import Array
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.extension import PrependExtensionInterface;
-from pymfony.component.dependency.exception import ParameterNotFoundException;
-from pymfony.component.dependency.compiler import CompilerPassInterface;
-from pymfony.component.dependency.exception import RuntimeException
-from pymfony.component.dependency import Definition
-from pymfony.component.dependency import ContainerInterface
-from pymfony.component.dependency import Alias
-from pymfony.component.dependency import Reference
-from pymfony.component.dependency.exception import InvalidArgumentException
-from pymfony.component.system.types import Array
 from pymfony.component.dependency.definition import DefinitionDecorator
-from pymfony.component.dependency.compiler import RepeatablePassInterface
-from pymfony.component.dependency.compiler import RepeatedPass
+from pymfony.component.dependency.definition import Definition
+from pymfony.component.dependency.definition import Alias
+from pymfony.component.dependency.definition import Reference
 from pymfony.component.dependency.exception import ServiceCircularReferenceException
 from pymfony.component.dependency.exception import ScopeWideningInjectionException
 from pymfony.component.dependency.exception import ScopeCrossingInjectionException
 from pymfony.component.dependency.exception import ServiceNotFoundException
+from pymfony.component.dependency.exception import ParameterNotFoundException;
+from pymfony.component.dependency.exception import RuntimeException
+from pymfony.component.dependency.exception import InvalidArgumentException
+from pymfony.component.dependency.interface import RepeatablePassInterface
+from pymfony.component.dependency.interface import CompilerPassInterface
+from pymfony.component.dependency.interface import ContainerInterface
+
+"""
+"""
+
+class RepeatedPass(CompilerPassInterface):
+    """A pass that might be run repeatedly.
+ *
+ * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
+
+    def __init__(self, passes):
+        """Constructor.
+     *
+     * @param RepeatablePassInterface[] passes An array of RepeatablePassInterface objects
+     *
+     * @raise InvalidArgumentException when the passes don't implement RepeatablePassInterface
+
+        """
+        assert isinstance(passes, list);
+
+        self.__repeat = False;
+        """@var Boolean
+
+        """
+
+        self.__passes = None;
+        """@var RepeatablePassInterface[]
+
+        """
+
+        for cPass in passes:
+            if ( not isinstance(cPass, RepeatablePassInterface)) :
+                raise InvalidArgumentException(
+                    'passes must be an array of RepeatablePassInterface.'
+                );
+
+
+            cPass.setRepeatedPass(self);
+
+
+        self.__passes = passes;
+
+
+    def process(self, container):
+        """Process the repeatable passes that run more than once.
+     *
+     * @param ContainerBuilder container
+
+        """
+
+        self.__repeat = False;
+
+        for cPass in self.__passes:
+            cPass.process(container);
+
+
+        if (self.__repeat) :
+            self.process(container);
+
+
+
+    def setRepeat(self):
+        """Sets if the pass should repeat:
+
+        """
+
+        self.__repeat = True;
+
+
+    def getPasses(self):
+        """Returns the passes
+     *
+     * @return RepeatablePassInterface[] An array of RepeatablePassInterface objects
+
+        """
+
+        return self.__passes;
+
 
 class MergeExtensionConfigurationPass(CompilerPassInterface):
     """Merges extension configs into the container builder"""
@@ -54,7 +129,6 @@ class MergeExtensionConfigurationPass(CompilerPassInterface):
             tmpContainer = ContainerBuilder(container.getParameterBag());
             tmpContainer.setResourceTracking(container.isTrackingResources());
             tmpContainer.addObjectResource(extension);
-            tmpContainer.set('kernel', container.get('kernel'));
 
             extension.load(config, tmpContainer);
 

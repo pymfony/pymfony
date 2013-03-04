@@ -16,10 +16,45 @@ from pymfony.component.kernel import KernelInterface
 from pymfony.component.console_routing import Router as BaseRouter
 from pymfony.component.console_routing.matcher import RequestMatcher as BaseRequestMatcher
 from pymfony.component.console_routing.exception import ResourceNotFoundException
+from pymfony.component.console_kernel.dependency import ContainerAwareConsoleKernel
+from pymfony.component.system import clone
+from pymfony.component.console_kernel.interface import ConsoleKernelInterface
+from pymfony.component.dependency.interface import ContainerInterface
+from pymfony.component.console_routing import RouteCollection
 
 
 """
 """
+
+class ConsoleKernel(ContainerAwareConsoleKernel):
+    """This ConsoleKernel is used to manage scope changes of the DI container.
+
+    @author: Fabien Potencier <fabien@symfony.com>
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
+    def forward(self, controller, attributes = dict()):
+        """Forwards the request to another controller.
+
+        @param: string controller The controller name (a string like BlogBundle:Post:index)
+        @param dict  attributes An array of request attributes
+
+        @return Response A Response instance
+
+        @deprecated in 2.2, will be removed in 2.3
+
+        """
+        assert isinstance(attributes, dict);
+
+#        trigger_error('forward() is deprecated since version 2.2 and will be removed in 2.3.', E_USER_DEPRECATED);
+
+        attributes['_controller'] = controller;
+
+        subRequest = clone(self._container.get('request'));
+        subRequest.attributes.replace(attributes);
+
+        return self.handle(subRequest, ConsoleKernelInterface.SUB_REQUEST);
+
 
 class ControllerNameParser(BaseControllerNameParser):
     """ControllerNameParser converts command from the short notation a:b:c
@@ -83,7 +118,7 @@ class ControllerNameParser(BaseControllerNameParser):
         raise InvalidArgumentException(msg);
 
 class Router(BaseRouter):
-    def __init__(self, loader, resource, kernel, defaultRouteName, options=dict()):
+    def __init__(self, container, resource, options=dict()):
         """Constructor.
 
         @param: LoaderInterface loader     A LoaderInterface instance
@@ -91,21 +126,61 @@ class Router(BaseRouter):
         @param: KernelInterface kernel     A KernelInterface instance
         @param: dict            options    A dictionary of options
         """
-        assert isinstance(kernel, KernelInterface);
+        assert isinstance(container, ContainerInterface);
 
+        loader  = container.get('console.routing.loader');
         BaseRouter.__init__(self, loader, resource, options=options);
 
-        self.__kernel = kernel;
-        self.__defaultRouteName = defaultRouteName;
+        self.__container = container;
+        self.__kernel = container.get('kernel');
+        self.__defaultRouteName = container.getParameter('console.router.default_route');
 
-        self.getDefinition().addOption(InputOption('--env', '-e', InputOption.VALUE_REQUIRED, 'The Environment name.', kernel.getEnvironment()));
+        self.getDefinition().addOption(InputOption('--env', '-e', InputOption.VALUE_REQUIRED, 'The Environment name.', self.__kernel.getEnvironment()));
         self.getDefinition().addOption(InputOption('--no-debug', None, InputOption.VALUE_NONE, 'Switches off debug mode.'));
+
+    def getRequestMatcher(self):
+        if self._matcher is None:
+            self._matcher = RequestMatcher(self.getRouteCollection(), self.__defaultRouteName);
+
+        return self._matcher;
+
+    def getRouteCollection(self):
+        if self._collection is None:
+            self._collection = BaseRouter.getRouteCollection(self);
+            self.__resolveParameters(self._collection);
+
+        return self._collection;
+
+    def __resolveParameters(self, collection):
+        """Replaces placeholders with service container parameter values in:
+        - the route defaults,
+        - the route requirements,
+        - the route path.
+
+        @param: RouteCollection collection
+
+        """
+        assert isinstance(collection, RouteCollection);
+
+        for route in collection.all().values():
+            for name, value in route.getDefaults().items():
+                route.setDefault(name, self.__resolve(value));
+
+            for name, value in route.getRequirements().items():
+                route.setRequirement(name, self.__resolve(value));
+
+            route.setPath(self.__resolve(route.getPath()));
+
+    def __resolve(self, value):
+        return self.__container.getParameterBag().resolveValue(value);
+
 
 class RequestMatcher(BaseRequestMatcher):
     def __init__(self, routes, defaultRouteName = ''):
         BaseRequestMatcher.__init__(self, routes);
 
         self.__defaultRouteName = defaultRouteName;
+
 
     def matchRequest(self, request):
         try:

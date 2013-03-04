@@ -5,13 +5,10 @@
 #
 # For the full copyright and license information, please view the LICENSE
 # file that was distributed with this source code.
-"""
-"""
 
 from __future__ import absolute_import;
 
 from pymfony.component.system import Object;
-from pymfony.component.system.oop import interface;
 from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.types import OrderedDict;
 
@@ -20,35 +17,10 @@ from pymfony.component.dependency.exception import InvalidArgumentException;
 from pymfony.component.dependency.definition import Alias
 from pymfony.component.dependency.definition import Definition
 
-@interface
-class CompilerPassInterface(Object):
-    """Interface that must be implemented by compilation passes
-    """
-    def process(self, container):
-        """You can modify the container here before it is dumped to PHP code.
+from pymfony.component.dependency.interface import CompilerPassInterface
 
-        @param container: ContainerBuilder
-        """
-        pass;
-
-
-@interface
-class RepeatablePassInterface(CompilerPassInterface):
-    """Interface that must be implemented by passes that are run as part of an
- * RepeatedPass.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
-
-    """
-
-    def setRepeatedPass(self, repeatedPass):
-        """Sets the RepeatedPass interface.
-     *
-     * @param RepeatedPass repeatedPass
-
-        """
-        assert isinstance(repeatedPass, RepeatedPass);
-
+"""
+"""
 
 class PassConfig(Object):
     """Compiler Pass Configuration
@@ -74,7 +46,6 @@ class PassConfig(Object):
 
         self.__beforeOptimizationPasses = list();
         self.__afterRemovingPasses = list();
-        self.__optimizationPasses = list();
         self.__beforeRemovingPasses = list();
         self.__optimizationPasses = list();
         self.__removingPasses = list();
@@ -93,7 +64,7 @@ class PassConfig(Object):
             passes.append(self.__mergePass);
         passes.extend(self.__beforeOptimizationPasses);
         passes.extend(self.__optimizationPasses);
-        passes.extend(self.__afterRemovingPasses);
+        passes.extend(self.__beforeRemovingPasses);
         passes.extend(self.__removingPasses);
         passes.extend(self.__afterRemovingPasses);
 
@@ -271,84 +242,6 @@ class PassConfig(Object):
         assert isinstance(passes, list);
 
         self.__removingPasses = passes;
-
-
-
-
-class RepeatedPass(CompilerPassInterface):
-    """A pass that might be run repeatedly.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
-
-    """
-
-    def __init__(self, passes):
-        """Constructor.
-     *
-     * @param RepeatablePassInterface[] passes An array of RepeatablePassInterface objects
-     *
-     * @raise InvalidArgumentException when the passes don't implement RepeatablePassInterface
-
-        """
-        assert isinstance(passes, list);
-
-        self.__repeat = False;
-        """@var Boolean
-
-        """
-
-        self.__passes = None;
-        """@var RepeatablePassInterface[]
-
-        """
-
-        for cPass in passes:
-            if ( not isinstance(cPass, RepeatablePassInterface)) :
-                raise InvalidArgumentException(
-                    'passes must be an array of RepeatablePassInterface.'
-                );
-
-
-            cPass.setRepeatedPass(self);
-
-
-        self.__passes = passes;
-
-
-    def process(self, container):
-        """Process the repeatable passes that run more than once.
-     *
-     * @param ContainerBuilder container
-
-        """
-
-        self.__repeat = False;
-
-        for cPass in self.__passes:
-            cPass.process(container);
-
-
-        if (self.__repeat) :
-            self.process(container);
-
-
-
-    def setRepeat(self):
-        """Sets if the pass should repeat:
-
-        """
-
-        self.__repeat = True;
-
-
-    def getPasses(self):
-        """Returns the passes
-     *
-     * @return RepeatablePassInterface[] An array of RepeatablePassInterface objects
-
-        """
-
-        return self.__passes;
 
 
 class Compiler(Object):
@@ -760,5 +653,3 @@ class ServiceReferenceGraphNode(Object):
         """
 
         return self.__value;
-
-
