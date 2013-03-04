@@ -45,7 +45,7 @@ class OutputInterface(Object):
     def write(self, messages, newline = False, outputType = 0):
         """Writes a message to the output.
      *
-     * @param string|array messages The message as an array of lines of a single string
+     * @param string|array messages The message as an array of lines or a single string
      * @param Boolean      newline  Whether to add a newline or not
      * @param integer      type     The type of output (0: normal, 1: raw, 2: plain)
      *
@@ -58,7 +58,7 @@ class OutputInterface(Object):
     def writeln(self, messages, outputType = 0):
         """Writes a message to the output and adds a newline at the end.
      *
-     * @param string|array messages The message as an array of lines of a single string
+     * @param string|array messages The message as an array of lines or a single string
      * @param integer      type     The type of output (0: normal, 1: raw, 2: plain)
      *
      * @api
@@ -259,7 +259,7 @@ class Output(OutputInterface):
     def writeln(self, messages, outputType = OutputInterface.OUTPUT_NORMAL):
         """Writes a message to the output and adds a newline at the end.
      *
-     * @param string|list messages    The message as an array of lines of a
+     * @param string|list messages    The message as an array of lines or a
                                       single string
      * @param integer     outputType  The type of output
      *
@@ -273,7 +273,7 @@ class Output(OutputInterface):
     def write(self, messages, newline = False, outputType = OutputInterface.OUTPUT_NORMAL):
         """Writes a message to the output.
      *
-     * @param string|list messages The message as a list of lines of a single string
+     * @param string|list messages The message as a list of lines or a single string
      * @param Boolean      newline  Whether to add a newline or not
      * @param integer      type     The type of output
      *
