@@ -244,13 +244,19 @@ class Container(IntrospectableContainerInterface):
 
         """
         if (self.SCOPE_PROTOTYPE == scope) :
-            raise InvalidArgumentException('You cannot set services of scope "prototype".');
+            raise InvalidArgumentException(
+                'You cannot set service "{0}" of scope "prototype".'
+                ''.format(identifier)
+            );
 
         identifier = self._formatIdentifier(identifier);
 
         if (self.SCOPE_CONTAINER  != scope) :
             if not scope in self._scopedServices :
-                raise RuntimeException('You cannot set services of inactive scopes.');
+                raise RuntimeException(
+                    'You cannot set service "{0}" of inactive scope.'
+                    ''.format(identifier)
+                );
 
             self._scopedServices[scope][identifier] = service;
 
@@ -1356,8 +1362,9 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                 ));
             else:
                 raise RuntimeException(
-                    'Cannot create service from factory method without '
+                    'Cannot create service "{0}" from factory method without '
                     'a factory service or factory class.'
+                    ''.format(identifier)
                 );
 
             className = ".".join([factory, definition.getFactoryMethod()]);
@@ -1369,7 +1376,10 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         scope = definition.getScope();
         if self.SCOPE_PROTOTYPE  != scope :
             if self.SCOPE_CONTAINER != scope and scope not in self._scopedServices :
-                raise RuntimeException('You tried to create a service of an inactive scope.');
+                raise RuntimeException(
+                    'You tried to create the "{0}" service of an inactive '
+                    'scope.'.format(identifier)
+                );
 
             lowerId = self._formatIdentifier(identifier);
             self._services[lowerId] = service;
