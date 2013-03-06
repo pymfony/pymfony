@@ -27,10 +27,10 @@ from pymfony.component.console.formatter import OutputFormatter;
 @interface
 class OutputInterface(Object):
     """OutputInterface is the interface implemented by all Output classes.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
@@ -44,88 +44,88 @@ class OutputInterface(Object):
 
     def write(self, messages, newline = False, outputType = 0):
         """Writes a message to the output.
-     *
-     * @param string|array messages The message as an array of lines or a single string
-     * @param Boolean      newline  Whether to add a newline or not
-     * @param integer      type     The type of output (0: normal, 1: raw, 2: plain)
-     *
-     * @raise InvalidArgumentException When unknown output type is given
-     *
-     * @api
+
+        @param string|array messages The message as an array of lines or a single string
+        @param Boolean      newline  Whether to add a newline or not
+        @param integer      type     The type of output (0: normal, 1: raw, 2: plain)
+
+        @raise InvalidArgumentException When unknown output type is given
+
+        @api
 
         """
 
     def writeln(self, messages, outputType = 0):
         """Writes a message to the output and adds a newline at the end.
-     *
-     * @param string|array messages The message as an array of lines or a single string
-     * @param integer      type     The type of output (0: normal, 1: raw, 2: plain)
-     *
-     * @api
+
+        @param string|array messages The message as an array of lines or a single string
+        @param integer      type     The type of output (0: normal, 1: raw, 2: plain)
+
+        @api
 
         """
 
     def setVerbosity(self, level):
         """Sets the verbosity of the output.
-     *
-     * @param integer level The level of verbosity
-     *
-     * @api
+
+        @param integer level The level of verbosity
+
+        @api
 
         """
 
     def getVerbosity(self):
         """Gets the current verbosity of the output.
-     *
-     * @return integer The current level of verbosity
-     *
-     * @api
+
+        @return integer The current level of verbosity
+
+        @api
 
         """
 
     def setDecorated(self, decorated):
         """Sets the decorated flag.
-     *
-     * @param Boolean decorated Whether to decorate the messages or not
-     *
-     * @api
+
+        @param Boolean decorated Whether to decorate the messages or not
+
+        @api
 
         """
 
     def isDecorated(self):
         """Gets the decorated flag.
-     *
-     * @return Boolean True if the output will decorate messages, False otherwise:
-     *
-     * @api
+
+        @return Boolean True if the output will decorate messages, False otherwise:
+
+        @api
 
         """
 
     def setFormatter(self, formatter):
         """Sets output formatter.
-     *
-     * @param OutputFormatterInterface formatter
-     *
-     * @api
+
+        @param OutputFormatterInterface formatter
+
+        @api
 
         """
         assert isinstance(formatter, OutputFormatterInterface);
 
     def getFormatter(self):
         """Returns current output formatter instance.
-     *
-     * @return  OutputFormatterInterface
-     *
-     * @api
+
+        @return  OutputFormatterInterface
+
+        @api
 
         """
 
 @interface
 class ConsoleOutputInterface(OutputInterface):
     """ConsoleOutputInterface is the interface implemented by ConsoleOutput class.
- * This adds information about stderr output stream.
- *
- * @author Dariusz G󲥣ki <darek.krk@gmail.com>
+    This adds information about stderr output stream.
+
+    @author Dariusz Górecki <darek.krk@gmail.com>
 
     """
 
@@ -142,28 +142,28 @@ class ConsoleOutputInterface(OutputInterface):
 @abstract
 class Output(OutputInterface):
     """Base class for output classes.
- *
- * There are three levels of verbosity:
- *
- *  * normal: no option passed (normal output - information)
- *  * verbose: -v (more output - debug)
- *  * quiet: -q (no output)
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    There are three levels of verbosity:
+
+        normal: no option passed (normal output - information)
+        verbose: -v (more output - debug)
+        quiet: -q (no output)
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
 
     def __init__(self, verbosity = OutputInterface.VERBOSITY_NORMAL, decorated = None, formatter = None):
         """Constructor.
-     *
-     * @param integer                  verbosity The verbosity level (self.VERBOSITY_QUIET, self.VERBOSITY_NORMAL, self.VERBOSITY_VERBOSE)
-     * @param Boolean                  decorated Whether to decorate messages or not (None for auto-guessing)
-     * @param OutputFormatterInterface formatter Output formatter instance
-     *
-     * @api
+
+        @param integer                  verbosity The verbosity level (self.VERBOSITY_QUIET, self.VERBOSITY_NORMAL, self.VERBOSITY_VERBOSE)
+        @param Boolean                  decorated Whether to decorate messages or not (None for auto-guessing)
+        @param OutputFormatterInterface formatter Output formatter instance
+
+        @api
 
         """
         if formatter:
@@ -185,10 +185,10 @@ class Output(OutputInterface):
 
     def setFormatter(self, formatter):
         """Sets output formatter.
-     *
-     * @param OutputFormatterInterface formatter
-     *
-     * @api
+
+        @param OutputFormatterInterface formatter
+
+        @api
 
         """
         assert isinstance(formatter, OutputFormatterInterface);
@@ -198,10 +198,10 @@ class Output(OutputInterface):
 
     def getFormatter(self):
         """Returns current output formatter instance.
-     *
-     * @return  OutputFormatterInterface
-     *
-     * @api
+
+        @return  OutputFormatterInterface
+
+        @api
 
         """
 
@@ -210,10 +210,10 @@ class Output(OutputInterface):
 
     def setDecorated(self, decorated):
         """Sets the decorated flag.
-     *
-     * @param Boolean decorated Whether to decorate the messages or not
-     *
-     * @api
+
+        @param Boolean decorated Whether to decorate the messages or not
+
+        @api
 
         """
 
@@ -222,10 +222,10 @@ class Output(OutputInterface):
 
     def isDecorated(self):
         """Gets the decorated flag.
-     *
-     * @return Boolean True if the output will decorate messages, False otherwise:
-     *
-     * @api
+
+        @return Boolean True if the output will decorate messages, False otherwise:
+
+        @api
 
         """
 
@@ -234,10 +234,10 @@ class Output(OutputInterface):
 
     def setVerbosity(self, level):
         """Sets the verbosity of the output.
-     *
-     * @param integer level The level of verbosity
-     *
-     * @api
+
+        @param integer level The level of verbosity
+
+        @api
 
         """
 
@@ -246,10 +246,10 @@ class Output(OutputInterface):
 
     def getVerbosity(self):
         """Gets the current verbosity of the output.
-     *
-     * @return integer The current level of verbosity
-     *
-     * @api
+
+        @return integer The current level of verbosity
+
+        @api
 
         """
 
@@ -258,12 +258,12 @@ class Output(OutputInterface):
 
     def writeln(self, messages, outputType = OutputInterface.OUTPUT_NORMAL):
         """Writes a message to the output and adds a newline at the end.
-     *
-     * @param string|list messages    The message as an array of lines or a
+
+        @param string|list messages    The message as an array of lines or a
                                       single string
-     * @param integer     outputType  The type of output
-     *
-     * @api
+        @param integer     outputType  The type of output
+
+        @api
 
         """
 
@@ -272,14 +272,14 @@ class Output(OutputInterface):
 
     def write(self, messages, newline = False, outputType = OutputInterface.OUTPUT_NORMAL):
         """Writes a message to the output.
-     *
-     * @param string|list messages The message as a list of lines or a single string
-     * @param Boolean      newline  Whether to add a newline or not
-     * @param integer      type     The type of output
-     *
-     * @raise InvalidArgumentException When unknown output type is given
-     *
-     * @api
+
+        @param string|list messages The message as a list of lines or a single string
+        @param Boolean      newline  Whether to add a newline or not
+        @param integer      type     The type of output
+
+        @raise InvalidArgumentException When unknown output type is given
+
+        @api
 
         """
 
@@ -310,62 +310,62 @@ class Output(OutputInterface):
     @abstract
     def _doWrite(self, message, newline):
         """Writes a message to the output.
-     *
-     * @param string  message A message to write to the output
-     * @param Boolean newline Whether to add a newline or not
+
+        @param string  message A message to write to the output
+        @param Boolean newline Whether to add a newline or not
 
         """
 
 class NullOutput(Output):
     """NullOutput suppresses all output.
- *
- *     output = NullOutput();
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+        output = NullOutput();
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
     def _doWrite(self, message, newline):
         """Writes a message to the output.
-     *
-     * @param string  message A message to write to the output
-     * @param Boolean newline Whether to add a newline or not
+
+        @param string  message A message to write to the output
+        @param Boolean newline Whether to add a newline or not
 
         """
 
 
 class StreamOutput(Output):
     """StreamOutput writes the output to a given stream.
- *
- * Usage:
- *
- * output = StreamOutput(fopen('php://stdout', 'w'));
- *
- * As `StreamOutput` can use any stream, you can also use a file:
- *
- * output = StreamOutput(fopen('/path/to/output.log', 'a', False));
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    Usage:
+
+    output = StreamOutput(fopen('php://stdout', 'w'));
+
+    As `StreamOutput` can use any stream, you can also use a file:
+
+    output = StreamOutput(fopen('/path/to/output.log', 'a', False));
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
 
     def __init__(self, stream, verbosity = Output.VERBOSITY_NORMAL, decorated = None, formatter = None):
         """Constructor.
-     *
-     * @param mixed                    stream    A stream resource
-     * @param integer                  verbosity The verbosity level (self.VERBOSITY_QUIET, self.VERBOSITY_NORMAL,
-     *                                                                 self.VERBOSITY_VERBOSE)
-     * @param Boolean                  decorated Whether to decorate messages or not (None for auto-guessing)
-     * @param OutputFormatterInterface formatter Output formatter instance
-     *
-     * @raise InvalidArgumentException When first argument is not a real stream
-     *
-     * @api
+
+        @param mixed                    stream    A stream resource
+        @param integer                  verbosity The verbosity level (self.VERBOSITY_QUIET, self.VERBOSITY_NORMAL,
+                                                                        self.VERBOSITY_VERBOSE)
+        @param Boolean                  decorated Whether to decorate messages or not (None for auto-guessing)
+        @param OutputFormatterInterface formatter Output formatter instance
+
+        @raise InvalidArgumentException When first argument is not a real stream
+
+        @api
 
         """
         if formatter:
@@ -392,8 +392,8 @@ class StreamOutput(Output):
 
     def getStream(self):
         """Gets the stream attached to this StreamOutput instance.
-     *
-     * @return resource A stream resource
+
+        @return resource A stream resource
 
         """
 
@@ -402,11 +402,11 @@ class StreamOutput(Output):
 
     def _doWrite(self, message, newline):
         """Writes a message to the output.
-     *
-     * @param string  message A message to write to the output
-     * @param Boolean newline Whether to add a newline or not
-     *
-     * @raise RuntimeException When unable to write output (should never happen)
+
+        @param string  message A message to write to the output
+        @param Boolean newline Whether to add a newline or not
+
+        @raise RuntimeException When unable to write output (should never happen)
 
         """
 
@@ -431,13 +431,13 @@ class StreamOutput(Output):
 
     def _hasColorSupport(self):
         """Returns True if the stream supports colorization.:
-     *
-     * Colorization is disabled if not supported by the stream::
-     *
-     *  -  windows without ansicon and ConEmu
-     *  -  non tty consoles
-     *
-     * @return Boolean True if the stream supports colorization, False otherwise:
+
+        Colorization is disabled if not supported by the stream::
+
+         -  windows without ansicon and ConEmu
+         -  non tty consoles
+
+        @return Boolean True if the stream supports colorization, False otherwise:
 
         """
 
@@ -453,31 +453,31 @@ class StreamOutput(Output):
 
 class ConsoleOutput(StreamOutput, ConsoleOutputInterface):
     """ConsoleOutput is the default class for(, all CLI output. It uses STDOUT.):
- *
- * This class is(, a convenient wrapper around `StreamOutput`.):
- *
- *     output = ConsoleOutput();
- *
- * This is equivalent to:
- *
- *     output = StreamOutput(fopen('php://stdout', 'w'));
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    This class is(, a convenient wrapper around `StreamOutput`.):
+
+        output = ConsoleOutput();
+
+    This is equivalent to:
+
+        output = StreamOutput(fopen('php://stdout', 'w'));
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
 
     def __init__(self, verbosity = StreamOutput.VERBOSITY_NORMAL, decorated = None, formatter = None):
         """Constructor.
-     *
-     * @param integer                  verbosity The verbosity level (self.VERBOSITY_QUIET, self.VERBOSITY_NORMAL,
-     *                                                                 self.VERBOSITY_VERBOSE)
-     * @param Boolean                  decorated Whether to decorate messages or not (None for auto-guessing)
-     * @param OutputFormatterInterface formatter Output formatter instance
-     *
-     * @api
+
+        @param integer                  verbosity The verbosity level (self.VERBOSITY_QUIET, self.VERBOSITY_NORMAL,
+                                                                        self.VERBOSITY_VERBOSE)
+        @param Boolean                  decorated Whether to decorate messages or not (None for auto-guessing)
+        @param OutputFormatterInterface formatter Output formatter instance
+
+        @api
 
         """
         if formatter:
@@ -526,13 +526,13 @@ class ConsoleOutput(StreamOutput, ConsoleOutputInterface):
 
     def _hasStdoutSupport(self):
         """Returns True if current environment supports writing console output to:
-     * STDOUT.
-     *
-     * IBM iSeries (OS400) exhibits character-encoding issues when writing to
-     * STDOUT and doesn't properly convert ASCII to EBCDIC, resulting in garbage
-     * output.
-     *
-     * @return boolean
+        STDOUT.
+
+        IBM iSeries (OS400) exhibits character-encoding issues when writing to
+        STDOUT and doesn't properly convert ASCII to EBCDIC, resulting in garbage
+        output.
+
+        @return boolean
 
         """
 

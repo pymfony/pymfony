@@ -19,143 +19,143 @@ from pymfony.component.system.exception import InvalidArgumentException;
 @interface
 class OutputFormatterInterface(Object):
     """Formatter interface for console output.
- *
- * @author Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * @api
+
+    @author Konstantin Kudryashov <ever.zet@gmail.com>
+
+    @api
 
     """
 
     def setDecorated(self, decorated):
         """Sets the decorated flag.
-     *
-     * @param Boolean decorated Whether to decorate the messages or not
-     *
-     * @api
+
+        @param Boolean decorated Whether to decorate the messages or not
+
+        @api
 
         """
 
     def isDecorated(self):
         """Gets the decorated flag.
-     *
-     * @return Boolean True if the output will decorate messages, False otherwise:
-     *
-     * @api
+
+        @return Boolean True if the output will decorate messages, False otherwise:
+
+        @api
 
         """
 
     def setStyle(self, name, style):
         """Sets a new style.
-     *
-     * @param string                        name  The style name
-     * @param OutputFormatterStyleInterface style The style instance
-     *
-     * @api
+
+        @param string                        name  The style name
+        @param OutputFormatterStyleInterface style The style instance
+
+        @api
 
         """
         assert isinstance(style, OutputFormatterStyleInterface);
 
     def hasStyle(self, name):
         """Checks if output formatter has style with specified name.:
-     *
-     * @param string name
-     *
-     * @return Boolean
-     *
-     * @api
+
+        @param string name
+
+        @return Boolean
+
+        @api
 
         """
 
     def getStyle(self, name):
         """Gets style options from style with specified name.:
-     *
-     * @param string name
-     *
-     * @return OutputFormatterStyleInterface
-     *
-     * @api
+
+        @param string name
+
+        @return OutputFormatterStyleInterface
+
+        @api
 
         """
 
     def format(self, message):
         """Formats a message according to the given styles.
-     *
-     * @param string message The message to style
-     *
-     * @return string The styled message
-     *
-     * @api
+
+        @param string message The message to style
+
+        @return string The styled message
+
+        @api
 
         """
 
 @interface
 class OutputFormatterStyleInterface(Object):
     """Formatter style interface for defining styles.
- *
- * @author Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * @api
+
+    @author Konstantin Kudryashov <ever.zet@gmail.com>
+
+    @api
 
     """
 
     def setForeground(self, color = None):
         """Sets style foreground color.
-     *
-     * @param string color The color name
-     *
-     * @api
+
+        @param string color The color name
+
+        @api
 
         """
 
     def setBackground(self, color = None):
         """Sets style background color.
-     *
-     * @param string color The color name
-     *
-     * @api
+
+        @param string color The color name
+
+        @api
 
         """
 
     def setOption(self, option):
         """Sets some specific style option.:
-     *
-     * @param string option The option name
-     *
-     * @api
+
+        @param string option The option name
+
+        @api
 
         """
 
     def unsetOption(self, option):
         """Unsets some specific style option.:
-     *
-     * @param string option The option name
+
+        @param string option The option name
 
         """
 
     def setOptions(self, options):
         """Sets multiple style options at once.
-     *
-     * @param list options
+
+        @param list options
 
         """
         assert isinstance(options, list);
 
     def apply(self, text):
         """Applies the style to a given text.
-     *
-     * @param string text The text to style
-     *
-     * @return string
+
+        @param string text The text to style
+
+        @return string
 
         """
 
 
 class OutputFormatter(OutputFormatterInterface):
     """Formatter class for(, console output.):
- *
- * @author Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * @api
+
+    @author Konstantin Kudryashov <ever.zet@gmail.com>
+
+    @api
 
     """
 
@@ -167,10 +167,10 @@ class OutputFormatter(OutputFormatterInterface):
     @classmethod
     def escape(cls, text):
         """Escapes "<" special char in given text.
-     *
-     * @param string text Text to escape
-     *
-     * @return string Escaped text
+
+        @param string text Text to escape
+
+        @return string Escaped text
 
         """
 
@@ -179,11 +179,11 @@ class OutputFormatter(OutputFormatterInterface):
 
     def __init__(self, decorated = None, styles = dict()):
         """Initializes console output formatter.
-     *
-     * @param Boolean          decorated Whether this formatter should actually decorate strings
-     * @param FormatterStyle{} styles    dict of "name: FormatterStyle" instances
-     *
-     * @api
+
+        @param Boolean          decorated Whether this formatter should actually decorate strings
+        @param FormatterStyle{} styles    dict of "name: FormatterStyle" instances
+
+        @api
 
         """
         assert isinstance(styles, dict);
@@ -208,10 +208,10 @@ class OutputFormatter(OutputFormatterInterface):
 
     def setDecorated(self, decorated):
         """Sets the decorated flag.
-     *
-     * @param Boolean decorated Whether to decorate the messages or not
-     *
-     * @api
+
+        @param Boolean decorated Whether to decorate the messages or not
+
+        @api
 
         """
 
@@ -220,10 +220,10 @@ class OutputFormatter(OutputFormatterInterface):
 
     def isDecorated(self):
         """Gets the decorated flag.
-     *
-     * @return Boolean True if the output will decorate messages, False otherwise:
-     *
-     * @api
+
+        @return Boolean True if the output will decorate messages, False otherwise:
+
+        @api
 
         """
 
@@ -232,11 +232,11 @@ class OutputFormatter(OutputFormatterInterface):
 
     def setStyle(self, name, style):
         """Sets a new style.
-     *
-     * @param string                        name  The style name
-     * @param OutputFormatterStyleInterface style The style instance
-     *
-     * @api
+
+        @param string                        name  The style name
+        @param OutputFormatterStyleInterface style The style instance
+
+        @api
 
         """
         assert isinstance(style, OutputFormatterStyleInterface);
@@ -246,12 +246,12 @@ class OutputFormatter(OutputFormatterInterface):
 
     def hasStyle(self, name):
         """Checks if output formatter has style with specified name.:
-     *
-     * @param string name
-     *
-     * @return Boolean
-     *
-     * @api
+
+        @param string name
+
+        @return Boolean
+
+        @api
 
         """
 
@@ -260,14 +260,14 @@ class OutputFormatter(OutputFormatterInterface):
 
     def getStyle(self, name):
         """Gets style options from style with specified name.:
-     *
-     * @param string name
-     *
-     * @return OutputFormatterStyleInterface
-     *
-     * @raise InvalidArgumentException When style isn't defined
-     *
-     * @api
+
+        @param string name
+
+        @return OutputFormatterStyleInterface
+
+        @raise InvalidArgumentException When style isn't defined
+
+        @api
 
         """
 
@@ -280,12 +280,12 @@ class OutputFormatter(OutputFormatterInterface):
 
     def format(self, message):
         """Formats a message according to the given styles.
-     *
-     * @param string message The message to style
-     *
-     * @return string The styled message
-     *
-     * @api
+
+        @param string message The message to style
+
+        @return string The styled message
+
+        @api
 
         """
 
@@ -295,7 +295,8 @@ class OutputFormatter(OutputFormatterInterface):
 
 
     def getStyleStack(self):
-        """@return OutputFormatterStyleStack
+        """
+        @return OutputFormatterStyleStack
 
         """
 
@@ -304,10 +305,10 @@ class OutputFormatter(OutputFormatterInterface):
 
     def __replaceStyle(self, match):
         """Replaces style of the output.
-     *
-     * @param array match
-     *
-     * @return string The replaced style
+
+        @param array match
+
+        @return string The replaced style
 
         """
         if not match:
@@ -351,10 +352,10 @@ class OutputFormatter(OutputFormatterInterface):
 
     def __createStyleFromString(self, string):
         """Tries to create new style instance from string.
-     *
-     * @param string string
-     *
-     * @return OutputFormatterStyle|Boolean False if string is not format string:
+
+        @param string string
+
+        @return OutputFormatterStyle|Boolean False if string is not format string:
 
         """
 
@@ -379,10 +380,10 @@ class OutputFormatter(OutputFormatterInterface):
 
     def __applyCurrentStyle(self, text):
         """Applies current style from stack to text, if must be applied.:
-     *
-     * @param string text Input text
-     *
-     * @return string string Styled text
+
+        @param string text Input text
+
+        @return string string Styled text
 
         """
 
@@ -393,10 +394,10 @@ class OutputFormatter(OutputFormatterInterface):
 
 class OutputFormatterStyle(OutputFormatterStyleInterface):
     """Formatter style class for(, defining styles.):
- *
- * @author Konstantin Kudryashov <ever.zet@gmail.com>
- *
- * @api
+
+    @author Konstantin Kudryashov <ever.zet@gmail.com>
+
+    @api
 
     """
 
@@ -431,12 +432,12 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
 
     def __init__(self, foreground = None, background = None, options = list()):
         """Initializes output formatter style.
-     *
-     * @param string foreground The style foreground color name
-     * @param string background The style background color name
-     * @param array  options    The style options
-     *
-     * @api
+
+        @param string foreground The style foreground color name
+        @param string background The style background color name
+        @param array  options    The style options
+
+        @api
 
         """
         assert isinstance(options, list);
@@ -458,12 +459,12 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
 
     def setForeground(self, color = None):
         """Sets style foreground color.
-     *
-     * @param string color The color name
-     *
-     * @raise InvalidArgumentException When the color name isn't defined
-     *
-     * @api
+
+        @param string color The color name
+
+        @raise InvalidArgumentException When the color name isn't defined
+
+        @api
 
         """
 
@@ -488,12 +489,12 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
 
     def setBackground(self, color = None):
         """Sets style background color.
-     *
-     * @param string color The color name
-     *
-     * @raise InvalidArgumentException When the color name isn't defined
-     *
-     * @api
+
+        @param string color The color name
+
+        @raise InvalidArgumentException When the color name isn't defined
+
+        @api
 
         """
 
@@ -518,12 +519,12 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
 
     def setOption(self, option):
         """Sets some specific style option.:
-     *
-     * @param string option The option name
-     *
-     * @raise InvalidArgumentException When the option name isn't defined
-     *
-     * @api
+
+        @param string option The option name
+
+        @raise InvalidArgumentException When the option name isn't defined
+
+        @api
 
         """
 
@@ -544,11 +545,11 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
 
     def unsetOption(self, option):
         """Unsets some specific style option.:
-     *
-     * @param string option The option name
-     *
-     * @raise InvalidArgumentException When the option name isn't defined
-     *
+
+        @param string option The option name
+
+        @raise InvalidArgumentException When the option name isn't defined
+
 
         """
 
@@ -571,8 +572,8 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
 
     def setOptions(self, options):
         """Sets multiple style options at once.
-     *
-     * @param array options
+
+        @param array options
 
         """
         assert isinstance(options, list);
@@ -586,10 +587,10 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
 
     def apply(self, text):
         """Applies the style to a given text.
-     *
-     * @param string text The text to style
-     *
-     * @return string
+
+        @param string text The text to style
+
+        @return string
 
         """
 
@@ -613,7 +614,8 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
 
 
 class OutputFormatterStyleStack():
-    """@author Jean-François Simon <contact@jfsimon.fr>
+    """
+    @author Jean-François Simon <contact@jfsimon.fr>
 
     """
 
@@ -621,8 +623,8 @@ class OutputFormatterStyleStack():
 
     def __init__(self, emptyStyle = None):
         """Constructor.
-     *
-     * @param OutputFormatterStyleInterface emptyStyle
+
+        @param OutputFormatterStyleInterface emptyStyle
 
         """
         if emptyStyle:
@@ -649,8 +651,8 @@ class OutputFormatterStyleStack():
 
     def push(self, style):
         """Pushes a style in the stack.
-     *
-     * @param OutputFormatterStyleInterface style
+
+        @param OutputFormatterStyleInterface style
 
         """
         assert isinstance(style, OutputFormatterStyleInterface);
@@ -660,12 +662,12 @@ class OutputFormatterStyleStack():
 
     def pop(self, style = None):
         """Pops a style from the stack.
-     *
-     * @param OutputFormatterStyleInterface style
-     *
-     * @return OutputFormatterStyleInterface
-     *
-     * @raise InvalidArgumentException  When style tags incorrectly nested
+
+        @param OutputFormatterStyleInterface style
+
+        @return OutputFormatterStyleInterface
+
+        @raise InvalidArgumentException  When style tags incorrectly nested
 
         """
         if style:
@@ -693,8 +695,8 @@ class OutputFormatterStyleStack():
 
     def getCurrent(self):
         """Computes current style with stacks top codes.
-     *
-     * @return OutputFormatterStyle
+
+        @return OutputFormatterStyle
 
         """
 
@@ -707,8 +709,8 @@ class OutputFormatterStyleStack():
 
     def setEmptyStyle(self, emptyStyle):
         """@param OutputFormatterStyleInterface emptyStyle
-     *
-     * @return OutputFormatterStyleStack
+
+        @return OutputFormatterStyleStack
 
         """
         assert isinstance(emptyStyle, OutputFormatterStyleInterface);
@@ -719,7 +721,8 @@ class OutputFormatterStyleStack():
 
 
     def getEmptyStyle(self):
-        """@return OutputFormatterStyleInterface
+        """
+        @return OutputFormatterStyleInterface
 
         """
 

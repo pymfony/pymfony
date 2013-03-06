@@ -78,7 +78,6 @@ class RoutingResolverPass(CompilerPassInterface):
     """Adds tagged routing.loader services to routing.resolver service
 
     @author: Fabien Potencier <fabien@symfony.com>
-
     """
 
     def process(self, container):
@@ -94,10 +93,10 @@ class RoutingResolverPass(CompilerPassInterface):
             definition.addMethodCall('addLoader', [Reference(identifier)]);
 
 class ConsoleRoutingResolverPass(CompilerPassInterface):
-    """Adds tagged routing.loader services to routing.resolver service
+    """Adds tagged console.routing.loader services to console.routing.resolver
+    service
 
-    @author: Fabien Potencier <fabien@symfony.com>
-
+    @author: Alexandre Quercia <alquerci@email.com>
     """
 
     def process(self, container):

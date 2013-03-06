@@ -19,24 +19,24 @@ from pymfony.component.console import Request;
 @interface
 class ConsoleTerminableInterface(Object):
     """Terminable extends the Kernel request/response cycle with dispatching a post
- * response event after sending the response and before shutting down the kernel.
- *
- * @author Jordi Boggiano <j.boggiano@seld.be>
- * @author Pierre Minnieur <pierre.minnieur@sensiolabs.de>
- *
- * @api
+    response event after sending the response and before shutting down the kernel.
+
+    @author Jordi Boggiano <j.boggiano@seld.be>
+    @author Pierre Minnieur <pierre.minnieur@sensiolabs.de>
+
+    @api
 
     """
 
     def terminate(self, request, response):
         """Terminates a request/response cycle.
-     *
-     * Should be called after sending the response and before shutting down the kernel.
-     *
-     * @param Request   request     A Request instance
-     * @param Response  response    A Response instance
-     *
-     * @api
+
+        Should be called after sending the response and before shutting down the kernel.
+
+        @param Request   request     A Request instance
+        @param Response  response    A Response instance
+
+        @api
 
         """
         assert isinstance(response, Response);
@@ -45,10 +45,10 @@ class ConsoleTerminableInterface(Object):
 @interface
 class ConsoleKernelInterface(Object):
     """ConsoleKernelInterface handles a Request to convert it to a Response.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
@@ -57,21 +57,21 @@ class ConsoleKernelInterface(Object):
 
     def handle(self, request, requestType = MASTER_REQUEST, catch = True):
         """Handles a Request to convert it to a Response.
-     *
-     * When catch is True, the implementation must catch all exceptions
-     * and do its best to convert them to a Response instance.
-     *
-     * @param Request   request   A Request instance
-     * @param integer   type      The type of the request
-     *                            (one of ConsoleKernelInterface.MASTER_REQUEST
+
+        When catch is True, the implementation must catch all exceptions
+        and do its best to convert them to a Response instance.
+
+        @param Request   request   A Request instance
+        @param integer   type      The type of the request
+                                   (one of ConsoleKernelInterface.MASTER_REQUEST
                                   or ConsoleKernelInterface.SUB_REQUEST)
-     * @param Boolean   catch     Whether to catch exceptions or not
-     *
-     * @return Response A Response instance
-     *
-     * @raise Exception When an Exception occurs during processing
-     *
-     * @api
+        @param Boolean   catch     Whether to catch exceptions or not
+
+        @return Response A Response instance
+
+        @raise Exception When an Exception occurs during processing
+
+        @api
 
         """
         assert isinstance(request, Request);

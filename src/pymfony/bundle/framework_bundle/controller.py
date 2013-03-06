@@ -25,11 +25,10 @@ from pymfony.component.dependency.interface import ContainerAwareInterface;
 
 class ControllerNameParser(Object):
     """ControllerNameParser converts controller from the short notation a:b:c
-    (BlogBundle:Post:index) to a fully-qualified class.method string:
-    (Bundle.BlogBundle.Controller.PostController.indexAction).
+    (BlogBundle:Post:index) to a fully-qualified class::method string
+    (Bundle.BlogBundle.Controller.PostController::indexAction).
 
     @author: Fabien Potencier <fabien@symfony.com>
-
     """
 
 
@@ -37,7 +36,6 @@ class ControllerNameParser(Object):
         """Constructor.
 
         @param: KernelInterface kernel A KernelInterface instance
-
         """
         assert isinstance(kernel, KernelInterface);
 
@@ -51,11 +49,10 @@ class ControllerNameParser(Object):
 
         @param: string controller A short notation controller (a:b:c)
 
-        @return string A string with class.method
+        @return: string A string with class.method
 
-        @raise InvalidArgumentException when the specified bundle is not enabled:
-                                          or the controller cannot be found
-
+        @raise InvalidArgumentException: when the specified bundle is not enabled
+                                         or the controller cannot be found
         """
         parts = controller.split(':');
         if (3  != len(parts)) :
@@ -103,16 +100,14 @@ class ControllerResolver(BaseControllerResolver):
     """ControllerResolver.
 
     @author: Fabien Potencier <fabien@symfony.com>
-
     """
 
     def __init__(self, container, parser):
         """Constructor.
 
         @param: ContainerInterface   container A ContainerInterface instance
-        @param ControllerNameParser parser    A ControllerNameParser instance
-        @param LoggerInterface      logger    A LoggerInterface instance
-
+        @param: ControllerNameParser parser    A ControllerNameParser instance
+        @param: LoggerInterface      logger    A LoggerInterface instance
         """
         assert isinstance(parser, ControllerNameParser);
         assert isinstance(container, ContainerInterface);
@@ -132,11 +127,10 @@ class ControllerResolver(BaseControllerResolver):
 
         @param: string controller A Controller string
 
-        @return mixed A PHP callable
+        @return: mixed A PHP callable
 
-        @raise LogicException When the name could not be parsed
-        @raise InvalidArgumentException When the controller class does(, not exist):
-
+        @raise LogicException:           When the name could not be parsed
+        @raise InvalidArgumentException: When the controller class does(, not exist):
         """
 
         if '::' not in controller :

@@ -28,7 +28,8 @@ from pymfony.component.console.input import ArgvInput;
 class StringInputTest(unittest.TestCase):
 
     def testTokenize(self):
-        """@dataProvider: getTokenizeData
+        """
+        @dataProvider: getTokenizeData
 
         """
 
@@ -235,7 +236,8 @@ class InputOptionTest(unittest.TestCase):
 
 
     def testEmptyNameIsInvalid(self):
-        """@expectedException InvalidArgumentException
+        """
+        @expectedException InvalidArgumentException
 
         """
 
@@ -243,7 +245,8 @@ class InputOptionTest(unittest.TestCase):
 
 
     def testDoubleDashNameIsInvalid(self):
-        """@expectedException InvalidArgumentException
+        """
+        @expectedException InvalidArgumentException
 
         """
 
@@ -251,7 +254,8 @@ class InputOptionTest(unittest.TestCase):
 
 
     def testSingleDashOptionIsInvalid(self):
-        """@expectedException InvalidArgumentException
+        """
+        @expectedException InvalidArgumentException
 
         """
 
@@ -981,7 +985,8 @@ class ArgvInputTest(unittest.TestCase):
 
 
     def testGetParameterOptionEqualSign(self):
-        """@dataProvider provideGetParameterOptionValues
+        """
+        @dataProvider provideGetParameterOptionValues
 
         """
 
@@ -1000,7 +1005,8 @@ class ArgvInputTest(unittest.TestCase):
         ];
 
     def testGetParameterOptionMissingOption(self):
-        """@dataProvider provideGetParameterOptionOptionMissingValues
+        """
+        @dataProvider provideGetParameterOptionOptionMissingValues
 
         """
 

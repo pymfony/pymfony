@@ -23,10 +23,9 @@ class DelegatingLoader(BaseDelegatingLoader, LoaderInterface):
     """DelegatingLoader delegates route loading to other loaders using a loader resolver.
 
     This implementation resolves the _controller attribute from the short notation
-    to the fully-qualified form (from a:b:c to class:method).:
+    to the fully-qualified form (from a:b:c to class::method).
 
     @author: Fabien Potencier <fabien@symfony.com>
-
     """
 
 
@@ -34,9 +33,8 @@ class DelegatingLoader(BaseDelegatingLoader, LoaderInterface):
         """Constructor.
 
         @param: ControllerNameParser    parser   A ControllerNameParser instance
-        @param LoggerInterface         logger   A LoggerInterface instance
-        @param LoaderResolverInterface resolver A LoaderResolverInterface instance
-
+        @param: LoggerInterface         logger   A LoggerInterface instance
+        @param: LoaderResolverInterface resolver A LoaderResolverInterface instance
         """
         assert isinstance(resolver, LoaderResolverInterface);
         assert isinstance(parser, ControllerNameParser);
@@ -50,9 +48,9 @@ class DelegatingLoader(BaseDelegatingLoader, LoaderInterface):
         """Loads a resource.
 
         @param: mixed  resource A resource
-        @param string resourceType     The resource type
+        @param: string resourceType     The resource type
 
-        @return RouteCollection A RouteCollection instance
+        @return: RouteCollection A RouteCollection instance
 
         """
 

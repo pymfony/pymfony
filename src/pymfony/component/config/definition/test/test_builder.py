@@ -68,8 +68,9 @@ class ArrayNodeDefinitionTest(unittest.TestCase):
 
 
     def testPrototypeNodeSpecificOption(self):
-        """@expectedException Symfony\Component\Config\Definition\Exception\InvalidDefinitionException
-     * @dataProvider providePrototypeNodeSpecificCalls:
+        """
+        @expectedException Symfony\Component\Config\Definition\Exception\InvalidDefinitionException
+        @dataProvider providePrototypeNodeSpecificCalls:
 
         """
         def test(method, args):
@@ -94,7 +95,8 @@ class ArrayNodeDefinitionTest(unittest.TestCase):
 
 
     def testConcreteNodeSpecificOption(self):
-        """@expectedException Symfony\Component\Config\Definition\Exception\InvalidDefinitionException
+        """
+        @expectedException Symfony\Component\Config\Definition\Exception\InvalidDefinitionException
 
         """
 
@@ -105,7 +107,8 @@ class ArrayNodeDefinitionTest(unittest.TestCase):
         self.assertRaises(InvalidDefinitionException, test);
 
     def testPrototypeNodesCantHaveADefaultValueWhenUsingDefaultChildren(self):
-        """@expectedException Symfony\Component\Config\Definition\Exception\InvalidDefinitionException
+        """
+        @expectedException Symfony\Component\Config\Definition\Exception\InvalidDefinitionException
 
         """
 
@@ -134,7 +137,8 @@ class ArrayNodeDefinitionTest(unittest.TestCase):
 
 
     def testPrototypedArrayNodeDefault(self):
-        """@dataProvider providePrototypedArrayNodeDefaults
+        """
+        @dataProvider providePrototypedArrayNodeDefaults
 
         """
         def test(args, shouldThrowWhenUsingAttrAsKey, shouldThrowWhenNotUsingAttrAsKey, defaults):
@@ -200,8 +204,9 @@ class ArrayNodeDefinitionTest(unittest.TestCase):
 class EnumNodeDefinitionTest(unittest.TestCase):
 
     def testNoDistinctValues(self):
-        """@expectedException InvalidArgumentException
-     * @expectedExceptionMessage .values() must be called with at least two distinct values.
+        """
+        @expectedException InvalidArgumentException
+        @expectedExceptionMessage .values() must be called with at least two distinct values.
 
         """
 
@@ -215,8 +220,9 @@ class EnumNodeDefinitionTest(unittest.TestCase):
 
 
     def testNoValuesPassed(self):
-        """@expectedException RuntimeException
-     * @expectedExceptionMessage You must call .values() on enum nodes.
+        """
+        @expectedException RuntimeException
+        @expectedExceptionMessage You must call .values() on enum nodes.
 
         """
 
@@ -358,7 +364,8 @@ class ExprBuilderTest(unittest.TestCase):
 
 
     def testThenInvalid(self):
-        """@expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+        """
+        @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
 
         """
 
@@ -383,7 +390,8 @@ class ExprBuilderTest(unittest.TestCase):
 
     def _getTestBuilder(self):
         """Create a test treebuilder with a variable node, and init the validation
-     * @return TreeBuilder
+
+        @return TreeBuilder
 
         """
 
@@ -399,10 +407,12 @@ class ExprBuilderTest(unittest.TestCase):
 
     def _finalizeTestBuilder(self, testBuilder, config = None):
         """Close the validation process and finalize with the given config
-     * @param TreeBuilder testBuilder The tree builder to finalize
-     * @param array       config      The config you want to use for the finalization, if nothing provided:
-     *                       a simple array('key'=>'value') will be used
-     * @return array The finalized config values
+
+        @param TreeBuilder testBuilder The tree builder to finalize
+        @param array       config      The config you want to use for the finalization, if nothing provided:
+                               a simple array('key'=>'value') will be used
+
+        @return array The finalized config values
 
         """
 
@@ -415,8 +425,10 @@ class ExprBuilderTest(unittest.TestCase):
 
     def _returnClosure(self, val):
         """Return a closure that will return the given value
-     * @param val The value that the closure must return
-     * @return Closure
+
+        @param val The value that the closure must return
+
+        @return Closure
 
         """
 
@@ -425,10 +437,10 @@ class ExprBuilderTest(unittest.TestCase):
 
     def _assertFinalizedValueIs(self, value, treeBuilder, config = None):
         """Assert that the given test builder, will return the given value
-     *
-     * @param mixed       value       The value to test
-     * @param TreeBuilder treeBuilder The tree builder to finalize
-     * @param mixed       config      The config values that new to be finalized
+
+        @param mixed       value       The value to test
+        @param TreeBuilder treeBuilder The tree builder to finalize
+        @param mixed       config      The config values that new to be finalized
 
         """
 
@@ -438,8 +450,9 @@ class ExprBuilderTest(unittest.TestCase):
 class NumericNodeDefinitionTest(unittest.TestCase):
 
     def testIncoherentMinAssertion(self):
-        """@expectedException InvalidArgumentException
-     * @expectedExceptionMessage You cannot define a min(4) as you already have a max(3)
+        """
+        @expectedException InvalidArgumentException
+        @expectedExceptionMessage You cannot define a min(4) as you already have a max(3)
 
         """
 
@@ -451,8 +464,9 @@ class NumericNodeDefinitionTest(unittest.TestCase):
             self.assertEqual(e.getMessage(), "You cannot define a min(4) as you already have a max(3)");
 
     def testIncoherentMaxAssertion(self):
-        """@expectedException InvalidArgumentException
-     * @expectedExceptionMessage You cannot define a max(2) as you already have a min(3)
+        """
+        @expectedException InvalidArgumentException
+        @expectedExceptionMessage You cannot define a max(2) as you already have a min(3)
 
         """
         try:
@@ -465,8 +479,9 @@ class NumericNodeDefinitionTest(unittest.TestCase):
 
 
     def testIntegerMinAssertion(self):
-        """@expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value 4 is too small for path "foo". Should be greater than: 5
+        """
+        @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+        @expectedExceptionMessage The value 4 is too small for path "foo". Should be greater than: 5
 
         """
 
@@ -480,8 +495,9 @@ class NumericNodeDefinitionTest(unittest.TestCase):
 
 
     def testIntegerMaxAssertion(self):
-        """@expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value 4 is too big for path "foo". Should be less than: 3
+        """
+        @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+        @expectedExceptionMessage The value 4 is too big for path "foo". Should be less than: 3
 
         """
         try:
@@ -501,8 +517,9 @@ class NumericNodeDefinitionTest(unittest.TestCase):
 
 
     def testFloatMinAssertion(self):
-        """@expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value 400 is too small for path "foo". Should be greater than: 500
+        """
+        @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+        @expectedExceptionMessage The value 400 is too small for path "foo". Should be greater than: 500
 
         """
         try:
@@ -515,8 +532,9 @@ class NumericNodeDefinitionTest(unittest.TestCase):
 
 
     def testFloatMaxAssertion(self):
-        """@expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     * @expectedExceptionMessage The value 4.3 is too big for path "foo". Should be less than: 0.3
+        """
+        @expectedException Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+        @expectedExceptionMessage The value 4.3 is too big for path "foo". Should be less than: 0.3
 
         """
         try:
@@ -538,7 +556,8 @@ class NumericNodeDefinitionTest(unittest.TestCase):
 class NodeBuilderTest(unittest.TestCase):
 
     def testThrowsAnExceptionWhenTryingToCreateANonRegisteredNodeType(self):
-        """@expectedException RuntimeException
+        """
+        @expectedException RuntimeException
 
         """
 
@@ -549,7 +568,8 @@ class NodeBuilderTest(unittest.TestCase):
 
 
     def testThrowsAnExceptionWhenTheNodeClassIsNotFound(self):
-        """@expectedException RuntimeException
+        """
+        @expectedException RuntimeException
 
         """
 

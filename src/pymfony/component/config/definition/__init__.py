@@ -32,6 +32,13 @@ from pymfony.component.config.definition.exception import DuplicateKeyException;
 
 @interface
 class NodeInterface(Object):
+    """Common Interface among all nodes.
+
+    In most cases, it is better to inherit from BaseNode instead of
+    implementing this interface yourself.
+
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
+    """
     def getName(self):
         """Returns the name of the node.
 
@@ -1058,8 +1065,8 @@ class PrototypedArrayNode(ArrayNode):
 
 class EnumNode(ScalarNode):
     """Node which only allows a finite set of values.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -1108,8 +1115,8 @@ class EnumNode(ScalarNode):
 
 class NumericNode(ScalarNode):
     """This node represents a numeric value in the config tree
- *
- * @author David Jeanmonod <david.jeanmonod@gmail.com>
+
+    @author David Jeanmonod <david.jeanmonod@gmail.com>
 
     """
 
@@ -1157,8 +1164,8 @@ class NumericNode(ScalarNode):
 
 class IntegerNode(NumericNode):
     """This node represents an integer value in the config tree.
- *
- * @author Jeanmonod David <david.jeanmonod@gmail.com>
+
+    @author Jeanmonod David <david.jeanmonod@gmail.com>
 
     """
 
@@ -1180,8 +1187,8 @@ class IntegerNode(NumericNode):
 
 class FloatNode(NumericNode):
     """This node represents a float value in the config tree.
- *
- * @author Jeanmonod David <david.jeanmonod@gmail.com>
+
+    @author Jeanmonod David <david.jeanmonod@gmail.com>
 
     """
 
@@ -1209,10 +1216,10 @@ class FloatNode(NumericNode):
 
 class ReferenceDumper(Object):
     """Dumps a reference configuration for the given configuration/node instance.
- *
- * Currently, only YML format is supported.
- *
- * @author Kevin Bond <kevinbond@gmail.com>
+
+    Currently, only YML format is supported.
+
+    @author Kevin Bond <kevinbond@gmail.com>
 
     """
 
@@ -1237,8 +1244,9 @@ class ReferenceDumper(Object):
 
 
     def __writeNode(self, node, depth = 0):
-        """@param NodeInterface node
-     * @param integer       depth
+        """
+        @param NodeInterface node
+        @param integer       depth
 
         """
         assert isinstance(node, NodeInterface);
@@ -1372,9 +1380,9 @@ class ReferenceDumper(Object):
 
     def __writeLine(self, text, indent = 0):
         """Outputs a single config reference line
-     *
-     * @param string text
-     * @param int    indent
+
+        @param string text
+        @param int    indent
 
         """
 

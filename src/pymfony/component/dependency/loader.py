@@ -311,8 +311,8 @@ class JsonFileLoader(FileLoader):
 
     def __loadFromExtensions(self, content):
         """Loads from Extensions
-     *
-     * @param array content
+
+         @param array content
 
         """
         assert isinstance(content, dict);

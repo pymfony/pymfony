@@ -32,17 +32,17 @@ from pymfony.component.dependency.interface import ContainerInterface;
 
 class RepeatedPass(CompilerPassInterface):
     """A pass that might be run repeatedly.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
     def __init__(self, passes):
         """Constructor.
-     *
-     * @param RepeatablePassInterface[] passes An array of RepeatablePassInterface objects
-     *
-     * @raise InvalidArgumentException when the passes don't implement RepeatablePassInterface
+
+        @param RepeatablePassInterface[] passes An array of RepeatablePassInterface objects
+
+        @raise InvalidArgumentException when the passes don't implement RepeatablePassInterface
 
         """
         assert isinstance(passes, list);
@@ -72,8 +72,8 @@ class RepeatedPass(CompilerPassInterface):
 
     def process(self, container):
         """Process the repeatable passes that run more than once.
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
 
@@ -98,8 +98,8 @@ class RepeatedPass(CompilerPassInterface):
 
     def getPasses(self):
         """Returns the passes
-     *
-     * @return RepeatablePassInterface[] An array of RepeatablePassInterface objects
+
+        @return RepeatablePassInterface[] An array of RepeatablePassInterface objects
 
         """
 
@@ -175,9 +175,9 @@ class ResolveParameterPlaceHoldersPass(CompilerPassInterface):
 
 class ResolveDefinitionTemplatesPass(CompilerPassInterface):
     """This replaces all DefinitionDecorator instances with their equivalent fully
- * merged Definition instance.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+    merged Definition instance.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -188,8 +188,8 @@ class ResolveDefinitionTemplatesPass(CompilerPassInterface):
 
     def process(self, container):
         """Process the ContainerBuilder to replace DefinitionDecorator instances with their real Definition instances.
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -212,13 +212,13 @@ class ResolveDefinitionTemplatesPass(CompilerPassInterface):
 
     def __resolveDefinition(self, identifier, definition):
         """Resolves the definition
-     *
-     * @param string              identifier  The definition identifier:
-     * @param DefinitionDecorator definition
-     *
-     * @return Definition
-     *
-     * @raise RuntimeException When the definition is invalid
+
+        @param string              identifier  The definition identifier:
+        @param DefinitionDecorator definition
+
+        @return Definition
+
+        @raise RuntimeException When the definition is invalid
 
         """
         assert isinstance(definition, DefinitionDecorator);
@@ -307,26 +307,26 @@ class ResolveDefinitionTemplatesPass(CompilerPassInterface):
 
 class CheckDefinitionValidityPass(CompilerPassInterface):
     """This pass validates each definition individually only taking the information
- * into account which is contained in the definition itself.
- *
- * Later passes can rely on the following, and specifically do not need to:
- * perform these checks themselves:
- *
- * - non synthetic, non @abstract
+    into account which is contained in the definition itself.
+
+    Later passes can rely on the following, and specifically do not need to:
+    perform these checks themselves:
+
+    - non synthetic, non @abstract
 services always have a class set():
- * - synthetic services are always public
- * - synthetic services are always of non-prototype scope
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+    - synthetic services are always public
+    - synthetic services are always of non-prototype scope
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
     def process(self, container):
         """Processes the ContainerBuilder to validate the Definition.
-     *
-     * @param ContainerBuilder container
-     *
-     * @raise RuntimeException When the Definition is invalid
+
+        @param ContainerBuilder container
+
+        @raise RuntimeException When the Definition is invalid
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -373,8 +373,8 @@ services always have a class set():
 
 class ResolveReferencesToAliasesPass(CompilerPassInterface):
     """Replaces all references to aliases with references to the actual service.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -383,8 +383,8 @@ class ResolveReferencesToAliasesPass(CompilerPassInterface):
 
     def process(self, container):
         """Processes the ContainerBuilder to replace references to aliases with actual service references.
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -412,10 +412,10 @@ class ResolveReferencesToAliasesPass(CompilerPassInterface):
 
     def __processArguments(self, arguments):
         """Processes the arguments to replace aliases.
-     *
-     * @param list arguments An list of References
-     *
-     * @return array An array of References
+
+        @param list arguments An list of References
+
+        @return array An array of References
 
         """
         assert isinstance(arguments, (list, dict));
@@ -441,10 +441,10 @@ class ResolveReferencesToAliasesPass(CompilerPassInterface):
 
     def __getDefinitionId(self, identifier):
         """Resolves an alias into a definition identifier.
-     *
-     * @param string identifier The definition or alias identifier to resolve
-     *
-     * @return string The definition identifier with aliases resolved
+
+        @param string identifier The definition or alias identifier to resolve
+
+        @return string The definition identifier with aliases resolved
 
         """
 
@@ -457,9 +457,9 @@ class ResolveReferencesToAliasesPass(CompilerPassInterface):
 
 class ResolveInvalidReferencesPass(CompilerPassInterface):
     """Emulates the invalid behavior if the reference is not found within the:
- * container.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+    container.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -468,8 +468,8 @@ class ResolveInvalidReferencesPass(CompilerPassInterface):
 
     def process(self, container):
         """Process the ContainerBuilder to resolve invalid references.
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -510,13 +510,13 @@ class ResolveInvalidReferencesPass(CompilerPassInterface):
 
     def __processArguments(self, arguments, inMethodCall = False):
         """Processes arguments to determine invalid references.
-     *
-     * @param array   arguments    An array of Reference objects
-     * @param Boolean inMethodCall
-     *
-     * @return array
-     *
-     * @raise RuntimeException When the config is invalid
+
+        @param array   arguments    An array of Reference objects
+        @param Boolean inMethodCall
+
+        @return array
+
+        @raise RuntimeException When the config is invalid
 
         """
         assert isinstance(arguments, (list, dict));
@@ -553,20 +553,20 @@ class ResolveInvalidReferencesPass(CompilerPassInterface):
 
 class AnalyzeServiceReferencesPass(RepeatablePassInterface):
     """Run this pass before passes that need to know more about the relation of
- * your services.
- *
- * This class will(, populate the ServiceReferenceGraph with information. You can):
- * retrieve the graph in other passes from the compiler.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+    your services.
+
+    This class will(, populate the ServiceReferenceGraph with information. You can):
+    retrieve the graph in other passes from the compiler.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
 
     def __init__(self, onlyConstructorArguments = False):
         """Constructor.
-     *
-     * @param Boolean onlyConstructorArguments Sets this Service Reference pass to ignore method calls
+
+        @param Boolean onlyConstructorArguments Sets this Service Reference pass to ignore method calls
 
         """
 
@@ -590,8 +590,8 @@ class AnalyzeServiceReferencesPass(RepeatablePassInterface):
 
     def process(self, container):
         """Processes a ContainerBuilder object to populate the service reference graph.
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -625,8 +625,8 @@ class AnalyzeServiceReferencesPass(RepeatablePassInterface):
 
     def __processArguments(self, arguments):
         """Processes service definitions for arguments to find relationships for the service graph.
-     *
-     * @param array arguments An array of Reference or Definition objects relating to service definitions
+
+        @param array arguments An array of Reference or Definition objects relating to service definitions
 
         """
         assert isinstance(arguments, (list, dict));
@@ -658,10 +658,10 @@ class AnalyzeServiceReferencesPass(RepeatablePassInterface):
 
     def __getDefinition(self, identifier):
         """Returns a service definition given the full name or an alias.
-     *
-     * @param string identifier A full identifier or alias for a service definition.
-     *
-     * @return Definition|None The definition related to the supplied identifier
+
+        @param string identifier A full identifier or alias for a service definition.
+
+        @return Definition|None The definition related to the supplied identifier
 
         """
 
@@ -686,13 +686,13 @@ class AnalyzeServiceReferencesPass(RepeatablePassInterface):
 
 class CheckCircularReferencesPass(CompilerPassInterface):
     """Checks your services for circular references
- *
- * References from method calls are ignored since we might be able to resolve
- * these references depending on the order in which services are called.
- *
- * Circular reference from method calls will only be detected at run-time.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    References from method calls are ignored since we might be able to resolve
+    these references depending on the order in which services are called.
+
+    Circular reference from method calls will only be detected at run-time.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -702,8 +702,8 @@ class CheckCircularReferencesPass(CompilerPassInterface):
 
     def process(self, container):
         """Checks the ContainerBuilder object for circular references.
-     *
-     * @param ContainerBuilder container The ContainerBuilder instances
+
+        @param ContainerBuilder container The ContainerBuilder instances
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -720,10 +720,10 @@ class CheckCircularReferencesPass(CompilerPassInterface):
 
     def __checkOutEdges(self, edges):
         """Checks for circular references.
-     *
-     * @param ServiceReferenceGraphEdge[] edges An array of Edges
-     *
-     * @raise ServiceCircularReferenceException When a circular reference is found.
+
+        @param ServiceReferenceGraphEdge[] edges An array of Edges
+
+        @raise ServiceCircularReferenceException When a circular reference is found.
 
         """
         assert isinstance(edges, list);
@@ -744,13 +744,13 @@ class CheckCircularReferencesPass(CompilerPassInterface):
 
 class CheckReferenceValidityPass(CompilerPassInterface):
     """Checks the validity of references
- *
- * The following checks are performed by this pass:
- * - target definitions are not abstract
- * - target definitions are of equal or wider scope
- * - target definitions are in the same scope hierarchy
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    The following checks are performed by this pass:
+    - target definitions are not abstract
+    - target definitions are of equal or wider scope
+    - target definitions are in the same scope hierarchy
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -764,8 +764,8 @@ class CheckReferenceValidityPass(CompilerPassInterface):
 
     def process(self, container):
         """Processes the ContainerBuilder to validate References.
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -810,11 +810,11 @@ class CheckReferenceValidityPass(CompilerPassInterface):
 
     def __validateReferences(self, arguments):
         """Validates an array of References.
-     *
-     * @param array arguments An array of Reference objects
-     *
-     * @raise RuntimeException when there is a reference to an abstract 
-                               definition.
+
+        @param array arguments An array of Reference objects
+
+        @raise RuntimeException when there is a reference to an abstract
+                                definition.
 
         """
         assert isinstance(arguments, (list, dict));
@@ -848,12 +848,12 @@ class CheckReferenceValidityPass(CompilerPassInterface):
 
     def __validateScope(self, reference, definition = None):
         """Validates the scope of a single Reference.
-     *
-     * @param Reference  reference
-     * @param Definition definition
-     *
-     * @raise ScopeWideningInjectionException when the definition references a service of a narrower scope
-     * @raise ScopeCrossingInjectionException when the definition references a service of another scope hierarchy
+
+        @param Reference  reference
+        @param Definition definition
+
+        @raise ScopeWideningInjectionException when the definition references a service of a narrower scope
+        @raise ScopeCrossingInjectionException when the definition references a service of another scope hierarchy
 
         """
         if definition is not None:
@@ -889,10 +889,10 @@ class CheckReferenceValidityPass(CompilerPassInterface):
 
     def __getDefinition(self, identifier):
         """Returns the Definition given an identifier.
-     *
-     * @param string identifier Definition identifier:
-     *
-     * @return Definition
+
+        @param string identifier Definition identifier:
+
+        @return Definition
 
         """
 
@@ -905,17 +905,17 @@ class CheckReferenceValidityPass(CompilerPassInterface):
 
 class RemovePrivateAliasesPass(CompilerPassInterface):
     """Remove private aliases from the container. They were only used to establish
- * dependencies between services, and these dependencies have been resolved in
- * one of the previous passes.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+    dependencies between services, and these dependencies have been resolved in
+    one of the previous passes.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
     def process(self, container):
         """Removes private aliases from the ContainerBuilder
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -939,8 +939,8 @@ class RemoveAbstractDefinitionsPass(CompilerPassInterface):
 
     def process(self, container):
         """Removes abstract definitions from the ContainerBuilder
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -958,9 +958,9 @@ class RemoveAbstractDefinitionsPass(CompilerPassInterface):
 
 class ReplaceAliasByActualDefinitionPass(CompilerPassInterface):
     """Replaces aliases with actual service definitions, effectively removing these
- * aliases.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+    aliases.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -971,10 +971,10 @@ class ReplaceAliasByActualDefinitionPass(CompilerPassInterface):
 
     def process(self, container):
         """Process the Container to replace aliases with service definitions.
-     *
-     * @param ContainerBuilder container
-     *
-     * @raise InvalidArgumentException if the service definition does not exist:
+
+        @param ContainerBuilder container
+
+        @raise InvalidArgumentException if the service definition does not exist:
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -1014,10 +1014,10 @@ class ReplaceAliasByActualDefinitionPass(CompilerPassInterface):
 
     def __updateReferences(self, container, currentId, newId):
         """Updates references to remove aliases.
-     *
-     * @param ContainerBuilder container The container
-     * @param string           currentId The alias identifier being replaced:
-     * @param string           newId     The identifier of the service the alias points to
+
+        @param ContainerBuilder container The container
+        @param string           currentId The alias identifier being replaced:
+        @param string           newId     The identifier of the service the alias points to
 
         """
 
@@ -1046,12 +1046,12 @@ class ReplaceAliasByActualDefinitionPass(CompilerPassInterface):
 
     def __updateArgumentReferences(self, arguments, currentId, newId):
         """Updates argument references.
-     *
-     * @param array  arguments An array of Arguments
-     * @param string currentId The alias identifier:
-     * @param string newId     The identifier the alias points to:
-     *
-     * @return array
+
+        @param array  arguments An array of Arguments
+        @param string currentId The alias identifier:
+        @param string newId     The identifier the alias points to:
+
+        @return array
 
         """
         assert isinstance(arguments, (list, dict));
@@ -1077,8 +1077,8 @@ class ReplaceAliasByActualDefinitionPass(CompilerPassInterface):
 
 class InlineServiceDefinitionsPass(RepeatablePassInterface):
     """Inline service definitions where this is possible.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -1100,8 +1100,8 @@ class InlineServiceDefinitionsPass(RepeatablePassInterface):
 
     def process(self, container):
         """Processes the ContainerBuilder for inline service definitions.
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -1129,11 +1129,11 @@ class InlineServiceDefinitionsPass(RepeatablePassInterface):
 
     def __inlineArguments(self, container, arguments):
         """Processes inline arguments.
-     *
-     * @param ContainerBuilder container The ContainerBuilder
-     * @param list            arguments A list of arguments
-     *
-     * @return list
+
+        @param ContainerBuilder container The ContainerBuilder
+        @param list            arguments A list of arguments
+
+        @return list
 
         """
         assert isinstance(arguments, (list, dict));
@@ -1176,12 +1176,12 @@ class InlineServiceDefinitionsPass(RepeatablePassInterface):
 
     def __isInlineableDefinition(self, container, identifier, definition):
         """Checks if the definition is inlineable.:
-     *
-     * @param ContainerBuilder container
-     * @param string           identifier
-     * @param Definition       definition
-     *
-     * @return Boolean If the definition is inlineable
+
+        @param ContainerBuilder container
+        @param string           identifier
+        @param Definition       definition
+
+        @return Boolean If the definition is inlineable
 
         """
         assert isinstance(definition, Definition);
@@ -1212,8 +1212,8 @@ class InlineServiceDefinitionsPass(RepeatablePassInterface):
 
 class RemoveUnusedDefinitionsPass(RepeatablePassInterface):
     """Removes unused service definitions from the container.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -1231,8 +1231,8 @@ class RemoveUnusedDefinitionsPass(RepeatablePassInterface):
 
     def process(self, container):
         """Processes the ContainerBuilder to remove unused definitions.
-     *
-     * @param ContainerBuilder container
+
+        @param ContainerBuilder container
 
         """
         assert isinstance(container, ContainerBuilder);
@@ -1284,8 +1284,8 @@ class RemoveUnusedDefinitionsPass(RepeatablePassInterface):
 
 class CheckExceptionOnInvalidReferenceBehaviorPass(CompilerPassInterface):
     """Checks that all references are pointing to a valid service.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 

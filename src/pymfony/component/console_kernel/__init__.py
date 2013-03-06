@@ -84,20 +84,20 @@ class ConsoleKernelEvents(Object):
 
 class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
     """ConsoleKernel notifies events to convert a Request object to a Response one.:
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
     def __init__(self, dispatcher, resolver, name = 'UNKNOWN', version = 'UNKNOWN'):
         """Constructor
-     *
-     * @param EventDispatcherInterface    dispatcher An EventDispatcherInterface instance
-     * @param ControllerResolverInterface resolver   A ControllerResolverInterface instance
-     *
-     * @api
+
+        @param EventDispatcherInterface    dispatcher An EventDispatcherInterface instance
+        @param ControllerResolverInterface resolver   A ControllerResolverInterface instance
+
+        @api
 
         """
         assert isinstance(resolver, ControllerResolverInterface);
@@ -116,21 +116,21 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
     def handle(self, request, requestType = ConsoleKernelInterface.MASTER_REQUEST, catch = True):
         """Handles a Request to convert it to a Response.
-     *
-     * When catch is True, the implementation must catch all exceptions
-     * and do its best to convert them to a Response instance.
-     *
-     * @param Request request   A Request instance
-     * @param integer   type      The type of the request
-     *                            (one of ConsoleKernelInterface.MASTER_REQUEST
+
+        When catch is True, the implementation must catch all exceptions
+        and do its best to convert them to a Response instance.
+
+        @param Request request   A Request instance
+        @param integer   type      The type of the request
+                                   (one of ConsoleKernelInterface.MASTER_REQUEST
                                   or ConsoleKernelInterface.SUB_REQUEST)
-     * @param Boolean   catch     Whether to catch exceptions or not
-     *
-     * @return Response A Response instance
-     *
-     * @raise Exception When an Exception occurs during processing
-     *
-     * @api
+        @param Boolean   catch     Whether to catch exceptions or not
+
+        @return Response A Response instance
+
+        @raise Exception When an Exception occurs during processing
+
+        @api
 
         """
         assert isinstance(request, Request);
@@ -148,8 +148,8 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
     def terminate(self, request, response):
         """@inheritdoc
-     *
-     * @api
+
+        @api
 
         """
         assert isinstance(response, Response);
@@ -227,16 +227,16 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
     def __handleRaw(self, request, requestType = ConsoleKernelInterface.MASTER_REQUEST):
         """Handles a request to convert it to a response.
-     *
-     * Exceptions are not caught.
-     *
-     * @param Request request A Request instance
-     * @param integer type    The type of the request (one of ConsoleKernelInterface.MASTER_REQUEST or ConsoleKernelInterface.SUB_REQUEST)
-     *
-     * @return Response A Response instance
-     *
-     * @raise LogicException If one of the listener does not behave as expected
-     * @raise NotFoundConsoleException When controller cannot be found
+
+        Exceptions are not caught.
+
+        @param Request request A Request instance
+        @param integer type    The type of the request (one of ConsoleKernelInterface.MASTER_REQUEST or ConsoleKernelInterface.SUB_REQUEST)
+
+        @return Response A Response instance
+
+        @raise LogicException If one of the listener does not behave as expected
+        @raise NotFoundConsoleException When controller cannot be found
 
         """
         assert isinstance(request, Request);
@@ -296,17 +296,17 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
     def __filterResponse(self, response, request, requestType):
         """Filters a response object.
-     *
-     * @param Response   response   A Response instance
-     * @param Request  request  A error message in case the response is
+
+        @param Response   response   A Response instance
+        @param Request  request  A error message in case the response is
                                     not a Response object
-     * @param integer    requestType  The type of the input (one of
+        @param integer    requestType  The type of the input (one of
                                     ConsoleKernelInterface.MASTER_REQUEST or
                                     ConsoleKernelInterface.SUB_REQUEST)
-     *
-     * @return Response The filtered Response instance
-     *
-     * @raise RuntimeException if the passed object is not a Response instance:
+
+        @return Response The filtered Response instance
+
+        @raise RuntimeException if the passed object is not a Response instance:
 
         """
         assert isinstance(request, Request);
@@ -321,14 +321,14 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
     def __handleException(self, e, request, requestType):
         """Handles an exception by trying to convert it to a Response.
-     *
-     * @param Exception  e          An Exception instance
-     * @param Request    request  A Request instance
-     * @param integer    requestType  The type of the request
-     *
-     * @return Response A Response instance
-     *
-     * @raise Exception
+
+        @param Exception  e          An Exception instance
+        @param Request    request  A Request instance
+        @param integer    requestType  The type of the request
+
+        @return Response A Response instance
+
+        @raise Exception
 
         """
         assert isinstance(e, Exception);

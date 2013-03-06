@@ -21,13 +21,13 @@ from pymfony.component.console_routing import RouteCollection;
 from pymfony.component.console_routing import Route;
 
 """
+Pymfony FrameworkBundle
 """
 
 class FrameworkBundle(Bundle):
     """Bundle.
 
     @author: Fabien Potencier <fabien@symfony.com>
-
     """
     def boot(self):
         if self._container.has('console.router'):

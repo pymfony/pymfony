@@ -34,19 +34,17 @@ class ConsoleKernel(ContainerAwareConsoleKernel):
     """This ConsoleKernel is used to manage scope changes of the DI container.
 
     @author: Fabien Potencier <fabien@symfony.com>
-    @author Johannes M. Schmitt <schmittjoh@gmail.com>
-
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
     """
     def forward(self, controller, attributes = dict()):
         """Forwards the request to another controller.
 
         @param: string controller The controller name (a string like BlogBundle:Post:index)
-        @param dict  attributes An array of request attributes
+        @param: dict  attributes An array of request attributes
 
-        @return Response A Response instance
+        @return: Response A Response instance
 
-        @deprecated in 2.2, will be removed in 2.3
-
+        @deprecated: in 2.2, will be removed in 2.3
         """
         assert isinstance(attributes, dict);
 
@@ -61,12 +59,11 @@ class ConsoleKernel(ContainerAwareConsoleKernel):
 
 
 class ControllerNameParser(BaseControllerNameParser):
-    """ControllerNameParser converts command from the short notation a:b:c
-    (BlogBundle:Post:index) to a fully-qualified class.method string:
-    (Bundle.BlogBundle.Command.PostCommand.indexAction).
+    """ControllerNameParser converts controller from the short notation a:b:c
+    (BlogBundle:Post:index) to a fully-qualified class::method string
+    (Bundle.BlogBundle.Command.PostCommand::indexAction).
 
     @author: Fabien Potencier <fabien@symfony.com>
-
     """
 
     def parse(self, controller):
@@ -74,11 +71,10 @@ class ControllerNameParser(BaseControllerNameParser):
 
         @param: string controller A short notation controller (a:b:c)
 
-        @return string A string with class.method
+        @return: string A string with class.method
 
-        @raise InvalidArgumentException when the specified bundle is not enabled:
-                                          or the controller cannot be found
-
+        @raise InvalidArgumentException: when the specified bundle is not enabled
+                                         or the controller cannot be found
         """
         parts = controller.split(':');
         if (3  != len(parts)) :
@@ -161,7 +157,6 @@ class Router(BaseRouter):
         - the route path.
 
         @param: RouteCollection collection
-
         """
         assert isinstance(collection, RouteCollection);
 
@@ -179,6 +174,10 @@ class Router(BaseRouter):
 
 
 class RequestMatcher(BaseRequestMatcher):
+    """This RequestMatcher apply default route if no route match
+
+    @author: Alexandre Quercia <alquerci@email.com>
+    """
     def __init__(self, routes, defaultRouteName = ''):
         BaseRequestMatcher.__init__(self, routes);
 

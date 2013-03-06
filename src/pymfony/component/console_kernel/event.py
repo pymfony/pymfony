@@ -23,10 +23,10 @@ from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
 
 class ConsoleKernelEvent(Event):
     """Base class for events thrown in the ConsoleKernel component):
- *
- * @author Bernhard Schussek <bschussek@gmail.com>
- *
- * @api
+
+    @author Bernhard Schussek <bschussek@gmail.com>
+
+    @api
 
     """
 
@@ -57,10 +57,10 @@ class ConsoleKernelEvent(Event):
 
     def getKernel(self):
         """Returns the kernel in which this event was thrown
-     *
-     * @return ConsoleKernelInterface
-     *
-     * @api
+
+        @return ConsoleKernelInterface
+
+        @api
 
         """
 
@@ -69,10 +69,10 @@ class ConsoleKernelEvent(Event):
 
     def getRequest(self):
         """Returns the request the kernel is currently processing
-     *
-     * @return Request
-     *
-     * @api
+
+        @return Request
+
+        @api
 
         """
 
@@ -81,11 +81,11 @@ class ConsoleKernelEvent(Event):
 
     def getRequestType(self):
         """Returns the request type the kernel is currently processing
-     *
-     * @return integer  One of ConsoleKernelInterface.MASTER_REQUEST and
-     *                  ConsoleKernelInterface.SUB_REQUEST
-     *
-     * @api
+
+        @return integer  One of ConsoleKernelInterface.MASTER_REQUEST and
+                         ConsoleKernelInterface.SUB_REQUEST
+
+        @api
 
         """
 
@@ -94,16 +94,16 @@ class ConsoleKernelEvent(Event):
 
 class FilterControllerEvent(ConsoleKernelEvent):
     """Allows filtering of a controller callable
- *
- * You can call getController() to retrieve the current controller. With
- * setController() you can set a new controller that is used in the processing
- * of the request.
- *
- * Controllers should be callables.
- *
- * @author Bernhard Schussek <bschussek@gmail.com>
- *
- * @api
+
+    You can call getController() to retrieve the current controller. With
+    setController() you can set a new controller that is used in the processing
+    of the request.
+
+    Controllers should be callables.
+
+    @author Bernhard Schussek <bschussek@gmail.com>
+
+    @api
 
     """
 
@@ -124,10 +124,10 @@ class FilterControllerEvent(ConsoleKernelEvent):
 
     def getController(self):
         """Returns the current controller
-     *
-     * @return callable
-     *
-     * @api
+
+        @return callable
+
+        @api
 
         """
 
@@ -136,12 +136,12 @@ class FilterControllerEvent(ConsoleKernelEvent):
 
     def setController(self, controller):
         """Sets a new controller
-     *
-     * @param callable controller
-     *
-     * @raise LogicException
-     *
-     * @api
+
+        @param callable controller
+
+        @raise LogicException
+
+        @api
 
         """
 
@@ -161,14 +161,14 @@ class FilterControllerEvent(ConsoleKernelEvent):
 
 class FilterResponseEvent(ConsoleKernelEvent):
     """Allows to filter a Response object
- *
- * You can call getResponse() to retrieve the current response. With
- * setResponse() you can set a new response that will be returned to the
- * browser.
- *
- * @author Bernhard Schussek <bschussek@gmail.com>
- *
- * @api
+
+    You can call getResponse() to retrieve the current response. With
+    setResponse() you can set a new response that will be returned to the
+    browser.
+
+    @author Bernhard Schussek <bschussek@gmail.com>
+
+    @api
 
     """
 
@@ -189,10 +189,10 @@ class FilterResponseEvent(ConsoleKernelEvent):
 
     def getResponse(self):
         """Returns the current response object
-     *
-     * @return Response
-     *
-     * @api
+
+        @return Response
+
+        @api
 
         """
 
@@ -201,10 +201,10 @@ class FilterResponseEvent(ConsoleKernelEvent):
 
     def setResponse(self, response):
         """Sets a new response object
-     *
-     * @param Response response
-     *
-     * @api
+
+        @param Response response
+
+        @api
 
         """
         assert isinstance(response, Response);
@@ -215,14 +215,14 @@ class FilterResponseEvent(ConsoleKernelEvent):
 
 class GetResponseEvent(ConsoleKernelEvent):
     """Allows to create a response for a request
- *
- * Call setResponse() to set the response that will be returned for the
- * current request. The propagation of this event is stopped as soon as a
- * response is set.
- *
- * @author Bernhard Schussek <bschussek@gmail.com>
- *
- * @api
+
+    Call setResponse() to set the response that will be returned for the
+    current request. The propagation of this event is stopped as soon as a
+    response is set.
+
+    @author Bernhard Schussek <bschussek@gmail.com>
+
+    @api
 
     """
 
@@ -235,10 +235,10 @@ class GetResponseEvent(ConsoleKernelEvent):
 
     def getResponse(self):
         """Returns the response object
-     *
-     * @return Response
-     *
-     * @api
+
+        @return Response
+
+        @api
 
         """
 
@@ -247,10 +247,10 @@ class GetResponseEvent(ConsoleKernelEvent):
 
     def setResponse(self, response):
         """Sets a response and stops event propagation
-     *
-     * @param Response response
-     *
-     * @api
+
+        @param Response response
+
+        @api
 
         """
         assert isinstance(response, Response);
@@ -262,10 +262,10 @@ class GetResponseEvent(ConsoleKernelEvent):
 
     def hasResponse(self):
         """Returns whether a response was set
-     *
-     * @return Boolean Whether a response was set
-     *
-     * @api
+
+        @return Boolean Whether a response was set
+
+        @api
 
         """
 
@@ -274,14 +274,14 @@ class GetResponseEvent(ConsoleKernelEvent):
 
 class GetResponseForControllerResultEvent(GetResponseEvent):
     """Allows to create a response for the return value of a controller
- *
- * Call setResponse() to set the response that will be returned for the
- * current request. The propagation of this event is stopped as soon as a
- * response is set.
- *
- * @author Bernhard Schussek <bschussek@gmail.com>
- *
- * @api
+
+    Call setResponse() to set the response that will be returned for the
+    current request. The propagation of this event is stopped as soon as a
+    response is set.
+
+    @author Bernhard Schussek <bschussek@gmail.com>
+
+    @api
 
     """
 
@@ -301,10 +301,10 @@ class GetResponseForControllerResultEvent(GetResponseEvent):
 
     def getControllerResult(self):
         """Returns the return value of the controller.
-     *
-     * @return mixed The controller return value
-     *
-     * @api
+
+        @return mixed The controller return value
+
+        @api
 
         """
 
@@ -313,10 +313,10 @@ class GetResponseForControllerResultEvent(GetResponseEvent):
 
     def setControllerResult(self, controllerResult):
         """Assigns the return value of the controller.
-     *
-     * @param mixed The controller return value
-     *
-     * @api
+
+        @param mixed The controller return value
+
+        @api
 
         """
 
@@ -326,18 +326,18 @@ class GetResponseForControllerResultEvent(GetResponseEvent):
 
 class GetResponseForExceptionEvent(GetResponseEvent):
     """Allows to create a response for a thrown exception
- *
- * Call setResponse() to set the response that will be returned for the
- * current request. The propagation of this event is stopped as soon as a
- * response is set.
- *
- * You can also call setException() to replace the thrown exception. This
- * exception will be thrown if no response is set during processing of this:
- * event.
- *
- * @author Bernhard Schussek <bschussek@gmail.com>
- *
- * @api
+
+    Call setResponse() to set the response that will be returned for the
+    current request. The propagation of this event is stopped as soon as a
+    response is set.
+
+    You can also call setException() to replace the thrown exception. This
+    exception will be thrown if no response is set during processing of this:
+    event.
+
+    @author Bernhard Schussek <bschussek@gmail.com>
+
+    @api
 
     """
 
@@ -359,10 +359,10 @@ class GetResponseForExceptionEvent(GetResponseEvent):
 
     def getException(self):
         """Returns the thrown exception
-     *
-     * @return Exception  The thrown exception
-     *
-     * @api
+
+        @return Exception  The thrown exception
+
+        @api
 
         """
 
@@ -371,12 +371,12 @@ class GetResponseForExceptionEvent(GetResponseEvent):
 
     def setException(self, exception):
         """Replaces the thrown exception
-     *
-     * This exception will be thrown if no response is set in the event.:
-     *
-     * @param Exception exception The thrown exception
-     *
-     * @api
+
+        This exception will be thrown if no response is set in the event.:
+
+        @param Exception exception The thrown exception
+
+        @api
 
         """
         assert isinstance(exception, Exception);
@@ -387,8 +387,8 @@ class GetResponseForExceptionEvent(GetResponseEvent):
 
 class PostResponseEvent(Event):
     """Allows to execute logic after a response was sent
- *
- * @author Jordi Boggiano <j.boggiano@seld.be>
+
+    @author Jordi Boggiano <j.boggiano@seld.be>
 
     """
 
@@ -414,8 +414,8 @@ class PostResponseEvent(Event):
 
     def getKernel(self):
         """Returns the kernel in which this event was thrown.
-     *
-     * @return HttpKernelInterface
+
+        @return HttpKernelInterface
 
         """
 
@@ -424,8 +424,8 @@ class PostResponseEvent(Event):
 
     def getRequest(self):
         """Returns the request for which this event was thrown.
-     *
-     * @return Request
+
+        @return Request
 
         """
 
@@ -434,8 +434,8 @@ class PostResponseEvent(Event):
 
     def getResponse(self):
         """Returns the response for which this event was thrown.
-     *
-     * @return Response
+
+        @return Response
 
         """
 

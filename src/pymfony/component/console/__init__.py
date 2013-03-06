@@ -125,12 +125,11 @@ class Response(ConsoleOutput):
     };
 
     def __init__(self, content = '', status = 0):
-        """
-     * Constructor.
-     *
-     * @param string  content The response content
+        """Constructor.
 
-     * @api
+        @param string  content The response content
+
+        @api
         """
 
         self._content = None;
@@ -147,12 +146,12 @@ class Response(ConsoleOutput):
 
     def send(self):
         """Sends content.
-     *
-     * @param integer type The type of output
-     *
-     * @return Response
-     *
-     * @api
+
+        @param integer type The type of output
+
+        @return Response
+
+        @api
 
         """
 
@@ -167,16 +166,16 @@ class Response(ConsoleOutput):
 
     def setContent(self, content):
         """Sets the response content.
-     *
-     * Valid types are strings, numbers, and objects that implement a __str__() method.
-     *
-     * @param mixed content
-     *
-     * @return Response
-     *
-     * @raise UnexpectedValueException
-     *
-     * @api
+
+        Valid types are strings, numbers, and objects that implement a __str__() method.
+
+        @param mixed content
+
+        @return Response
+
+        @raise UnexpectedValueException
+
+        @api
 
         """
 
@@ -193,10 +192,10 @@ class Response(ConsoleOutput):
 
     def getContent(self):
         """Gets the current response content.
-     *
-     * @return string Content
-     *
-     * @api
+
+        @return string Content
+
+        @api
 
         """
 
@@ -204,12 +203,12 @@ class Response(ConsoleOutput):
 
     def setOutputType(self, outputType):
         """Sets the output type.
-     *
-     * @param integer The type of output
-     *
-     * @return Response
-     *
-     * @api
+
+        @param integer The type of output
+
+        @return Response
+
+        @api
 
         """
 
@@ -219,10 +218,10 @@ class Response(ConsoleOutput):
 
     def getOutputType(self):
         """Gets the output type.
-     *
-     * @return integer The output type
-     *
-     * @api
+
+        @return integer The output type
+
+        @api
 
         """
 
@@ -230,18 +229,18 @@ class Response(ConsoleOutput):
 
     def setStatusCode(self, code, text = None):
         """Sets the response status code.
-     *
-     * @param integer code CLI status code
-     * @param mixed   text CLI status text
-     *
-     * If the status text is None it will be automatically populated for the known
-     * status codes and left empty otherwise.
-     *
-     * @return Response
-     *
-     * @raise InvalidArgumentException When the CLI status code is not valid
-     *
-     * @api
+
+        @param integer code CLI status code
+        @param mixed   text CLI status text
+
+        If the status text is None it will be automatically populated for the
+        known status codes and left empty otherwise.
+
+        @return Response
+
+        @raise InvalidArgumentException When the CLI status code is not valid
+
+        @api
 
         """
         code = int(code);
@@ -275,10 +274,10 @@ class Response(ConsoleOutput):
 
     def getStatusCode(self):
         """Retrieves the status code for the current web response.
-     *
-     * @return integer Status code
-     *
-     * @api
+
+        @return integer Status code
+
+        @api
 
         """
 
@@ -286,10 +285,10 @@ class Response(ConsoleOutput):
 
     def isInvalid(self):
         """Is response invalid?
-     *
-     * @return Boolean
-     *
-     * @api
+
+        @return Boolean
+
+        @api
 
         """
 

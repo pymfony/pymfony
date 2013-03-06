@@ -654,19 +654,19 @@ class Definition(Object):
 
 class DefinitionDecorator(Definition):
     """This definition decorates another definition.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
- *
- * @api
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @api
 
     """
 
     def __init__(self, parent):
         """Constructor.
-     *
-     * @param string parent The id of Definition instance to decorate.
-     *
-     * @api
+
+        @param string parent The id of Definition instance to decorate.
+
+        @api
 
         """
 
@@ -683,10 +683,10 @@ class DefinitionDecorator(Definition):
 
     def getParent(self):
         """Returns the Definition being decorated.
-     *
-     * @return string
-     *
-     * @api
+
+        @return string
+
+        @api
 
         """
 
@@ -695,10 +695,10 @@ class DefinitionDecorator(Definition):
 
     def getChanges(self):
         """Returns all changes tracked for the Definition object.
-     *
-     * @return array An array of changes for this Definition
-     *
-     * @api
+
+        @return array An array of changes for this Definition
+
+        @api
 
         """
 
@@ -706,10 +706,10 @@ class DefinitionDecorator(Definition):
 
     def getOverwriteArguments(self):
         """Returns all overwrite arguments for the Definition object.
-     *
-     * @return dict A dict of overwrite arguments for the Definition object.
-     *
-     * @api
+
+        @return dict A dict of overwrite arguments for the Definition object.
+
+        @api
 
         """
 
@@ -718,8 +718,8 @@ class DefinitionDecorator(Definition):
 
     def setClass(self, className):
         """@inheritDoc
-     *
-     * @api
+
+        @api
 
         """
 
@@ -730,8 +730,8 @@ class DefinitionDecorator(Definition):
 
     def setFactoryClass(self, className):
         """@inheritDoc}
-     *
-     * @api
+
+        @api
 
         """
 
@@ -742,8 +742,8 @@ class DefinitionDecorator(Definition):
 
     def setFactoryMethod(self, method):
         """@inheritDoc}
-     *
-     * @api
+
+        @api
 
         """
 
@@ -754,8 +754,8 @@ class DefinitionDecorator(Definition):
 
     def setFactoryService(self, service):
         """@inheritDoc}
-     *
-     * @api
+
+        @api
 
         """
 
@@ -766,8 +766,8 @@ class DefinitionDecorator(Definition):
 
     def setConfigurator(self, closure):
         """@inheritDoc}
-     *
-     * @api
+
+        @api
 
         """
 
@@ -778,8 +778,8 @@ class DefinitionDecorator(Definition):
 
     def setFile(self, filename):
         """@inheritDoc}
-     *
-     * @api
+
+        @api
 
         """
 
@@ -790,8 +790,8 @@ class DefinitionDecorator(Definition):
 
     def setPublic(self, boolean):
         """@inheritDoc}
-     *
-     * @api
+
+        @api
 
         """
 
@@ -802,17 +802,17 @@ class DefinitionDecorator(Definition):
 
     def getArgument(self, index):
         """Gets an argument to pass to the service constructor/factory method.
-     *
-     * If replaceArgument() has been used to replace an argument, this method
-     * will return the replacement value.
-     *
-     * @param integer index
-     *
-     * @return mixed The argument value
-     *
-     * @raise OutOfBoundsException When the argument does not exist
-     *
-     * @api
+
+        If replaceArgument() has been used to replace an argument, this method
+        will return the replacement value.
+
+        @param integer index
+
+        @return mixed The argument value
+
+        @raise OutOfBoundsException When the argument does not exist
+
+        @api
 
         """
         index = int(index);
@@ -837,19 +837,19 @@ class DefinitionDecorator(Definition):
 
     def replaceArgument(self, index, value):
         """You should always use this method when overwriting existing arguments
-     * of the parent definition.
-     *
-     * If you directly call setArguments() keep in mind that you must follow
-     * certain conventions when you want to overwrite the arguments of the
-     * parent definition, otherwise your arguments will only be appended.
-     *
-     * @param integer index
-     * @param mixed   value
-     *
-     * @return DefinitionDecorator the current instance
-     * @raise InvalidArgumentException when index isn't an integer
-     *
-     * @api
+        of the parent definition.
+
+        If you directly call setArguments() keep in mind that you must follow
+        certain conventions when you want to overwrite the arguments of the
+        parent definition, otherwise your arguments will only be appended.
+
+        @param integer index
+        @param mixed   value
+
+        @return DefinitionDecorator the current instance
+        @raise InvalidArgumentException when index isn't an integer
+
+        @api
 
         """
 

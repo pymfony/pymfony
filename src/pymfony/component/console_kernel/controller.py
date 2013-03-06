@@ -29,51 +29,51 @@ from pymfony.component.console import Request;
 @interface
 class ControllerResolverInterface(Object):
     """A ControllerResolverInterface implementation knows how to determine the
- * controller to execute based on a Request object.
- *
- * It can also determine the arguments to pass to the Controller.
- *
- * A Controller can be any valid PYTHON callable.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+     controller to execute based on a Request object.
+
+     It can also determine the arguments to pass to the Controller.
+
+     A Controller can be any valid PYTHON callable.
+
+     @author Fabien Potencier <fabien@symfony.com>
+
+     @api
 
     """
 
     def getController(self, request):
         """Returns the Controller instance associated with a Request.
-     *
-     * As several resolvers can exist for a single application, a resolver must
-     * return False when it is not able to determine the controller.
-     *
-     * The resolver must only raise an exception when it should be able to load
-     * controller but cannot because of some errors made by the developer.
-     *
-     * @param Request request A Request instance
-     *
-     * @return mixed|Boolean A PYTHON callable representing the Controller,
-     *                       or False if this resolver is not able to determine
+
+        As several resolvers can exist for a single application, a resolver must
+        return False when it is not able to determine the controller.
+
+        The resolver must only raise an exception when it should be able to load
+        controller but cannot because of some errors made by the developer.
+
+        @param Request request A Request instance
+
+        @return mixed|Boolean A PYTHON callable representing the Controller,
+                              or False if this resolver is not able to determine
                              the controller:
-     *
-     * @raise InvalidArgumentException|\LogicException If the controller can't be found
-     *
-     * @api
+
+        @raise InvalidArgumentException|\LogicException If the controller can't be found
+
+        @api
 
         """
         assert isinstance(request, Request);
 
     def getArguments(self, request, controller):
         """Returns the arguments to pass to the controller.
-     *
-     * @param Request request    A Request instance
-     * @param mixed   controller A PHP callable
-     *
-     * @return array An array of arguments to pass to the controller
-     *
-     * @raise RuntimeException When value for argument given is not provided
-     *
-     * @api
+
+        @param Request request    A Request instance
+        @param mixed   controller A PHP callable
+
+        @return array An array of arguments to pass to the controller
+
+        @raise RuntimeException When value for argument given is not provided
+
+        @api
 
         """
         assert isinstance(request, Request);
@@ -83,14 +83,14 @@ class ControllerResolverInterface(Object):
 
 class ControllerResolver(ControllerResolverInterface):
     """ControllerResolver.
- *
- * This implementation uses the '_controller' request attribute to determine
- * the controller to execute and uses the request attributes to determine
- * the controller method arguments.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    This implementation uses the '_controller' request attribute to determine
+    the controller to execute and uses the request attributes to determine
+    the controller method arguments.
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
@@ -102,22 +102,22 @@ class ControllerResolver(ControllerResolverInterface):
 
     def getController(self, request):
         """Returns the Controller instance associated with a Request.
-     *
-     * As several resolvers can exist for a single application, a resolver must
-     * return False when it is not able to determine the controller.
-     *
-     * The resolver must only raise an exception when it should be able to load
-     * controller but cannot because of some errors made by the developer.
-     *
-     * @param Request request A ArgvInput instance
-     *
-     * @return mixed|Boolean A PYTHON callable representing the Controller,
-     *                       or False if this resolver is not able to determine
+
+        As several resolvers can exist for a single application, a resolver must
+        return False when it is not able to determine the controller.
+
+        The resolver must only raise an exception when it should be able to load
+        controller but cannot because of some errors made by the developer.
+
+        @param Request request A ArgvInput instance
+
+        @return mixed|Boolean A PYTHON callable representing the Controller,
+                              or False if this resolver is not able to determine
                              the controller:
-     *
-     * @raise InvalidArgumentException|\LogicException If the controller can't be found
-     *
-     * @api
+
+        @raise InvalidArgumentException|\LogicException If the controller can't be found
+
+        @api
 
         """
         assert isinstance(request, Request);
@@ -155,15 +155,15 @@ class ControllerResolver(ControllerResolverInterface):
 
     def getArguments(self, request, controller):
         """Returns the arguments to pass to the controller.
-     *
-     * @param Request request    A Request instance
-     * @param mixed   controller A PYTHON callable
-     *
-     * @return list
-     *
-     * @raise RuntimeException When value for argument given is not provided
-     *
-     * @api
+
+        @param Request request    A Request instance
+        @param mixed   controller A PYTHON callable
+
+        @return list
+
+        @raise RuntimeException When value for argument given is not provided
+
+        @api
 
         """
         assert isinstance(request, Request);
@@ -221,12 +221,12 @@ class ControllerResolver(ControllerResolverInterface):
 
     def _createController(self, controller):
         """Returns a callable for the given controller.
-     *
-     * @param string controller A Controller string
-     *
-     * @return callable A PYTHON callable
-     *
-     * @raise InvalidArgumentException
+
+        @param string controller A Controller string
+
+        @return callable A PYTHON callable
+
+        @raise InvalidArgumentException
 
         """
 

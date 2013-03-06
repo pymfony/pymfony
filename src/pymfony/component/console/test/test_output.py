@@ -123,8 +123,6 @@ class NullOutputTest(unittest.TestCase):
 
 class StreamOutputTest(unittest.TestCase):
 
-    #  self._stream = None;
-
     def setUp(self):
 
         self.stream = tempfile.TemporaryFile();

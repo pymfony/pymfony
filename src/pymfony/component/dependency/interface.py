@@ -58,11 +58,11 @@ class ExtensionInterface(Object):
 @interface
 class ContainerInterface(Object):
     """ContainerInterface is the interface implemented by service container classes.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
- *
- * @api
+
+    @author Fabien Potencier <fabien@symfony.com>
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @api
 
     """
 
@@ -74,127 +74,127 @@ class ContainerInterface(Object):
 
     def set(self, identifier, service, scope = SCOPE_CONTAINER):
         """Sets a service.
-     *
-     * @param string identifier The service identifier:
-     * @param object service    The service instance
-     * @param string scope      The scope of the service
-     *
-     * @api
+
+        @param string identifier The service identifier:
+        @param object service    The service instance
+        @param string scope      The scope of the service
+
+        @api
 
         """
 
     def get(self, identifier, invalidBehavior = EXCEPTION_ON_INVALID_REFERENCE):
         """Gets a service.
-     *
-     * @param string identifier      The service identifier:
-     * @param int    invalidBehavior The behavior when the service does not exist
-     *
-     * @return object The associated service
-     *
-     * @raise InvalidArgumentException if the service is not defined:
-     * @raise ServiceCircularReferenceException When a circular reference is detected
-     * @raise ServiceNotFoundException When the service is not defined
-     *
-     * @see Reference
-     *
-     * @api
+
+        @param string identifier      The service identifier:
+        @param int    invalidBehavior The behavior when the service does not exist
+
+        @return object The associated service
+
+        @raise InvalidArgumentException if the service is not defined:
+        @raise ServiceCircularReferenceException When a circular reference is detected
+        @raise ServiceNotFoundException When the service is not defined
+
+        @see Reference
+
+        @api
 
         """
 
     def has(self, identifier):
         """Returns True if the given service is defined.:
-     *
-     * @param string identifier The service identifier:
-     *
-     * @return Boolean True if the service is defined, False otherwise:
-     *
-     * @api
+
+        @param string identifier The service identifier:
+
+        @return Boolean True if the service is defined, False otherwise:
+
+        @api
 
         """
 
     def getParameter(self, name):
         """Gets a parameter.
-     *
-     * @param string name The parameter name
-     *
-     * @return mixed  The parameter value
-     *
-     * @raise InvalidArgumentException if the parameter is not defined:
-     *
-     * @api
+
+        @param string name The parameter name
+
+        @return mixed  The parameter value
+
+        @raise InvalidArgumentException if the parameter is not defined:
+
+        @api
 
         """
 
     def hasParameter(self, name):
         """Checks if a parameter exists.:
-     *
-     * @param string name The parameter name
-     *
-     * @return Boolean The presence of parameter in container
-     *
-     * @api
+
+        @param string name The parameter name
+
+        @return Boolean The presence of parameter in container
+
+        @api
 
         """
 
     def setParameter(self, name, value):
         """Sets a parameter.
-     *
-     * @param string name  The parameter name
-     * @param mixed  value The parameter value
-     *
-     * @api
+
+        @param string name  The parameter name
+        @param mixed  value The parameter value
+
+        @api
 
         """
 
     def enterScope(self, name):
         """Enters the given scope
-     *
-     * @param string name
-     *
-     * @api
+
+        @param string name
+
+        @api
 
         """
 
     def leaveScope(self, name):
         """Leaves the current scope, and re-enters the parent scope
-     *
-     * @param string name
-     *
-     * @api
+
+        @param string name
+
+        @api
 
         """
 
     def addScope(self, scope):
         """Adds a scope to the container
-     *
-     * @param ScopeInterface scope
-     *
-     * @api
+
+        @param ScopeInterface scope
+
+        @api
 
         """
         assert isinstance(scope, ScopeInterface);
 
     def hasScope(self, name):
         """Whether this container has the given scope
-     *
-     * @param string name
-     *
-     * @return Boolean
-     *
-     * @api
+
+        @param string name
+
+        @return Boolean
+
+        @api
 
         """
 
     def isScopeActive(self, name):
         """Determines whether the given scope is currently active.
-     *
-     * It does however not check if the scope actually exists.:
-     *
-     * @param string name
-     *
-     * @return Boolean
-     *
-     * @api
+
+        It does however not check if the scope actually exists.:
+
+        @param string name
+
+        @return Boolean
+
+        @api
 
         """
 
@@ -250,10 +250,10 @@ class IntrospectableContainerInterface(ContainerInterface):
 @interface
 class ScopeInterface(Object):
     """Scope Interface.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
- *
- * @api
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @api
 
     """
 
@@ -283,15 +283,15 @@ class CompilerPassInterface(Object):
 @interface
 class RepeatablePassInterface(CompilerPassInterface):
     """Interface that must be implemented by passes that are run as part of an
- * RepeatedPass.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+    RepeatedPass.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
     def setRepeatedPass(self, repeatedPass):
         """Sets the RepeatedPass interface.
-     *
-     * @param RepeatedPass repeatedPass
+
+        @param RepeatedPass repeatedPass
 
         """

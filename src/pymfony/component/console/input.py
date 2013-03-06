@@ -204,8 +204,8 @@ class Input(InputInterface):
 
     def bind(self, definition):
         """Binds the current Input instance with the given arguments and options.
-     *
-     * @param InputDefinition definition A InputDefinition instance
+
+        @param InputDefinition definition A InputDefinition instance
 
         """
         assert isinstance(definition, InputDefinition);
@@ -226,8 +226,8 @@ class Input(InputInterface):
 
     def validate(self):
         """Validates the input.
-     *
-     * @raise RuntimeException When not enough arguments are given
+
+        @raise RuntimeException When not enough arguments are given
 
         """
 
@@ -238,8 +238,8 @@ class Input(InputInterface):
 
     def isInteractive(self):
         """Checks if the input is interactive.
-     *
-     * @return Boolean Returns True if the input is interactive
+
+        @return Boolean Returns True if the input is interactive
 
         """
 
@@ -248,8 +248,8 @@ class Input(InputInterface):
 
     def setInteractive(self, interactive):
         """Sets the input interactivity.
-     *
-     * @param Boolean interactive If the input should be interactive
+
+        @param Boolean interactive If the input should be interactive
 
         """
 
@@ -258,8 +258,8 @@ class Input(InputInterface):
 
     def getArguments(self):
         """Returns the argument values.
-     *
-     * @return dict An array of argument values
+
+        @return dict An array of argument values
 
         """
         args = dict();
@@ -270,12 +270,12 @@ class Input(InputInterface):
 
     def getArgument(self, name):
         """Returns the argument value for a given argument name.
-     *
-     * @param string name The argument name
-     *
-     * @return mixed The argument value
-     *
-     * @raise InvalidArgumentException When argument given doesn't exist
+
+        @param string name The argument name
+
+        @return mixed The argument value
+
+        @raise InvalidArgumentException When argument given doesn't exist
 
         """
 
@@ -293,11 +293,11 @@ class Input(InputInterface):
 
     def setArgument(self, name, value):
         """Sets an argument value by name.
-     *
-     * @param string name  The argument name
-     * @param string value The argument value
-     *
-     * @raise InvalidArgumentException When argument given doesn't exist
+
+        @param string name  The argument name
+        @param string value The argument value
+
+        @raise InvalidArgumentException When argument given doesn't exist
 
         """
 
@@ -312,10 +312,10 @@ class Input(InputInterface):
 
     def hasArgument(self, name):
         """Returns True if an InputArgument object exists by name or position.
-     *
-     * @param string|integer name The InputArgument name or position
-     *
-     * @return Boolean True if the InputArgument object exists, False otherwise
+
+        @param string|integer name The InputArgument name or position
+
+        @return Boolean True if the InputArgument object exists, False otherwise
 
         """
 
@@ -324,8 +324,8 @@ class Input(InputInterface):
 
     def getOptions(self):
         """Returns the options values.
-     *
-     * @return dict An array of option values
+
+        @return dict An array of option values
 
         """
         args = dict();
@@ -336,12 +336,12 @@ class Input(InputInterface):
 
     def getOption(self, name):
         """Returns the option value for a given option name.
-     *
-     * @param string name The option name
-     *
-     * @return mixed The option value
-     *
-     * @raise InvalidArgumentException When option given doesn't exist
+
+        @param string name The option name
+
+        @return mixed The option value
+
+        @raise InvalidArgumentException When option given doesn't exist
 
         """
 
@@ -360,11 +360,11 @@ class Input(InputInterface):
 
     def setOption(self, name, value):
         """Sets an option value by name.
-     *
-     * @param string name  The option name
-     * @param string value The option value
-     *
-     * @raise InvalidArgumentException When option given doesn't exist
+
+        @param string name  The option name
+        @param string value The option value
+
+        @raise InvalidArgumentException When option given doesn't exist
 
         """
 
@@ -379,10 +379,10 @@ class Input(InputInterface):
 
     def hasOption(self, name):
         """Returns True if an InputOption object exists by name.
-     *
-     * @param string name The InputOption name
-     *
-     * @return Boolean True if the InputOption object exists, False otherwise
+
+        @param string name The InputOption name
+
+        @return Boolean True if the InputOption object exists, False otherwise
 
         """
 
@@ -392,17 +392,17 @@ class Input(InputInterface):
 
 class InputDefinition(Object):
     """A InputDefinition represents a set of valid command line arguments and options.
- *
- * Usage:
- *
- *     definition = InputDefinition([
- *       InputArgument('name', InputArgument.REQUIRED),
- *       InputOption('foo', 'f', InputOption.VALUE_REQUIRED),
- *     ]);
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    Usage:
+
+        definition = InputDefinition([
+          InputArgument('name', InputArgument.REQUIRED),
+          InputOption('foo', 'f', InputOption.VALUE_REQUIRED),
+        ]);
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
@@ -412,10 +412,10 @@ class InputDefinition(Object):
 
     def __init__(self, definition = list()):
         """Constructor.
-     *
-     * @param list definition A list of InputArgument and InputOption instance
-     *
-     * @api
+
+        @param list definition A list of InputArgument and InputOption instance
+
+        @api
 
         """
         assert isinstance(definition, list);
@@ -433,10 +433,10 @@ class InputDefinition(Object):
 
     def setDefinition(self, definition):
         """Sets the definition of the input.
-     *
-     * @param list definition The definition list
-     *
-     * @api
+
+        @param list definition The definition list
+
+        @api
 
         """
         assert isinstance(definition, list);
@@ -458,10 +458,10 @@ class InputDefinition(Object):
 
     def setArguments(self, arguments = list()):
         """Sets the InputArgument objects.
-     *
-     * @param InputArgument[] arguments An array of InputArgument objects
-     *
-     * @api
+
+        @param InputArgument[] arguments An array of InputArgument objects
+
+        @api
 
         """
 
@@ -475,10 +475,10 @@ class InputDefinition(Object):
 
     def addArguments(self, arguments = list()):
         """Adds an array of InputArgument objects.
-     *
-     * @param InputArgument[] arguments A list of InputArgument objects
-     *
-     * @api
+
+        @param InputArgument[] arguments A list of InputArgument objects
+
+        @api
 
         """
         assert isinstance(arguments, list);
@@ -492,12 +492,12 @@ class InputDefinition(Object):
 
     def addArgument(self, argument):
         """Adds an InputArgument object.
-     *
-     * @param InputArgument argument An InputArgument object
-     *
-     * @raise LogicException When incorrect argument is given
-     *
-     * @api
+
+        @param InputArgument argument An InputArgument object
+
+        @raise LogicException When incorrect argument is given
+
+        @api
 
         """
         assert isinstance(argument, InputArgument);
@@ -534,14 +534,14 @@ class InputDefinition(Object):
 
     def getArgument(self, name):
         """Returns an InputArgument by name or by position.
-     *
-     * @param string|integer name The InputArgument name or position
-     *
-     * @return InputArgument An InputArgument object
-     *
-     * @raise InvalidArgumentException When argument given doesn't exist
-     *
-     * @api
+
+        @param string|integer name The InputArgument name or position
+
+        @return InputArgument An InputArgument object
+
+        @raise InvalidArgumentException When argument given doesn't exist
+
+        @api
 
         """
 
@@ -559,12 +559,12 @@ class InputDefinition(Object):
 
     def hasArgument(self, name):
         """Returns True if an InputArgument object exists by name or position.:
-     *
-     * @param string|integer name The InputArgument name or position
-     *
-     * @return Boolean True if the InputArgument object exists, False otherwise:
-     *
-     * @api
+
+        @param string|integer name The InputArgument name or position
+
+        @return Boolean True if the InputArgument object exists, False otherwise:
+
+        @api
 
         """
         if isinstance(name, int):
@@ -576,10 +576,10 @@ class InputDefinition(Object):
 
     def getArguments(self):
         """Gets the array of InputArgument objects.
-     *
-     * @return InputArgument[] A dict of InputArgument objects
-     *
-     * @api
+
+        @return InputArgument[] A dict of InputArgument objects
+
+        @api
 
         """
 
@@ -593,8 +593,8 @@ class InputDefinition(Object):
 
     def getArgumentCount(self):
         """Returns the number of InputArguments.
-     *
-     * @return integer The number of InputArguments
+
+        @return integer The number of InputArguments
 
         """
 
@@ -606,8 +606,8 @@ class InputDefinition(Object):
 
     def getArgumentRequiredCount(self):
         """Returns the number of required InputArguments.
-     *
-     * @return integer The number of required InputArguments
+
+        @return integer The number of required InputArguments
 
         """
 
@@ -616,8 +616,8 @@ class InputDefinition(Object):
 
     def getArgumentDefaults(self):
         """Gets the default values.
-     *
-     * @return dict An dict of default values
+
+        @return dict An dict of default values
 
         """
 
@@ -631,10 +631,10 @@ class InputDefinition(Object):
 
     def setOptions(self, options = list()):
         """Sets the InputOption objects.
-     *
-     * @param InputOption[] options A list of InputOption objects
-     *
-     * @api
+
+        @param InputOption[] options A list of InputOption objects
+
+        @api
 
         """
 
@@ -645,10 +645,10 @@ class InputDefinition(Object):
 
     def addOptions(self, options = list()):
         """Adds an array of InputOption objects.
-     *
-     * @param InputOption[] options A list of InputOption objects
-     *
-     * @api
+
+        @param InputOption[] options A list of InputOption objects
+
+        @api
 
         """
 
@@ -659,12 +659,12 @@ class InputDefinition(Object):
 
     def addOption(self, option):
         """Adds an InputOption object.
-     *
-     * @param InputOption option An InputOption object
-     *
-     * @raise LogicException When option given already exist
-     *
-     * @api
+
+        @param InputOption option An InputOption object
+
+        @raise LogicException When option given already exist
+
+        @api
 
         """
         assert isinstance(option, InputOption);
@@ -689,14 +689,14 @@ class InputDefinition(Object):
 
     def getOption(self, name):
         """Returns an InputOption by name.
-     *
-     * @param string name The InputOption name
-     *
-     * @return InputOption A InputOption object
-     *
-     * @raise InvalidArgumentException When option given doesn't exist
-     *
-     * @api
+
+        @param string name The InputOption name
+
+        @return InputOption A InputOption object
+
+        @raise InvalidArgumentException When option given doesn't exist
+
+        @api
 
         """
 
@@ -711,12 +711,12 @@ class InputDefinition(Object):
 
     def hasOption(self, name):
         """Returns True if an InputOption object exists by name.:
-     *
-     * @param string name The InputOption name
-     *
-     * @return Boolean True if the InputOption object exists, False otherwise:
-     *
-     * @api
+
+        @param string name The InputOption name
+
+        @return Boolean True if the InputOption object exists, False otherwise:
+
+        @api
 
         """
 
@@ -725,10 +725,10 @@ class InputDefinition(Object):
 
     def getOptions(self):
         """Gets the array of InputOption objects.
-     *
-     * @return InputOption[] A list of InputOption objects
-     *
-     * @api
+
+        @return InputOption[] A list of InputOption objects
+
+        @api
 
         """
 
@@ -737,10 +737,10 @@ class InputDefinition(Object):
 
     def hasShortcut(self, name):
         """Returns True if an InputOption object exists by shortcut.:
-     *
-     * @param string name The InputOption shortcut
-     *
-     * @return Boolean True if the InputOption object exists, False otherwise:
+
+        @param string name The InputOption shortcut
+
+        @return Boolean True if the InputOption object exists, False otherwise:
 
         """
 
@@ -749,10 +749,10 @@ class InputDefinition(Object):
 
     def getOptionForShortcut(self, shortcut):
         """Gets an InputOption by shortcut.
-     *
-     * @param string shortcut the Shortcut name
-     *
-     * @return InputOption An InputOption object
+
+        @param string shortcut the Shortcut name
+
+        @return InputOption An InputOption object
 
         """
 
@@ -761,8 +761,8 @@ class InputDefinition(Object):
 
     def getOptionDefaults(self):
         """Gets an array of default values.
-     *
-     * @return array An array of all default values
+
+        @return array An array of all default values
 
         """
 
@@ -776,12 +776,12 @@ class InputDefinition(Object):
 
     def __shortcutToName(self, shortcut):
         """Returns the InputOption name given a shortcut.
-     *
-     * @param string shortcut The shortcut
-     *
-     * @return string The InputOption name
-     *
-     * @raise InvalidArgumentException When option given does not exist
+
+        @param string shortcut The shortcut
+
+        @return string The InputOption name
+
+        @raise InvalidArgumentException When option given does not exist
 
         """
 
@@ -796,8 +796,8 @@ class InputDefinition(Object):
 
     def getSynopsis(self):
         """Gets the synopsis.
-     *
-     * @return string The synopsis
+
+        @return string The synopsis
 
         """
 
@@ -840,8 +840,8 @@ class InputDefinition(Object):
 
     def asText(self):
         """Returns a textual representation of the InputDefinition.
-     *
-     * @return string A string representing the InputDefinition
+
+        @return string A string representing the InputDefinition
 
         """
 
@@ -917,10 +917,10 @@ class InputDefinition(Object):
 
     def asXml(self, asDom = False):
         """Returns an XML representation of the InputDefinition.
-     *
-     * @param Boolean asDom Whether to return a DOM or an XML string
-     *
-     * @return string|DOMDocument An XML string representing the InputDefinition
+
+        @param Boolean asDom Whether to return a DOM or an XML string
+
+        @return string|DOMDocument An XML string representing the InputDefinition
 
         """
         dom = Document();
@@ -1013,10 +1013,10 @@ class InputDefinition(Object):
 
 class InputOption(Object):
     """Represents a command line option.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
@@ -1028,16 +1028,16 @@ class InputOption(Object):
 
     def __init__(self, name, shortcut = None, mode = None, description = '', default = None):
         """Constructor.
-     *
-     * @param string  name        The option name
-     * @param string  shortcut    The shortcut (can be None)
-     * @param integer mode        The option mode: One of the VALUE_* constants
-     * @param string  description A description text
-     * @param mixed   default     The default value (must be None for self.VALUE_REQUIRED or self.VALUE_NONE)
-     *
-     * @raise InvalidArgumentException If option mode is invalid or incompatible
-     *
-     * @api
+
+        @param string  name        The option name
+        @param string  shortcut    The shortcut (can be None)
+        @param integer mode        The option mode: One of the VALUE_* constants
+        @param string  description A description text
+        @param mixed   default     The default value (must be None for self.VALUE_REQUIRED or self.VALUE_NONE)
+
+        @raise InvalidArgumentException If option mode is invalid or incompatible
+
+        @api
 
         """
         self.__name = None;
@@ -1092,8 +1092,8 @@ class InputOption(Object):
 
     def getShortcut(self):
         """Returns the option shortcut.
-     *
-     * @return string The shortcut
+
+        @return string The shortcut
 
         """
 
@@ -1102,8 +1102,8 @@ class InputOption(Object):
 
     def getName(self):
         """Returns the option name.
-     *
-     * @return string The name
+
+        @return string The name
 
         """
 
@@ -1112,8 +1112,8 @@ class InputOption(Object):
 
     def acceptValue(self):
         """Returns True if the option accepts a value.:
-     *
-     * @return Boolean True if value mode is not self.VALUE_NONE, False otherwise:
+*
+        @return Boolean True if value mode is not self.VALUE_NONE, False otherwise:
 
         """
 
@@ -1122,8 +1122,8 @@ class InputOption(Object):
 
     def isValueRequired(self):
         """Returns True if the option requires a value.:
-     *
-     * @return Boolean True if value mode is self.VALUE_REQUIRED, False otherwise:
+
+        @return Boolean True if value mode is self.VALUE_REQUIRED, False otherwise:
 
         """
 
@@ -1132,8 +1132,8 @@ class InputOption(Object):
 
     def isValueOptional(self):
         """Returns True if the option takes an optional value.:
-     *
-     * @return Boolean True if value mode is self.VALUE_OPTIONAL, False otherwise:
+
+        @return Boolean True if value mode is self.VALUE_OPTIONAL, False otherwise:
 
         """
 
@@ -1142,8 +1142,8 @@ class InputOption(Object):
 
     def isArray(self):
         """Returns True if the option can take multiple values.:
-     *
-     * @return Boolean True if mode is self.VALUE_IS_ARRAY, False otherwise:
+
+        @return Boolean True if mode is self.VALUE_IS_ARRAY, False otherwise:
 
         """
 
@@ -1152,10 +1152,10 @@ class InputOption(Object):
 
     def setDefault(self, default = None):
         """Sets the default value.
-     *
-     * @param mixed default The default value
-     *
-     * @raise LogicException When incorrect default value is given
+
+        @param mixed default The default value
+
+        @raise LogicException When incorrect default value is given
 
         """
 
@@ -1181,8 +1181,8 @@ class InputOption(Object):
 
     def getDefault(self):
         """Returns the default value.
-     *
-     * @return mixed The default value
+
+        @return mixed The default value
 
         """
 
@@ -1191,8 +1191,8 @@ class InputOption(Object):
 
     def getDescription(self):
         """Returns the description text.
-     *
-     * @return string The description text
+
+        @return string The description text
 
         """
 
@@ -1201,9 +1201,9 @@ class InputOption(Object):
 
     def equals(self, option):
         """Checks whether the given option equals this one
-     *
-     * @param InputOption option option to compare
-     * @return Boolean
+
+        @param InputOption option option to compare
+        @return Boolean
 
         """
         assert isinstance(option, InputOption);
@@ -1221,10 +1221,10 @@ class InputOption(Object):
 
 class InputArgument(Object):
     """Represents a command line argument.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
@@ -1235,15 +1235,15 @@ class InputArgument(Object):
 
     def __init__(self, name, mode = None, description = '', default = None):
         """Constructor.
-     *
-     * @param string  name        The argument name
-     * @param integer mode        The argument mode: self.REQUIRED or self.OPTIONAL
-     * @param string  description A description text
-     * @param mixed   default     The default value (for self.OPTIONAL mode only)
-     *
-     * @raise InvalidArgumentException When argument mode is not valid
-     *
-     * @api
+
+        @param string  name        The argument name
+        @param integer mode        The argument mode: self.REQUIRED or self.OPTIONAL
+        @param string  description A description text
+        @param mixed   default     The default value (for self.OPTIONAL mode only)
+
+        @raise InvalidArgumentException When argument mode is not valid
+
+        @api
 
         """
         self.__name = None;
@@ -1271,8 +1271,8 @@ class InputArgument(Object):
 
     def getName(self):
         """Returns the argument name.
-     *
-     * @return string The argument name
+
+        @return string The argument name
 
         """
 
@@ -1281,8 +1281,8 @@ class InputArgument(Object):
 
     def isRequired(self):
         """Returns True if the argument is required.:
-     *
-     * @return Boolean True if parameter mode is self.REQUIRED, False otherwise:
+
+        @return Boolean True if parameter mode is self.REQUIRED, False otherwise:
 
         """
 
@@ -1291,8 +1291,8 @@ class InputArgument(Object):
 
     def isArray(self):
         """Returns True if the argument can take multiple values.:
-     *
-     * @return Boolean True if mode is self.IS_ARRAY, False otherwise:
+
+        @return Boolean True if mode is self.IS_ARRAY, False otherwise:
 
         """
 
@@ -1301,10 +1301,10 @@ class InputArgument(Object):
 
     def setDefault(self, default = None):
         """Sets the default value.
-     *
-     * @param mixed default The default value
-     *
-     * @raise LogicException When incorrect default value is given
+
+        @param mixed default The default value
+
+        @raise LogicException When incorrect default value is given
 
         """
 
@@ -1325,8 +1325,8 @@ class InputArgument(Object):
 
     def getDefault(self):
         """Returns the default value.
-     *
-     * @return mixed The default value
+
+        @return mixed The default value
 
         """
 
@@ -1335,8 +1335,8 @@ class InputArgument(Object):
 
     def getDescription(self):
         """Returns the description text.
-     *
-     * @return string The description text
+
+        @return string The description text
 
         """
 
@@ -1345,25 +1345,25 @@ class InputArgument(Object):
 
 class ArrayInput(Input):
     """ArrayInput represents an input provided as an array.
- *
- * Usage:
- *
- *     input = ArrayInput(array('name' => 'foo', '--bar' => 'foobar'));
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    Usage:
+
+        input = ArrayInput(array('name' => 'foo', '--bar' => 'foobar'));
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
 
     def __init__(self, parameters, definition = None):
         """Constructor.
-     *
-     * @param array           parameters An array of parameters
-     * @param InputDefinition definition A InputDefinition instance
-     *
-     * @api
+
+        @param array           parameters An array of parameters
+        @param InputDefinition definition A InputDefinition instance
+
+        @api
 
         """
         if definition:
@@ -1381,8 +1381,8 @@ class ArrayInput(Input):
 
     def getFirstArgument(self):
         """Returns the first argument from the raw parameters (not parsed).
-     *
-     * @return string The value of the first argument or None otherwise
+
+        @return string The value of the first argument or None otherwise
 
         """
 
@@ -1397,13 +1397,13 @@ class ArrayInput(Input):
 
     def hasParameterOption(self, values):
         """Returns True if the raw parameters (not parsed) contain a value.:
-     *
-     * This method is to be used to introspect the input parameters
-     * before they have been validated. It must be used carefully.
-     *
-     * @param string|list values The values to look for in the raw parameters (can be an list)
-     *
-     * @return Boolean True if the value is contained in the raw parameters:
+
+        This method is to be used to introspect the input parameters
+        before they have been validated. It must be used carefully.
+
+        @param string|list values The values to look for in the raw parameters (can be an list)
+
+        @return Boolean True if the value is contained in the raw parameters:
 
         """
 
@@ -1422,14 +1422,14 @@ class ArrayInput(Input):
 
     def getParameterOption(self, values, default = False):
         """Returns the value of a raw option (not parsed).
-     *
-     * This method is to be used to introspect the input parameters
-     * before they have been validated. It must be used carefully.
-     *
-     * @param string|list values  The value(s) to look for in the raw parameters (can be an list)
-     * @param mixed        default The default value to return if no result is found:
-     *
-     * @return mixed The option value
+
+        This method is to be used to introspect the input parameters
+        before they have been validated. It must be used carefully.
+
+        @param string|list values  The value(s) to look for in the raw parameters (can be an list)
+        @param mixed        default The default value to return if no result is found:
+
+        @return mixed The option value
 
         """
 
@@ -1464,11 +1464,11 @@ class ArrayInput(Input):
 
     def __addShortOption(self, shortcut, value):
         """Adds a short option value.
-     *
-     * @param string shortcut The short option key
-     * @param mixed  value    The value for the option
-     *
-     * @raise InvalidArgumentException When option given doesn't exist
+
+        @param string shortcut The short option key
+        @param mixed  value    The value for the option
+
+        @raise InvalidArgumentException When option given doesn't exist
 
         """
 
@@ -1483,12 +1483,12 @@ class ArrayInput(Input):
 
     def __addLongOption(self, name, value):
         """Adds a long option value.
-     *
-     * @param string name  The long option key
-     * @param mixed  value The value for the option
-     *
-     * @raise InvalidArgumentException When option given doesn't exist
-     * @raise InvalidArgumentException When a required value is missing
+
+        @param string name  The long option key
+        @param mixed  value The value for the option
+
+        @raise InvalidArgumentException When option given doesn't exist
+        @raise InvalidArgumentException When a required value is missing
 
         """
 
@@ -1518,11 +1518,11 @@ class ArrayInput(Input):
 
     def __addArgument(self, name, value):
         """Adds an argument value.
-     *
-     * @param string name  The argument name
-     * @param mixed  value The value for the argument
-     *
-     * @raise InvalidArgumentException When argument given doesn't exist
+
+        @param string name  The argument name
+        @param mixed  value The value for the argument
+
+        @raise InvalidArgumentException When argument given doesn't exist
 
         """
 
@@ -1538,41 +1538,41 @@ class ArrayInput(Input):
 
 class ArgvInput(Input):
     """ArgvInput represents an input coming from the CLI arguments.
- *
- * Usage:
- *
- *     input = ArgvInput();
- *
- * By default, the `sys.argv` array is used for the input values.
- *
- * This can be overridden by explicitly passing the input values in the constructor:
- *
- *     input = ArgvInput(sys.argv);
- *
- * If you pass it yourself, don't forget that the first element of the array
- * is the name of the running application.
- *
- * When passing an argument to the constructor, be sure that it respects
- * the same rules as the argv one. It's almost always better to use the
- * `StringInput` when you want to provide your own input.
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @see    http://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html
- * @see    http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap12.html#tag_12_02
- *
- * @api
+
+    Usage:
+
+        input = ArgvInput();
+
+    By default, the `sys.argv` array is used for the input values.
+
+    This can be overridden by explicitly passing the input values in the constructor:
+
+        input = ArgvInput(sys.argv);
+
+    If you pass it yourself, don't forget that the first element of the array
+    is the name of the running application.
+
+    When passing an argument to the constructor, be sure that it respects
+    the same rules as the argv one. It's almost always better to use the
+    `StringInput` when you want to provide your own input.
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @see    http://www.gnu.org/software/libc/manual/html_node/Argument-Syntax.html
+    @see    http://www.opengroup.org/onlinepubs/009695399/basedefs/xbd_chap12.html#tag_12_02
+
+    @api
 
     """
 
 
     def __init__(self, argv = None, definition = None):
         """Constructor.
-     *
-     * @param list            argv       A list of parameters from the CLI (in the argv format)
-     * @param InputDefinition definition A InputDefinition instance
-     *
-     * @api
+
+        @param list            argv       A list of parameters from the CLI (in the argv format)
+        @param InputDefinition definition A InputDefinition instance
+
+        @api
 
         """
         if definition:
@@ -1630,8 +1630,8 @@ class ArgvInput(Input):
 
     def __parseShortOption(self, token):
         """Parses a short option.
-     *
-     * @param string token The current token.
+
+        @param string token The current token.
 
         """
 
@@ -1651,10 +1651,10 @@ class ArgvInput(Input):
 
     def __parseShortOptionSet(self, name):
         """Parses a short option set.
-     *
-     * @param string name The current token
-     *
-     * @raise RuntimeException When option given doesn't exist
+
+        @param string name The current token
+
+        @raise RuntimeException When option given doesn't exist
 
         """
 
@@ -1682,8 +1682,8 @@ class ArgvInput(Input):
 
     def __parseLongOption(self, token):
         """Parses a long option.
-     *
-     * @param string token The current token
+
+        @param string token The current token
 
         """
 
@@ -1701,10 +1701,10 @@ class ArgvInput(Input):
 
     def __parseArgument(self, token):
         """Parses an argument.
-     *
-     * @param string token The current token
-     *
-     * @raise RuntimeException When too many arguments are given
+
+        @param string token The current token
+
+        @raise RuntimeException When too many arguments are given
 
         """
 
@@ -1731,11 +1731,11 @@ class ArgvInput(Input):
 
     def __addShortOption(self, shortcut, value):
         """Adds a short option value.
-     *
-     * @param string shortcut The short option key
-     * @param mixed  value    The value for the option
-     *
-     * @raise RuntimeException When option given doesn't exist
+
+        @param string shortcut The short option key
+        @param mixed  value    The value for the option
+
+        @raise RuntimeException When option given doesn't exist
 
         """
 
@@ -1749,11 +1749,11 @@ class ArgvInput(Input):
 
     def __addLongOption(self, name, value):
         """Adds a long option value.
-     *
-     * @param string name  The long option key
-     * @param mixed  value The value for the option
-     *
-     * @raise RuntimeException When option given doesn't exist
+
+        @param string name  The long option key
+        @param mixed  value The value for the option
+
+        @raise RuntimeException When option given doesn't exist
 
         """
 
@@ -1799,8 +1799,8 @@ class ArgvInput(Input):
 
     def getFirstArgument(self):
         """Returns the first argument from the raw parameters (not parsed).
-     *
-     * @return string The value of the first argument or None otherwise
+
+        @return string The value of the first argument or None otherwise
 
         """
 
@@ -1815,13 +1815,13 @@ class ArgvInput(Input):
 
     def hasParameterOption(self, values):
         """Returns True if the raw parameters (not parsed) contain a value.:
-     *
-     * This method is to be used to introspect the input parameters
-     * before they have been validated. It must be used carefully.
-     *
-     * @param string|list values The value(s) to look for in the raw parameters (can be an list)
-     *
-     * @return Boolean True if the value is contained in the raw parameters:
+
+        This method is to be used to introspect the input parameters
+        before they have been validated. It must be used carefully.
+
+        @param string|list values The value(s) to look for in the raw parameters (can be an list)
+
+        @return Boolean True if the value is contained in the raw parameters:
 
         """
 
@@ -1841,14 +1841,14 @@ class ArgvInput(Input):
 
     def getParameterOption(self, values, default = False):
         """Returns the value of a raw option (not parsed).
-     *
-     * This method is to be used to introspect the input parameters
-     * before they have been validated. It must be used carefully.
-     *
-     * @param string|list values  The value(s) to look for in the raw parameters (can be an list)
-     * @param mixed        default The default value to return if no result is found:
-     *
-     * @return mixed The option value
+
+        This method is to be used to introspect the input parameters
+        before they have been validated. It must be used carefully.
+
+        @param string|list values  The value(s) to look for in the raw parameters (can be an list)
+        @param mixed        default The default value to return if no result is found:
+
+        @return mixed The option value
 
         """
 
@@ -1884,14 +1884,14 @@ class ArgvInput(Input):
 
 class StringInput(ArgvInput):
     """StringInput represents an input provided as a string.
- *
- * Usage:
- *
- *     input = StringInput('foo --bar="foobar"');
- *
- * @author Fabien Potencier <fabien@symfony.com>
- *
- * @api
+
+    Usage:
+
+        input = StringInput('foo --bar="foobar"');
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    @api
 
     """
 
@@ -1900,11 +1900,11 @@ class StringInput(ArgvInput):
 
     def __init__(self, inputString, definition = None):
         """Constructor.
-     *
-     * @param string          inputString      A string of parameters from the CLI
-     * @param InputDefinition definition A InputDefinition instance
-     *
-     * @api
+
+        @param string          inputString      A string of parameters from the CLI
+        @param InputDefinition definition A InputDefinition instance
+
+        @api
 
         """
         if definition is not None:
@@ -1917,12 +1917,12 @@ class StringInput(ArgvInput):
 
     def __tokenize(self, inputString):
         """Tokenizes a string.
-     *
-     * @param string inputString The input to tokenize
-     *
-     * @return array An array of tokens
-     *
-     * @raise InvalidArgumentException When unable to parse input (should never happen)
+
+        @param string inputString The input to tokenize
+
+        @return array An array of tokens
+
+        @raise InvalidArgumentException When unable to parse input (should never happen)
 
         """
 

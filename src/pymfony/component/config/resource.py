@@ -74,17 +74,17 @@ class FileResource(ResourceInterface, SerializableInterface):
 
 class DirectoryResource(ResourceInterface, SerializableInterface):
     """DirectoryResource represents a resources stored in a subdirectory tree.
- *
- * @author Fabien Potencier <fabien@symfony.com>
+
+    @author Fabien Potencier <fabien@symfony.com>
 
     """
 
 
     def __init__(self, resource, pattern = None):
         """Constructor.
-     *
-     * @param string resource The file path to the resource
-     * @param string pattern  A pattern to restrict monitored files
+
+        @param string resource The file path to the resource
+        @param string pattern  A pattern to restrict monitored files
 
         """
         self.__resource = None;
@@ -96,8 +96,8 @@ class DirectoryResource(ResourceInterface, SerializableInterface):
 
     def __toString(self):
         """Returns a string representation of the Resource.
-     *
-     * @return string A string representation of the Resource
+
+        @return string A string representation of the Resource
 
         """
 
@@ -106,8 +106,8 @@ class DirectoryResource(ResourceInterface, SerializableInterface):
 
     def getResource(self):
         """Returns the resource tied to this Resource.
-     *
-     * @return mixed The resource
+
+        @return mixed The resource
 
         """
 
@@ -121,10 +121,10 @@ class DirectoryResource(ResourceInterface, SerializableInterface):
 
     def isFresh(self, timestamp):
         """Returns True if the resource has not been updated since the given timestamp.:
-     *
-     * @param integer timestamp The last time the resource was loaded
-     *
-     * @return Boolean True if the resource has not been updated, False otherwise:
+
+        @param integer timestamp The last time the resource was loaded
+
+        @return Boolean True if the resource has not been updated, False otherwise:
 
         """
 

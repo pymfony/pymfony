@@ -100,10 +100,10 @@ class NodeDefinition(NodeParentInterface):
 
     def info(self, info):
         """Sets info message.
-     *
-     * @param string info The info text
-     *
-     * @return NodeDefinition
+
+        @param string info The info text
+
+        @return NodeDefinition
 
         """
 
@@ -112,10 +112,10 @@ class NodeDefinition(NodeParentInterface):
 
     def example(self, example):
         """Sets example configuration.
-     *
-     * @param string|array example
-     *
-     * @return NodeDefinition
+
+        @param string|array example
+
+        @return NodeDefinition
 
         """
 
@@ -921,10 +921,10 @@ class NodeBuilder(NodeParentInterface):
 
     def integerNode(self, name):
         """Creates a child integer node.
-     *
-     * @param string name the name of the node
-     *
-     * @return IntegerNodeDefinition The child node
+
+        @param string name the name of the node
+
+        @return IntegerNodeDefinition The child node
 
         """
 
@@ -933,10 +933,10 @@ class NodeBuilder(NodeParentInterface):
 
     def floatNode(self, name):
         """Creates a child float node.
-     *
-     * @param string name the name of the node
-     *
-     * @return FloatNodeDefinition The child node
+
+        @param string name the name of the node
+
+        @return FloatNodeDefinition The child node
 
         """
 
@@ -945,10 +945,10 @@ class NodeBuilder(NodeParentInterface):
 
     def enumNode(self, name):
         """Creates a child EnumNode.
-     *
-     * @param string name
-     *
-     * @return EnumNodeDefinition
+
+        @param string name
+
+        @return EnumNodeDefinition
 
         """
 
@@ -957,10 +957,10 @@ class NodeBuilder(NodeParentInterface):
 
     def variableNode(self, name):
         """Creates a child variable node.
-     *
-     * @param string name The name of the node
-     *
-     * @return VariableNodeDefinition The builder of the child node
+
+        @param string name The name of the node
+
+        @return VariableNodeDefinition The builder of the child node
 
         """
 
@@ -1214,8 +1214,8 @@ class ValidationBuilder(Object):
 
 class EnumNodeDefinition(ScalarNodeDefinition):
     """Enum Node Definition.
- *
- * @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -1239,10 +1239,10 @@ class EnumNodeDefinition(ScalarNodeDefinition):
 
     def _instantiateNode(self):
         """Instantiate a Node
-     *
-     * @return EnumNode The node
-     *
-     * @raise RuntimeException
+
+        @return EnumNode The node
+
+        @raise RuntimeException
 
         """
 
@@ -1258,8 +1258,8 @@ class EnumNodeDefinition(ScalarNodeDefinition):
 @abstract
 class NumericNodeDefinition(ScalarNodeDefinition):
     """Abstract class that(, contain common code of integer and float node definition.):
- *
- * @author David Jeanmonod <david.jeanmonod@gmail.com>
+
+    @author David Jeanmonod <david.jeanmonod@gmail.com>
 
     """
     def __init__(self, name, parent=None):
@@ -1269,12 +1269,12 @@ class NumericNodeDefinition(ScalarNodeDefinition):
 
     def max(self, maxValue):
         """Ensures that the value is smaller than the given reference.
-     *
-     * @param mixed maxValue
-     *
-     * @return NumericNodeDefinition
-     *
-     * @raise InvalidArgumentException when the constraint is inconsistent
+
+        @param mixed maxValue
+
+        @return NumericNodeDefinition
+
+        @raise InvalidArgumentException when the constraint is inconsistent
 
         """
 
@@ -1291,12 +1291,12 @@ class NumericNodeDefinition(ScalarNodeDefinition):
 
     def min(self, minValue):
         """Ensures that the value is bigger than the given reference.
-     *
-     * @param mixed minValue
-     *
-     * @return NumericNodeDefinition
-     *
-     * @raise InvalidArgumentException when the constraint is inconsistent
+
+        @param mixed minValue
+
+        @return NumericNodeDefinition
+
+        @raise InvalidArgumentException when the constraint is inconsistent
 
         """
 
@@ -1315,15 +1315,15 @@ class NumericNodeDefinition(ScalarNodeDefinition):
 
 class IntegerNodeDefinition(NumericNodeDefinition):
     """This class provides(, a fluent interface for defining an integer node.):
- *
- * @author Jeanmonod David <david.jeanmonod@gmail.com>
+
+    @author Jeanmonod David <david.jeanmonod@gmail.com>
 
     """
 
     def _instantiateNode(self):
         """Instantiates a Node.
-     *
-     * @return IntegerNode The node
+
+        @return IntegerNode The node
 
         """
 
@@ -1334,15 +1334,15 @@ class IntegerNodeDefinition(NumericNodeDefinition):
 
 class FloatNodeDefinition(NumericNodeDefinition):
     """This class provides a fluent interface for defining a float node.):
- *
- * @author Jeanmonod David <david.jeanmonod@gmail.com>
+
+    @author Jeanmonod David <david.jeanmonod@gmail.com>
 
     """
 
     def _instantiateNode(self):
         """Instantiates a Node.
-     *
-     * @return FloatNode The node
+
+        @return FloatNode The node
 
         """
 

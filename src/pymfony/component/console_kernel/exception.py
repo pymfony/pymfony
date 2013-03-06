@@ -17,22 +17,22 @@ from pymfony.component.system.oop import interface;
 @interface
 class ConsoleExceptionInterface(Object):
     """Interface for CLI error exceptions.
- *
- * @author Kris Wallsmith <kris@symfony.com>
+
+    @author Kris Wallsmith <kris@symfony.com>
 
     """
 
     def getStatusCode(self):
         """Returns the status code.
-     *
-     * @return integer An CLI response status code
+
+        @return integer An CLI response status code
 
         """
 
 class ConsoleException(RuntimeException, ConsoleExceptionInterface):
     """ConsoleException.
- *
- * @author Kris Wallsmith <kris@symfony.com>
+
+    @author Kris Wallsmith <kris@symfony.com>
 
     """
 
@@ -55,17 +55,17 @@ class ConsoleException(RuntimeException, ConsoleExceptionInterface):
 
 class NotFoundConsoleException(ConsoleException):
     """NotFoundConsoleException.
- *
- * @author Fabien Potencier <fabien@symfony.com>
+
+    @author Fabien Potencier <fabien@symfony.com>
 
     """
 
     def __init__(self, message = None, previous = None, code = 0):
         """Constructor.
-     *
-     * @param string     message  The internal exception message
-     * @param Exception previous The previous exception
-     * @param integer    code     The internal exception code
+
+        @param string     message  The internal exception message
+        @param Exception previous The previous exception
+        @param integer    code     The internal exception code
 
         """
 

@@ -25,6 +25,11 @@ from pymfony.component.console_kernel.exception import NotFoundConsoleException
 """
 
 class ListCommand(ContainerAware):
+    """ListCommand displays the list of all available commands for the
+    application.
+
+    @author: Fabien Potencier <fabien@symfony.com>
+    """
     def showAction(self):
         router = self._container.get('console.router');
         assert isinstance(router, Router);
@@ -44,6 +49,10 @@ class ListCommand(ContainerAware):
         return Response("Command List:\n- "+"\n- ".join(commandList));
 
 class ExceptionCommand(ContainerAware):
+    """ExceptionController to caught exceptions.
+
+    @author: Alexandre Quercia <alquerci@email.com>
+    """
     def showAction(self, request, exception):
         assert isinstance(request, Request);
 

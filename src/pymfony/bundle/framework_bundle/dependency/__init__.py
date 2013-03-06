@@ -87,7 +87,17 @@ class FrameworkExtension(Extension):
 
 
 class Configuration(ConfigurationInterface):
+    """FrameworkExtension configuration structure.
+
+    @author: Jeremy Mikola <jmikola@gmail.com>
+    """
     def getConfigTreeBuilder(self):
+        """Generates the configuration tree builder.
+
+        @return: TreeBuilder The tree builder
+
+        @raise RuntimeException: When using the deprecated 'charset' setting
+        """
         treeBuilder = TreeBuilder();
         rootNode = treeBuilder.root('framework');
 

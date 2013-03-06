@@ -30,15 +30,15 @@ from pymfony.component.console_routing.exception import ResourceNotFoundExceptio
 
 class RouterListener(EventSubscriberInterface):
     """Initializes the context from the request and sets request attributes based on a matching route.
- *
- * @author Fabien Potencier <fabien@symfony.com>
+
+    @author Fabien Potencier <fabien@symfony.com>
 
     """
 
     def __init__(self, matcher):
         """Constructor.
-     *
-     * @param ContainerInterface
+
+        @param ContainerInterface
 
         """
         assert isinstance(matcher, RequestMatcherInterface);
