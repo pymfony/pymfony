@@ -67,21 +67,15 @@ def abstractclass(obj):
 
 def interface(obj):
     """Decorator"""
-    # TODO: method or function it's weird so need to tests.
-    if sys.version_info[0] == 2:
-        methods = inspect.getmembers(obj, inspect.ismethod);
-    else:
-        methods = inspect.getmembers(obj, inspect.isfunction);
+    if not isinstance(obj, type(OOPMeta)):
+        return obj;
 
     absMethods = set();
 
-    def func(*a, **ka):
-        pass;
-
-    for name, method in methods:
-        if not name.endswith('__'):
+    for name, method in obj.__dict__.items():
+        if inspect.isfunction(method):
             absMethods.add(name);
-            setattr(obj, name, abc.abstractmethod(func));
+            setattr(obj, name, abc.abstractmethod(method));
 
     obj.__interfacemethods__ = frozenset(absMethods);
 
