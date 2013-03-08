@@ -8,6 +8,7 @@
 
 from __future__ import absolute_import;
 
+import sys;
 import inspect;
 
 from pymfony.component.system import Object;
@@ -147,6 +148,9 @@ class ReflectionFunction(AbstractReflectionFunction):
     def __str__(self):
         return self._name;
 
+    def getName(self):
+        return self._name;
+
     def getParameters(self):
         """Get the parameters as a list of ReflectionParameter.
 
@@ -161,6 +165,14 @@ class ReflectionFunction(AbstractReflectionFunction):
 
 
 class ReflectionMethod(AbstractReflectionFunction):
+    IS_STATIC = 1;
+    IS_ABSTRACT = 2;
+    IS_FINAL = 4;
+    IS_PUBLIC = 256;
+    IS_PROTECTED = 512;
+    IS_PRIVATE = 1024;
+
+
     def __init__(self, method):
         """Constructs a ReflectionFunction object.
 
@@ -174,12 +186,51 @@ class ReflectionMethod(AbstractReflectionFunction):
                     method
             ))
 
-        self._name = method.__name__;
+        self._className = None;
         self._parameters = None;
+        self._mode = None;
+
+        self._name = method.__name__;
         self._method = method;
+
 
     def __str__(self):
         return self._name;
+
+    def getName(self):
+        return self._name;
+
+    def getClassName(self):
+        if self._className is None:
+            if sys.version_info < (3, 0):
+                cls = self._method.im_class;
+            else:
+                cls = self._method.__self__.__class__;
+
+            self._className = ReflectionClass(cls).getName();
+        return self._className;
+
+    def getMode(self):
+        if self._mode is None:
+            if self._name.startswith('__') and self._name.endswith('__'):
+                self._mode = self.IS_PUBLIC;
+            elif self._name.startswith('__'):
+                self._mode = self.IS_PRIVATE;
+            elif self._name.startswith('_'):
+                self._mode = self.IS_PROTECTED;
+            else:
+                self._mode = self.IS_PUBLIC;
+
+            if getattr(self._method, '__isabstractmethod__', False):
+                self._mode = self._mode | self.IS_ABSTRACT;
+
+            if getattr(self._method, '__isfinalmethod__', False):
+                self._mode = self._mode | self.IS_FINAL;
+
+            if isinstance(self._method, classmethod):
+                self._mode = self._mode | self.IS_STATIC;
+
+        return self._mode;
 
     def getParameters(self):
         """Get the parameters as a list of ReflectionParameter.
@@ -220,6 +271,8 @@ class ReflectionClass(Object):
             self._namespaceName = Tool.split(qualClassName)[0];
             self._parentClass = False;
             self._class = None;
+
+        self._methods = None;
 
 
     def getFileName(self):
@@ -291,3 +344,29 @@ class ReflectionObject(ReflectionClass):
             name,
             self.getName(),
         ));
+
+    def getMethods(self, flag = 0):
+        """Gets a list of methods for the class.
+
+        @param: int flag Filter the results to include only methods with certain
+            attributes. Defaults to no filtering.
+            Any combination of ReflectionMethod.IS_STATIC,
+                               ReflectionMethod.IS_PUBLIC,
+                               ReflectionMethod.IS_PROTECTED,
+                               ReflectionMethod.IS_PRIVATE,
+                               ReflectionMethod.IS_ABSTRACT,
+                               ReflectionMethod.IS_FINAL.
+
+        @return: list A list of ReflectionMethod objects reflecting each method.
+        """
+        if self._methods is None:
+
+            self._methods = list();
+
+            for name, method in inspect.getmembers(self.__object, inspect.ismethod):
+                refMethod = ReflectionMethod(method);
+                if flag == flag & refMethod.getMode():
+                    self._methods.append(refMethod);
+
+
+        return self._methods;
