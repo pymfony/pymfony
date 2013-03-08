@@ -338,20 +338,18 @@ class Container(IntrospectableContainerInterface):
     def getServiceIds(self):
         """Gets all service ids.
 
-        @return: array An array of all defined service ids
+        @return: list An array of all defined service ids
 
         """
 
         ids = list();
-        # r = ReflectionClass(self);
-        # for method in r.getMethods(): # TODO: method
-        #     match = re.match('^get(.+)Service$', method.name);
-        for method in inspect.getmembers(self, inspect.ismethod):
-            match = re.match('^get(.+)Service$', method.__name__);
+        r = ReflectionObject(self);
+        for method in r.getMethods():
+            match = re.match('^get(.+)Service$', method.getName());
             if match :
                 ids.append(self.underscore(match.group(1)));
 
-        return Array.uniq(ids + self._services.keys());
+        return Array.uniq(ids + list(self._services.keys()));
 
     def enterScope(self, name):
         """This is called when you enter a scope
@@ -1052,13 +1050,13 @@ class ContainerBuilder(Container, TaggedContainerInterface):
     def getServiceIds(self):
         """Gets all service ids.
 
-        @return: array An array of all defined service ids
+        @return: list A list of all defined service ids
 
         """
         return Array.uniq(
             list(self.getDefinitions().keys()) +\
             list(self.getAliases().keys()) +\
-            Container.getServiceIds()
+            Container.getServiceIds(self)
         );
 
     def addAliases(self, aliases):
