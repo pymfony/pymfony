@@ -202,7 +202,7 @@ class ReflectionMethod(AbstractReflectionFunction):
 
     def getClassName(self):
         if self._className is None:
-            if sys.version_info < (3, 0):
+            if sys.version_info < (2, 7):
                 cls = self._method.im_class;
             else:
                 cls = self._method.__self__.__class__;
