@@ -18,6 +18,9 @@ from pymfony.component.console_routing import Router;
 from pymfony.component.console_routing import Route;
 
 from pymfony.component.dependency import ContainerAware;
+from pymfony.component.console import Request
+from pymfony.component.console_kernel.exception import ConsoleException
+from pymfony.component.console_kernel.exception import NotFoundConsoleException
 
 """
 """
@@ -42,10 +45,42 @@ class ListCommand(ContainerAware):
         return Response("Command List:\n- "+"\n- ".join(commandList));
 
 class ExceptionCommand(ContainerAware):
-    def showAction(self, exception, _o_verbose):
-        output = "";
-        NL = "\n";
-        e = exception;
+    def showAction(self, request, exception):
+        assert isinstance(request, Request);
+
+        if isinstance(exception, NotFoundConsoleException):
+            title = 'Sorry, the command you are executing for could not be found.';
+        else:
+            title = 'Whoops, looks like something went wrong.';
+
+        debug = self._container.getParameter('kernel.debug');
+
+        verbose = False;
+        if request.hasOption('verbose'):
+            verbose = request.getOption('verbose');
+
+        content = "";
+        nl = "\n";
+
+        if debug:
+            try:
+                content += self._renderException(exception, nl, verbose);
+            except Exception as e:
+                message = e.getMessage() if isinstance(e, StandardException) else str(e);
+
+                title = 'Exception thrown when handling an exception ({0}: {1})'.format(
+                    ReflectionObject(e).getName(),
+                    message
+                );
+
+        return Response("<error>{0}</error>{nl}{1}".format(
+            title,
+            content,
+            nl=nl
+        ));
+
+    def _renderException(self, e, nl = "\n", verbose = False):
+        content = "";
         while e:
             title = '  [{0}]  '.format(ReflectionObject(e).getName());
             lenght = len(title);
@@ -66,16 +101,16 @@ class ExceptionCommand(ContainerAware):
 
             messages.append(' ' * lenght);
 
-            output += NL;
-            output += NL;
+            content += nl;
+            content += nl;
             for message in messages:
-                output += '<error>' + message + '</error>' + NL;
+                content += '<error>' + message + '</error>' + nl;
 
-            output += NL;
-            output += NL;
+            content += nl;
+            content += nl;
 
-            if _o_verbose and isinstance(e, StandardException):
-                output += '<comment>Exception trace:</comment>' + NL;
+            if verbose and isinstance(e, StandardException):
+                content += '<comment>Exception trace:</comment>' + nl;
 
                 # exception related properties
                 trace = e.getTrace();
@@ -87,21 +122,21 @@ class ExceptionCommand(ContainerAware):
                     file = stack['filename'] if 'filename' in stack else 'n/a';
                     line = stack['lineno'] if 'lineno' in stack else 'n/a';
 
-                    output += ' {0}.{1}() at <info>{2}:{3}</info>{4}'.format(
+                    content += ' {0}.{1}() at <info>{2}:{3}</info>{4}'.format(
                         className,
                         function,
                         file,
                         line,
-                        NL,
+                        nl,
                     );
 
 
-                output += NL;
-                output += NL;
+                content += nl;
+                content += nl;
 
             if isinstance(e, StandardException):
                 e = e.getPrevious();
             else:
                 e = False;
 
-        return Response(output);
+        return content;

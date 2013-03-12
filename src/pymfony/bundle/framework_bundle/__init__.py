@@ -40,10 +40,10 @@ class FrameworkBundle(Bundle):
         container.addCompilerPass(RegisterKernelListenersPass(), PassConfig.TYPE_AFTER_REMOVING);
 
     def boot(self):
+        if self._container.has('console.router'):
+            routeCollection = self._container.get('console.router').getRouteCollection();
+            assert isinstance(routeCollection, RouteCollection);
 
-        routeCollection = self._container.get('console.router').getRouteCollection();
-        assert isinstance(routeCollection, RouteCollection);
-
-        routeCollection.add('framework_list', Route("list", "Lists commands", {
-            '_controller': "FrameworkBundle:List:show",
-        }));
+            routeCollection.add('framework_list', Route("list", "Lists commands", {
+                '_controller': "FrameworkBundle:List:show",
+            }));
