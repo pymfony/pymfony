@@ -29,6 +29,15 @@ class FrameworkBundle(Bundle):
     @author: Fabien Potencier <fabien@symfony.com>
 
     """
+    def boot(self):
+        if self._container.has('console.router'):
+            routeCollection = self._container.get('console.router').getRouteCollection();
+            assert isinstance(routeCollection, RouteCollection);
+
+            routeCollection.add('framework_list', Route("list", "Lists commands", {
+                '_controller': "FrameworkBundle:List:show",
+            }));
+
     def build(self, container):
         assert isinstance(container, ContainerBuilder);
 
@@ -38,12 +47,3 @@ class FrameworkBundle(Bundle):
 
         container.addCompilerPass(ConsoleRoutingResolverPass());
         container.addCompilerPass(RegisterKernelListenersPass(), PassConfig.TYPE_AFTER_REMOVING);
-
-    def boot(self):
-        if self._container.has('console.router'):
-            routeCollection = self._container.get('console.router').getRouteCollection();
-            assert isinstance(routeCollection, RouteCollection);
-
-            routeCollection.add('framework_list', Route("list", "Lists commands", {
-                '_controller': "FrameworkBundle:List:show",
-            }));

@@ -219,7 +219,7 @@ class Kernel(KernelInterface):
         self._booted = False;
         self._container = None;
 
-    def getKernelParameters(self):
+    def _getKernelParameters(self):
         bundles = dict();
         for name, bundle in self._bundles.items():
             bundles[name] = ReflectionObject(bundle).getName();
@@ -235,10 +235,10 @@ class Kernel(KernelInterface):
             'kernel.charset': self.getCharset(),
             'kernel.version': self.getVersion(),
         };
-        parameters.update(self.getEnvParameters());
+        parameters.update(self._getEnvParameters());
         return parameters;
 
-    def getEnvParameters(self):
+    def _getEnvParameters(self):
         parameters = dict();
         for key, value in os.environ.items():
             key = str(key);
@@ -271,7 +271,7 @@ class Kernel(KernelInterface):
 
     def _initializeContainer(self):
         """Initializes the service container."""
-        self._container = self.buildContainer();
+        self._container = self._buildContainer();
         self._container.set('kernel', self);
 
     def _initializeBundles(self):
@@ -348,7 +348,7 @@ class Kernel(KernelInterface):
 
 
 
-    def buildContainer(self):
+    def _buildContainer(self):
         resouces = {
             'cache': self.getCacheDir(),
             'logs': self.getLogDir(),
@@ -368,7 +368,7 @@ class Kernel(KernelInterface):
                     "".format(name, path)
                 );
 
-        container = self.getContainerBuilder();
+        container = self._getContainerBuilder();
         extensions = list();
 
         container.addObjectResource(self);
@@ -417,7 +417,7 @@ class Kernel(KernelInterface):
         ]);
 
         cont = self.registerContainerConfiguration(
-            self.getContainerLoader(container)
+            self._getContainerLoader(container)
         );
         if not cont is None:
             container.merge(cont);
@@ -429,7 +429,7 @@ class Kernel(KernelInterface):
     def getNamespace(self):
         return str(type(self).__module__);
 
-    def getContainerLoader(self, container):
+    def _getContainerLoader(self, container):
         assert isinstance(container, ContainerInterface);
         locator = FileLocator(self);
         resolver = LoaderResolver([
@@ -438,8 +438,8 @@ class Kernel(KernelInterface):
         ]);
         return DelegatingLoader(resolver);
 
-    def getContainerBuilder(self):
-        return ContainerBuilder(ParameterBag(self.getKernelParameters()));
+    def _getContainerBuilder(self):
+        return ContainerBuilder(ParameterBag(self._getKernelParameters()));
 
     def shutdown(self):
         if not self._booted:

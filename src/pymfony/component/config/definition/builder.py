@@ -60,12 +60,12 @@ class NodeDefinition(NodeParentInterface):
         if not parent is None:
             assert isinstance(parent, NodeParentInterface);
         self._name = str(name);
-        self._normalization = None;
-        self._validation = None;
+        self._normalizationBuilder = None;
+        self._validationBuilder = None;
         self._defaultValue = None;
         self._default = False;
         self._required = False;
-        self._merge = None;
+        self._mergeBuilder = None;
         self._allowEmptyValue = None;
         self._nullEquivalent = None;
         self._trueEquivalent = True;
@@ -151,13 +151,13 @@ class NodeDefinition(NodeParentInterface):
         if forceRootNode:
             self._parent = None;
 
-        if not self._normalization is None:
-            self._normalization.befores = ExprBuilder.buildExpressions(
-                self._normalization.befores
+        if not self._normalizationBuilder is None:
+            self._normalizationBuilder.befores = ExprBuilder.buildExpressions(
+                self._normalizationBuilder.befores
             );
-        if not self._validation is None:
-            self._validation.rules = ExprBuilder.buildExpressions(
-                self._validation.rules
+        if not self._validationBuilder is None:
+            self._validationBuilder.rules = ExprBuilder.buildExpressions(
+                self._validationBuilder.rules
             );
         node = self._createNode();
         node.setAttributes(self._attributes);
@@ -241,7 +241,7 @@ class NodeDefinition(NodeParentInterface):
 
         @return: ExprBuilder
         """
-        return self.normalization().before();
+        return self._normalization().before();
 
     def cannotBeEmpty(self):
         """Denies the node value being empty.
@@ -261,7 +261,7 @@ class NodeDefinition(NodeParentInterface):
 
         @return: ExprBuilder
         """
-        return self.validation().rule();
+        return self._validation().rule();
 
     def cannotBeOverwritten(self, deny=True):
         """Sets whether the node can be overwritten.
@@ -270,35 +270,35 @@ class NodeDefinition(NodeParentInterface):
 
         @return: NodeDefinition
         """
-        self.merge().denyOverwrite(deny);
+        self._merge().denyOverwrite(deny);
         return self;
 
-    def validation(self):
+    def _validation(self):
         """Gets the builder for validation rules.
 
         @return: ValidationBuilder
         """
-        if self._validation is None:
-            self._validation = ValidationBuilder(self);
-        return self._validation;
+        if self._validationBuilder is None:
+            self._validationBuilder = ValidationBuilder(self);
+        return self._validationBuilder;
 
-    def merge(self):
+    def _merge(self):
         """Gets the builder for merging rules.
 
         @return: MergeBuilder
         """
-        if self._merge is None:
-            self._merge = MergeBuilder(self);
-        return self._merge;
+        if self._mergeBuilder is None:
+            self._mergeBuilder = MergeBuilder(self);
+        return self._mergeBuilder;
 
-    def normalization(self):
+    def _normalization(self):
         """Gets the builder for normalization rules.
 
         @return: NormalizationBuilder
         """
-        if self._normalization is None:
-            self._normalization = NormalizationBuilder(self);
-        return self._normalization;
+        if self._normalizationBuilder is None:
+            self._normalizationBuilder = NormalizationBuilder(self);
+        return self._normalizationBuilder;
 
 
 class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
@@ -401,7 +401,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
 
         @return: ArrayNodeDefinition
         """
-        self.normalization().remap(singular, plural);
+        self._normalization().remap(singular, plural);
         return self;
 
     def useAttributeAsKey(self, name, removeKeyItem=True):
@@ -441,7 +441,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
 
         @return: ArrayNodeDefinition
         """
-        self.merge().allowUnset(allow);
+        self._merge().allowUnset(allow);
         return self;
 
     def canBeEnabled(self):
@@ -532,7 +532,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
     def _createNode(self):
         if self._prototype is None:
             node = ArrayNode(self._name, self._parent);
-            self.validateConcreteNode(node);
+            self._validateConcreteNode(node);
 
             node.setAddIfNotSet(self._addDefaults);
 
@@ -542,7 +542,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
         else:
             node = PrototypedArrayNode(self._name, self._parent);
 
-            self.validatePrototypeNode(node);
+            self._validatePrototypeNode(node);
 
             if not self._key is None:
                 node.setKeyAttribute(self._key, self._removeKeyItem);
@@ -571,20 +571,20 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
         node.setIgnoreExtraKeys(self._ignoreExtraKeys);
         node.setNormalizeKeys(self._normalizeKeys);
 
-        if not self._normalization is None:
-            node.setNormalizationClosures(self._normalization.befores);
-            node.setXmlRemappings(self._normalization.remappings);
+        if not self._normalizationBuilder is None:
+            node.setNormalizationClosures(self._normalizationBuilder.befores);
+            node.setXmlRemappings(self._normalizationBuilder.remappings);
 
-        if not self._merge is None:
-            node.setAllowOverwrite(self._merge.allowOverwrite);
-            node.setAllowFalse(self._merge.allowFalse);
+        if not self._mergeBuilder is None:
+            node.setAllowOverwrite(self._mergeBuilder.allowOverwrite);
+            node.setAllowFalse(self._mergeBuilder.allowFalse);
 
-        if not self._validation is None:
-            node.setFinalValidationClosures(self._validation.rules);
+        if not self._validationBuilder is None:
+            node.setFinalValidationClosures(self._validationBuilder.rules);
 
         return node;
 
-    def validateConcreteNode(self, node):
+    def _validateConcreteNode(self, node):
         """Validate the configuration of a concrete node.
 
         @param node: ArrayNode  The related node
@@ -618,7 +618,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
                 'to concrete nodes at path "{0}"'.format(path)
             );
 
-    def validatePrototypeNode(self, node):
+    def _validatePrototypeNode(self, node):
         """Validate the configuration of a prototype node.
 
         @param node: PrototypedArrayNode The related node
@@ -1149,11 +1149,11 @@ class VariableNodeDefinition(NodeDefinition):
     def _createNode(self):
         node = self._instantiateNode();
 
-        if not self._normalization is None:
-            node.setNormalizationClosures(self._normalization.befores);
+        if not self._normalizationBuilder is None:
+            node.setNormalizationClosures(self._normalizationBuilder.befores);
 
-        if not self._merge is None:
-            node.setAllowOverwrite(self.merge().allowOverwrite);
+        if not self._mergeBuilder is None:
+            node.setAllowOverwrite(self._merge().allowOverwrite);
 
         if self._default:
             node.setDefaultValue(self._defaultValue);
@@ -1166,8 +1166,8 @@ class VariableNodeDefinition(NodeDefinition):
         node.addEquivalentValue(False, self._falseEquivalent);
         node.setRequired(self._required);
 
-        if not self._validation is None:
-            node.setFinalValidationClosures(self._validation.rules);
+        if not self._validationBuilder is None:
+            node.setFinalValidationClosures(self._validationBuilder.rules);
 
         return node;
 

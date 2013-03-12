@@ -12,6 +12,7 @@ from os.path import dirname;
 
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.oop import abstract;
+from pymfony.component.system.oop import final;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.reflection import ReflectionClass;
@@ -153,6 +154,7 @@ class Bundle(ContainerAware, BundleInterface):
             self._reflected = ReflectionObject(self);
         return dirname(self._reflected.getFileName());
 
+    @final
     def getName(self):
         if self._name is None:
             self._name = str(type(self).__name__);

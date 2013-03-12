@@ -15,6 +15,7 @@ from pymfony.component.system.types import String;
 from pymfony.component.system.types import Array
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
+from pymfony.component.system.oop import final;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import RuntimeException;
 
@@ -323,8 +324,9 @@ class BaseNode(NodeInterface):
             path = ".".join([self._parent.getPath(), self._name]);
         return path;
 
+    @final
     def merge(self, leftSide, rightSide):
-        """@final:
+        """
         """
         if not self._allowOverwrite:
             raise ForbiddenOverwriteException(
@@ -338,6 +340,7 @@ class BaseNode(NodeInterface):
 
         return self._mergeValues(leftSide, rightSide);
 
+    @final
     def normalize(self, value):
         """Normalizes a value, applying all normalization closures.
 
@@ -370,6 +373,7 @@ class BaseNode(NodeInterface):
         """
         return value;
 
+    @final
     def finalize(self, value):
         """@final:"""
         self._validateType(value);

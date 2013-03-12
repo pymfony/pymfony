@@ -19,7 +19,6 @@ from pymfony.component.console_routing import Route;
 
 from pymfony.component.dependency import ContainerAware;
 from pymfony.component.console import Request
-from pymfony.component.console_kernel.exception import ConsoleException
 from pymfony.component.console_kernel.exception import NotFoundConsoleException
 
 """

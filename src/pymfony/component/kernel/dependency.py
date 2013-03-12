@@ -8,6 +8,7 @@
 from __future__ import absolute_import;
 
 from pymfony.component.system.oop import abstract;
+from pymfony.component.system.oop import final;
 
 from pymfony.component.dependency.compilerpass import MergeExtensionConfigurationPass as BaseMergeExtensionConfigurationPass;
 
@@ -42,8 +43,10 @@ class Extension(BaseExtension):
 
 @abstract
 class ConfigurableExtension(Extension):
+    @final
     def load(self, configs, container):
-        """@final:"""
+        """
+        """
         self._loadInternal(self._processConfiguration(self.getConfiguration(list(), container), configs), container);
 
     @abstract

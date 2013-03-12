@@ -8,11 +8,11 @@
 from __future__ import absolute_import;
 
 import re;
-import inspect;
 
 from pymfony.component.system import ClassLoader;
 from pymfony.component.system import Object;
 from pymfony.component.system import Tool;
+from pymfony.component.system.oop import abstract;
 from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.types import OrderedDict;
 from pymfony.component.system.types import Array;
@@ -83,16 +83,16 @@ class Scope(ScopeInterface):
         return self.__parentName;
 
 
-
-
+@abstract
 class ContainerAware(ContainerAwareInterface):
     def __init__(self):
         self._container = None;
 
-    def setContainer(self, container=None):
-        if container:
-            assert isinstance(container, ContainerInterface);
+    def setContainer(self, container = None):
+        assert isinstance(container, (ContainerInterface, type(None)));
+
         self._container = container;
+
 
 class Container(IntrospectableContainerInterface):
     """Container is a dependency injection container.
