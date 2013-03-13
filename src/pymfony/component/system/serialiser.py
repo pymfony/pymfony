@@ -8,17 +8,23 @@
 
 from __future__ import absolute_import;
 
-"""
-"""
-
 from pickle import dumps;
 from pickle import loads;
+try:
+    from base64 import encodebytes;
+    from base64 import decodebytes;
+except Exception:
+    from base64 import encodestring as encodebytes;
+    from base64 import decodestring as decodebytes;
 
-SUB_NL = '\0\0\0\0';
-NL = '\n';
+
+"""
+"""
+
+CHARSET = 'UTF-8';
 
 def serialize(obj):
-    return dumps(obj).replace(NL, SUB_NL);
+    return encodebytes(dumps(obj)).decode(CHARSET).replace('\n', '');
 
 def unserialize(s):
-    return loads(str(s).replace(SUB_NL, NL));
+    return loads(decodebytes(s.encode(CHARSET)));
