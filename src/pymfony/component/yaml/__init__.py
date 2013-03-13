@@ -561,11 +561,13 @@ class Parser(Object):
 
 
         if indicator == '':
-            text = re.sub('\n+$', "\n", text, flags=re.S);
+            pattern = re.compile('\n+$', re.S)
+            text = pattern.sub("\n", text);
         elif indicator == '+':
             pass;
         elif indicator == '-':
-            text = re.sub('\n+$', '', text, flags=re.S);
+            pattern = re.compile('\n+$', re.S)
+            text = pattern.sub('', text);
 
         return text;
 
@@ -648,12 +650,14 @@ class Parser(Object):
         def callback(match):
             count.add(1);
             return '';
-        value = re.sub('^\%YAML[: ][\d\.]+.*\n', callback, value, 0, re.S|re.U);
+        pattern = re.compile('^\%YAML[: ][\d\.]+.*\n', re.S | re.U);
+        value = pattern.sub(callback, value);
         self.__offset += count.get();
 
         # remove leading comments
         count.set(0);
-        stripmedValue = re.sub('^(\#.*?\n)+', callback, value, 0, re.S);
+        pattern = re.compile('^(\#.*?\n)+', re.S);
+        stripmedValue = pattern.sub(callback, value);
         if (count.get() == 1) :
             # items have been removed, update the offset
             self.__offset += value.count("\n") - stripmedValue.count("\n");
@@ -662,14 +666,16 @@ class Parser(Object):
 
         # remove start of the document marker (---)
         count.set(0);
-        stripmedValue = re.sub('^\-\-\-.*?\n', callback, value, 0, re.S);
+        pattern = re.compile('^\-\-\-.*?\n', re.S);
+        stripmedValue = pattern.sub(callback, value);
         if (count.get() == 1) :
             # items have been removed, update the offset
             self.__offset += value.count("\n") - stripmedValue.count("\n");
             value = stripmedValue;
 
             # remove end of the document marker (...)
-            value = re.sub('\.\.\.\s*$', '', value, flags=re.S);
+            pattern = re.compile('\.\.\.\s*$', re.S);
+            value = pattern.sub('', value);
 
 
         return value;
@@ -798,7 +804,7 @@ class Inline(Object):
         if str(value).isdigit():
             return "'"+value+"'" if isinstance(value, String) else str(int(value));
         if cls.__is_numeric(value):
-            return "'"+value+"'" if isinstance(value, String) else re.sub('INF', '.Inf', str(value), 0, re.I) if math.isinf(value) else str(value);
+            return "'"+value+"'" if isinstance(value, String) else re.compile('INF', re.I).sub('.Inf', str(value)) if math.isinf(value) else str(value);
         if not isinstance(value, String):
             if (objectSupport) :
                 return '!!python/object:'+serialize(value);
@@ -1283,7 +1289,8 @@ class Unescaper(Object):
         """
 
         # evaluate the string
-        return re.sub(self.REGEX_ESCAPED_CHARACTER, self.__callback, value, 0, re.U);
+        pattern = re.compile(self.REGEX_ESCAPED_CHARACTER, re.U);
+        return pattern.sub(self.__callback, value);
 
 
     def unescapeCharacter(self, value):
