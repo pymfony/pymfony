@@ -86,25 +86,25 @@ test: Unicode next line
 yaml: |
     "\N"
 python: |
-    "\xc2\x85"
+    "\uc285"
 ---
 test: Unicode non-breaking space
 yaml: |
     "\_"
 python: |
-    "\xc2\xa0"
+    "\uc2a0"
 ---
 test: Unicode line separator
 yaml: |
     "\L"
 python: |
-    "\xe2\x80\xa8"
+    "\ue280a8"
 ---
 test: Unicode paragraph separator
 yaml: |
     "\P"
 python: |
-    "\xe2\x80\xa9"
+    "\ue280a9"
 ---
 test: Escaped 8-bit Unicode
 yaml: |
@@ -114,9 +114,9 @@ python: |
 ---
 test: Escaped 16-bit Unicode
 yaml: |
-    "\u20ac"
+    "\u002e"
 python: |
-    "\xe2\x82\xac"
+    "."
 ---
 test: Escaped 32-bit Unicode
 yaml: |

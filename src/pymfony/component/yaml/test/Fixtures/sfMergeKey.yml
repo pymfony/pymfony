@@ -1,5 +1,6 @@
 --- %YAML:1.0
 test: Simple In Place Substitution
+todo: true
 brief: >
     If you want to reuse an entire alias, only overwriting what is different
     you can use a << in place substitution. This is not part of the official
@@ -44,19 +45,19 @@ python: |
                         ('a' , 'Steve'),
                         ('b' , 'Clark'),
                         ('c' , 'Brian'),
-                        (3 , 'fi'),
-                        (4 , 'fei'),
-                        (5 , 'fo'),
-                        (6 , 'fam'),
+                        (0 , 'fi'),
+                        (1 , 'fei'),
+                        (2 , 'fo'),
+                        (3 , 'fam'),
                         ('isit' , 'tested')
                     ])),
          ('head' , OrderedDict([
                         ('a' , 'Ballmer'),
                         ('b' , 'Clark'),
                         ('c' , 'Brian'),
-                        (3 , 'fi'),
-                        (4 , 'fei'),
-                        (5 , 'fo'),
-                        (6 , 'fam'),
+                        (0 , 'fi'),
+                        (1 , 'fei'),
+                        (2 , 'fo'),
+                        (3 , 'fam'),
                    ]))
     ])

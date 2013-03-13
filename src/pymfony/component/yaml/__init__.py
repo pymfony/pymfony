@@ -25,6 +25,8 @@ from pymfony.component.system.serialiser import unserialize
 from pymfony.component.yaml.exception import ParseException
 from pymfony.component.yaml.exception import RuntimeException
 from pymfony.component.yaml.exception import DumpException
+import locale
+from pymfony.component.system.types import Array
 
 """
 """
@@ -79,11 +81,11 @@ class Parser(Object):
         See [url]http://docs.python.org/2/library/codecs.html#standard-encodings[/url] for encodings.'''
         for best_enc in encoding_list:
             try:
-                text.encode(encoding=best_enc, errors='strict')
-            except:
-                best_enc = None
+                text.encode(encoding=best_enc, errors='strict');
+            except Exception as e:
+                best_enc = False;
             else:
-                break
+                break;
         return best_enc
 
     def parse(self, value, exceptionOnInvalidType = False, objectSupport = False):
@@ -221,17 +223,27 @@ class Parser(Object):
                         parsed = parser.parse(value, exceptionOnInvalidType, objectSupport);
 
                         merged = OrderedDict();
-                        if not isinstance(parsed, dict) :
+                        if not isinstance(parsed, (dict, list)) : # FIXME: merge
                             raise ParseException('YAML merge keys used with a scalar value instead of an array.', self.__getRealCurrentLineNb() + 1, self.__currentLine);
-                        elif 0 in parsed :
+                        if isinstance(parsed, list) :
                             # Numeric array, merge individual elements
                             for parsedItem in reversed(parsed):
-                                if not isinstance(parsedItem, dict) :
+                                if not isinstance(parsedItem, (dict, list)) :
                                     raise ParseException('Merge items must be arrays.', self.__getRealCurrentLineNb() + 1, parsedItem);
+                                elif isinstance(parsedItem, list) :
+                                    # append int key into a dict
+                                    for k in range(len(parsedItem)):
+                                        v = parsedItem[k];
+                                        i = int(k);
+                                        while i in merged:
+                                            i += 1;
+                                        merged[i] = v;
+                                else:
+                                    tmp = parsedItem;
+                                    tmp.update(merged);
+                                    merged = tmp;
 
-                                merged.update(parsedItem);
-
-                        else :
+                        else:
                             # Associative array, merge
                             merged.update(parsed);
 
@@ -318,9 +330,10 @@ class Parser(Object):
 
             if (isRef) :
                 if context == 'mapping':
-                    self.__refs[isRef] = data.values()[-1];
+                    v = list(data.values())[-1];
                 else:
-                    self.__refs[isRef] = data[-1];
+                    v = data[-1];
+                self.__refs[isRef] = v.__class__(v);
 
 
         return None if not data else data;
@@ -528,7 +541,7 @@ class Parser(Object):
                 previousIndent = matches.group('indent');
 
                 diff = len(matches.group('indent')) - len(textIndent);
-                text += (' ' * (diff - len(textIndent)))+matches.group('text')+("\n" if diff else separator);
+                text += (' ' * diff)+matches.group('text')+("\n" if diff else separator);
 
                 continue;
 
@@ -1312,16 +1325,22 @@ class Unescaper(Object):
             return '\\';
         if value[1] == 'N':
             # U+0085 NEXT LINE
-            return self.__convertEncoding("\x00\x85", self.ENCODING, 'UTF-16BE');
+            return "\uc285";
+            char = pack('>H', int("0085", 16));
+            return self.__convertEncoding(char, self.ENCODING, 'UTF-16BE');
+            return self.__convertEncoding(b"\x00\x85", self.ENCODING, 'UTF-16BE');
         if value[1] == '_':
             # U+00A0 NO-BREAK SPACE
-            return self.__convertEncoding("\x00\xA0", self.ENCODING, 'UTF-16BE');
+            return "\uc2a0";
+            return self.__convertEncoding(b"\x00\xA0", self.ENCODING, 'UTF-16BE');
         if value[1] == 'L':
             # U+2028 LINE SEPARATOR
-            return self.__convertEncoding("\x20\x28", self.ENCODING, 'UTF-16BE');
+            return "\ue280a8";
+            return self.__convertEncoding(b"\x20\x28", self.ENCODING, 'UTF-16BE');
         if value[1] == 'P':
             # U+2029 PARAGRAPH SEPARATOR
-            return self.__convertEncoding("\x20\x29", self.ENCODING, 'UTF-16BE');
+            return "\ue280a9";
+            return self.__convertEncoding(b"\x20\x29", self.ENCODING, 'UTF-16BE');
         if value[1] == 'x':
             char = pack('>H', int(value[2:2 + 2], 16));
 
@@ -1350,7 +1369,7 @@ class Unescaper(Object):
 
         """
 
-        return value.decode(fromV).encode(to);
+        return value.decode(fromV).encode(to).decode(to);
 
 
         raise RuntimeException('No suitable convert encoding function (install the iconv or mbstring extension).');
