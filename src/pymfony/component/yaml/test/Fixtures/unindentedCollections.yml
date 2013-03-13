@@ -33,7 +33,14 @@ yaml: |
             - two
             - three
 python: |
-    OrderedDict([('collection' , OrderedDict([('key' , OrderedDict([('subkey' , ['one', 'two', 'three']))]))]))])
+    OrderedDict([
+        ('collection' , OrderedDict([
+                ('key' , OrderedDict([
+                    ('subkey' , ['one', 'two', 'three'])
+                ]) )
+            ])
+        )
+    ])
 ---
 test: Key/value after unindented collection (1)
 brief: >
@@ -46,7 +53,13 @@ yaml: |
         - c
     foo: bar
 python: |
-    OrderedDict([('collection' , OrderedDict([('key' , ['a', 'b', 'c'])]), ('foo' , 'bar')])])
+    OrderedDict([
+        ('collection' , OrderedDict([
+                ('key' , ['a', 'b', 'c'])
+            ])
+        ),
+        ('foo' , 'bar')
+    ])
 ---
 test: Key/value after unindented collection (at the same level)
 brief: >

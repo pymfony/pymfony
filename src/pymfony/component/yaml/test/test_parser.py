@@ -11,15 +11,17 @@ from __future__ import absolute_import;
 import unittest
 import re
 from os.path import dirname
+import time
+
 
 from pymfony.component.system import Object
 from pymfony.component.system.types import OrderedDict
 from pymfony.component.system.exception import StandardException
+from pymfony.component.system.serialiser import serialize
 
 from pymfony.component.yaml.exception import ParseException
 from pymfony.component.yaml import Parser
 from pymfony.component.yaml import Yaml
-
 """
 """
 
@@ -42,7 +44,8 @@ class ParserTest(unittest.TestCase):
         """
 
         def test(filename, expected, yaml, comment):
-            self.assertEqual(expected, self._parser.parse(yaml), comment);
+            ret = self._parser.parse(yaml);
+            self.assertEqual(expected, ret, comment);
 
         for data in self.getDataFormSpecifications():
             test(*data);
@@ -70,13 +73,20 @@ class ParserTest(unittest.TestCase):
 
 
                 test = parser.parse(yaml);
+
+                if not isinstance(test, dict):
+                    continue;
+
                 if 'todo' in test and test['todo'] :
                     # TODO
                     pass;
                 else:
-                    expected = eval(test['python'].strip());
+                    try:
+                        expected = eval(test['python'].strip());
+                    except Exception as e:
+                        raise e;
 
-                    tests.append([file, expected, test['yaml'], test['test']]);
+                    tests.append([filename, expected, test['yaml'], test['test']]);
 
 
 
@@ -123,7 +133,7 @@ foo
 
     def getBlockChompingTests(self):
 
-        tests = dict();
+        tests = list();
 
         yaml = """
 foo: |-
@@ -138,7 +148,7 @@ bar: |-
             ('foo' , "one\ntwo"),
             ('bar' , "one\ntwo"),
         ]);
-        tests['Literal block chomping strip with trailing newline'] = [expected, yaml];
+        tests.append(['Literal block chomping strip with trailing newline', expected, yaml]);
 
         yaml = """
 foo: |-
@@ -146,13 +156,12 @@ foo: |-
     two
 bar: |-
     one
-    two
-""";
+    two""";
         expected = OrderedDict([
             ('foo' , "one\ntwo"),
             ('bar' , "one\ntwo"),
         ]);
-        tests['Literal block chomping strip without trailing newline'] = [expected, yaml];
+        tests.append(['Literal block chomping strip without trailing newline', expected, yaml]);
 
         yaml = """
 foo: |
@@ -167,7 +176,7 @@ bar: |
             ('foo' , "one\ntwo\n"),
             ('bar' , "one\ntwo\n"),
         ]);
-        tests['Literal block chomping clip with trailing newline'] = [expected, yaml];
+        tests.append(['Literal block chomping clip with trailing newline', expected, yaml]);
 
         yaml = """
 foo: |
@@ -180,7 +189,7 @@ bar: |
             ('foo' , "one\ntwo\n"),
             ('bar' , "one\ntwo\n"),
         ]);
-        tests['Literal block chomping clip without trailing newline'] = [expected, yaml];
+        tests.append(['Literal block chomping clip without trailing newline', expected, yaml]);
 
         yaml = """
 foo: |+
@@ -195,7 +204,7 @@ bar: |+
             ('foo' , "one\ntwo\n\n"),
             ('bar' , "one\ntwo\n\n"),
         ]);
-        tests['Literal block chomping keep with trailing newline'] = [expected, yaml];
+        tests.append(['Literal block chomping keep with trailing newline', expected, yaml]);
 
         yaml = """
 foo: |+
@@ -208,7 +217,7 @@ bar: |+
             ('foo' , "one\ntwo\n"),
             ('bar' , "one\ntwo\n"),
         ]);
-        tests['Literal block chomping keep without trailing newline'] = [expected, yaml];
+        tests.append(['Literal block chomping keep without trailing newline', expected, yaml]);
 
         yaml = """
 foo: >-
@@ -223,7 +232,7 @@ bar: >-
             ('foo' , "one two"),
             ('bar' , "one two"),
         ]);
-        tests['Folded block chomping strip with trailing newline'] = [expected, yaml];
+        tests.append(['Folded block chomping strip with trailing newline', expected, yaml]);
 
         yaml = """
 foo: >-
@@ -236,7 +245,7 @@ bar: >-
             ('foo' , "one two"),
             ('bar' , "one two"),
         ]);
-        tests['Folded block chomping strip without trailing newline'] = [expected, yaml];
+        tests.append(['Folded block chomping strip without trailing newline', expected, yaml]);
 
         yaml = """
 foo: >
@@ -251,7 +260,7 @@ bar: >
             ('foo' , "one two\n"),
             ('bar' , "one two\n"),
         ]);
-        tests['Folded block chomping clip with trailing newline'] = [expected, yaml];
+        tests.append(['Folded block chomping clip with trailing newline', expected, yaml]);
 
         yaml = """
 foo: >
@@ -264,7 +273,7 @@ bar: >
             ('foo' , "one two\n"),
             ('bar' , "one two\n"),
         ]);
-        tests['Folded block chomping clip without trailing newline'] = [expected, yaml];
+        tests.append(['Folded block chomping clip without trailing newline', expected, yaml]);
 
         yaml = """
 foo: >+
@@ -279,7 +288,7 @@ bar: >+
             ('foo' , "one two\n\n"),
             ('bar' , "one two\n\n"),
         ]);
-        tests['Folded block chomping keep with trailing newline'] = [expected, yaml];
+        tests.append(['Folded block chomping keep with trailing newline', expected, yaml]);
 
         yaml = """
 foo: >+
@@ -292,7 +301,7 @@ bar: >+
             ('foo' , "one two\n"),
             ('bar' , "one two\n"),
         ]);
-        tests['Folded block chomping keep without trailing newline'] = [expected, yaml];
+        tests.append(['Folded block chomping keep without trailing newline', expected, yaml]);
 
         return tests;
 
@@ -302,10 +311,10 @@ bar: >+
 
         """
 
-        def test(expected, yaml):
-            self.assertEqual(expected, self._parser.parse(yaml));
+        def test(mess, expected, yaml):
+            self.assertEqual(expected, self._parser.parse(yaml), mess);
  
-        for data in self.getBlockChompingTests().values():
+        for data in self.getBlockChompingTests():
             test(*data);
 
 
@@ -313,18 +322,23 @@ bar: >+
     def testObjectSupportEnabled(self):
 
         inputv = """
-foo: !!python/object:O:30:"Symfony\Component\Yaml\Tests\B":1:s:1:"b";s:3:"foo";
+foo: !!python/object:{0}
 bar: 1
-""";
-        self.assertEqual(OrderedDict([('foo' , B()), ('bar' , 1)]), self._parser.parse(inputv, False, True), '->parse() is able to parse objects');
+""".format(serialize(B()));
+
+        parsed = self._parser.parse(inputv, False, True);
+
+        self.assertTrue(isinstance(parsed['foo'], B), '->parse() is able to parse objects');
+        self.assertEqual(parsed['foo'].b, 'foo', '->parse() is able to parse objects');
+        self.assertEqual(parsed['bar'], 1, '->parse() is able to parse objects');
 
 
     def testObjectSupportDisabledButNoExceptions(self):
 
         inputv = """
-foo: !!python/object:O:30:"Symfony\Tests\Component\Yaml\B":1:s:1:"b";s:3:"foo";
+foo: !!python/object:{0}
 bar: 1
-""";
+""".format(serialize(B()));
 
         self.assertEqual(OrderedDict([('foo' , None), ('bar' , 1)]), self._parser.parse(inputv), '->parse() does not parse objects');
 
@@ -335,7 +349,7 @@ bar: 1
         """
 
         try:
-            self._parser.parse('foo: !!python/object:O:30:"Symfony\Tests\Component\Yaml\B":1:s:1:"b";s:3:"foo";', True, False);
+            self._parser.parse('foo: !!python/object:'+serialize(B()), True, False);
 
             self.fail()
         except Exception as e:

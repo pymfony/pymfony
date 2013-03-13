@@ -63,7 +63,7 @@ yaml: |
     foo: whatever
     bar: stuff
 python: |
-    OrderedDict([('foo' , 'whatever', 'bar' , 'stuff')])
+    OrderedDict([('foo' , 'whatever'), ('bar' , 'stuff')])
 ---
 test: Sequence in a Mapping
 brief: |
@@ -86,12 +86,12 @@ yaml: |
      name: steve
      sport: baseball
 python: |
-    OrderedDict([(
+    OrderedDict([
       ('foo' , 'whatever'),
-      ('bar' , OrderedDict([(
+      ('bar' , OrderedDict([
          ('fruit' , 'apple'),
          ('name' , 'steve'),
-         ('sport' , 'baseball)'
+         ('sport' , 'baseball')
        ]))
     ])
 ---
@@ -112,10 +112,10 @@ yaml: |
        perl: papers
        ruby: scissorses
 python: |
-    OrderedDict([(
+    OrderedDict([
       ('foo' , 'whatever'),
       ('bar' , [
-        OrderedDict([(
+        OrderedDict([
             ('fruit' , 'apple'),
             ('name' , 'steve'),
             ('sport' , 'baseball')

@@ -15,7 +15,7 @@ yaml: |
     white: walls
     blue: berries
 python: |
-    OrderedDict([(
+    OrderedDict([
      ('red' , 'baron'),
      ('white' , 'walls'),
      ('blue' , 'berries'),
@@ -30,7 +30,7 @@ yaml: |
     white: walls
     blue:  berries
 python: |
-    OrderedDict([(
+    OrderedDict([
      ('red' , 'baron'),
      ('white' , 'walls'),
      ('blue' , 'berries'),
@@ -44,7 +44,7 @@ yaml: |
     white : walls
     blue  : berries
 python: |
-    OrderedDict([(
+    OrderedDict([
      ('red' , 'baron'),
      ('white' , 'walls'),
      ('blue' , 'berries'),

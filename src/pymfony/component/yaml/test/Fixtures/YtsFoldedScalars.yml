@@ -28,7 +28,7 @@ yaml: |
 
     dummy: value
 python: |
-    OrderedDict([(
+    OrderedDict([
         ('normal' , "extra new lines not kept\n"),
         ('preserving' , "extra new lines are kept\n\n\n"),
         ('dummy' , 'value')
@@ -64,7 +64,7 @@ yaml: |
 
     same as "kept" above: "This has four newlines.\n\n\n\n"
 python: |
-    OrderedDict([(
+    OrderedDict([
       ('clipped' , "This has one newline.\n"),
       ('same as "clipped" above' , "This has one newline.\n"),
       ('stripped' , 'This has no newline.'),
@@ -168,7 +168,7 @@ yaml: |
 
     same as "kept" above: "This has four newlines.\n\n\n\n"
 python: |
-    OrderedDict([(
+    OrderedDict([
       ('clipped' , "This has one newline.\n"),
       ('same as "clipped" above' , "This has one newline.\n"),
       ('stripped' , 'This has no newline.'),

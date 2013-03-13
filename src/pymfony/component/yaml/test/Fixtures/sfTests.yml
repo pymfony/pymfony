@@ -22,7 +22,7 @@ test: Empty value
 yaml: |
     foo:
 python: |
-    OrderedDict([('foo' , null)])
+    OrderedDict([('foo' , None)])
 ---
 test: Inline string parsing
 brief: >
@@ -103,7 +103,7 @@ brief: as in spec example 2.19, octal value is converted
 yaml: |
   foo: 0123
 python: |
-  dict('foo' = 83)
+  OrderedDict([('foo', 83)])
 ---
 test: Octal strings
 brief: Octal notation in a string must remain a string

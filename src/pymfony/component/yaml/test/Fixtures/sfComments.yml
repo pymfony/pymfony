@@ -61,4 +61,4 @@ yaml: |
     ---
     foo: bar # a comment
 python: |
-    OrderedDict([(foo , 'bar')])
+    OrderedDict([('foo' , 'bar')])

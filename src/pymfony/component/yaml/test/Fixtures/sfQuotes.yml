@@ -5,7 +5,7 @@ brief: >
 yaml: |
     foo: | bar
 python: |
-    dict('foo' = '| bar')
+    OrderedDict([('foo', '| bar')])
 ---
 test: A key can be a quoted string
 brief: >

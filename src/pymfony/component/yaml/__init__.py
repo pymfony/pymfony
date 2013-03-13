@@ -13,14 +13,14 @@ import time;
 import re;
 import os;
 from struct import pack
-from pickle import dumps as serialize;
-from pickle import loads as unserialize;
 
 from pymfony.component.system import Object
 from pymfony.component.system.types import String
 from pymfony.component.system.types import Convert
 from pymfony.component.system.types import OrderedDict
 from pymfony.component.system.exception import InvalidArgumentException
+from pymfony.component.system.serialiser import serialize
+from pymfony.component.system.serialiser import unserialize
 
 from pymfony.component.yaml.exception import ParseException
 from pymfony.component.yaml.exception import RuntimeException
@@ -279,7 +279,7 @@ class Parser(Object):
                         raise e;
 
 
-                    if isinstance(value, list) :
+                    if isinstance(value, list) and value :
                         first = value[0];
                         if isinstance(first, String) and first.startswith('*') :
                             data = list();
@@ -790,7 +790,6 @@ class Inline(Object):
             if (objectSupport) :
                 return '!!python/object:'+serialize(value);
 
-
             if (exceptionOnInvalidType) :
                 raise DumpException('Object support when dumping a YAML file has been disabled.');
 
@@ -1077,15 +1076,14 @@ class Inline(Object):
             return Convert.str2int(cls.parseScalar(scalar[2:]));
         if scalar.startswith('!!python/object:'):
             if (cls.__objectSupport) :
-                return unserialize(scalar[16:]); # FIXME: 
+                return unserialize(scalar[16:]);
 
 
-                if cls.__exceptionOnInvalidType :
-                    raise ParseException(
-                        'Object support when parsing a YAML file has been '
-                        'disabled.'
-                    );
-
+            if cls.__exceptionOnInvalidType :
+                raise ParseException(
+                    'Object support when parsing a YAML file has been '
+                    'disabled.'
+                );
 
             return None;
         if scalar.isdigit():
@@ -1117,44 +1115,93 @@ class Inline(Object):
         return str(scalar);
 
     @classmethod
-    def __is_numeric(cls, lit):
-        """Return value of numeric literal string or ValueError exception"""
+    def __is_numeric(cls, var):
+        """Finds whether the given variable is numeric.
+
+        Numeric strings consist of optional sign, any number of digits,
+        optional decimal part and optional exponential part. Thus +0123.45e6
+        is a valid numeric value. Hexadecimal (e.g. 0xf4c3b00c),
+        Binary(e.g. 0b10100111001), Octal (e.g. 0777) notation is allowed too
+        but only without sign, decimal and exponential part.
+
+        @param var: mixed The variable being evaluated.
+
+        @return: boolean Returns TRUE if var is a number or a numeric string,
+            FALSE otherwise.
+        """
+
+        isString = False;
+
+        if isinstance(var, String):
+            isString = True;
+
+        if isString and re.search("\s", var):
+            return False;
 
 
         # Int/Float/Complex
         try:
-            return int(lit);
+            int(var);
         except Exception:
             pass;
+        else:
+            return True;
+
         try:
-            return float(lit);
+            float(var);
         except Exception:
             pass;
+        else:
+            return True;
+
         try:
-            return complex(lit);
+            complex(var);
         except Exception:
             pass;
+        else:
+            return True;
 
         # Empty string
-        if not isinstance(lit, String) or len(lit) == 0:
+        if not isString or not var:
             return False;
 
         # Handle '0'
-        if lit == '0':
+        if var == '0':
             return True;
 
+
         # Hex/Binary
-        litneg = lit[1:] if lit[0] == '-' else lit;
+        litneg = var[1:] if var[0] in '-+' else var;
         if litneg[0] == '0':
             if litneg[1] in 'xX':
-                return int(lit,16);
-            elif litneg[1] in 'bB':
-                return int(lit,2);
+                try:
+                    int(litneg[2:], 16);
+                except Exception:
+                    pass;
+                else:
+                    return True;
+            if litneg[1] in 'bB':
+                try:
+                    int(litneg[2:]);
+                except Exception:
+                    pass;
+                else:
+                    return True;
+            elif litneg[1] == 'o':
+                try:
+                    int(litneg[2:], 8);
+                except Exception:
+                    pass;
+                else:
+                    return True;
             else:
                 try:
-                    return int(lit,8);
-                except ValueError:
+                    int(litneg[1:], 8);
+                except Exception:
                     pass;
+                else:
+                    return True;
+
 
 
     @classmethod
@@ -1265,28 +1312,28 @@ class Unescaper(Object):
             return '\\';
         if value[1] == 'N':
             # U+0085 NEXT LINE
-            return self.__convertEncoding("\x00\x85", self.ENCODING, 'UCS-2BE');
+            return self.__convertEncoding("\x00\x85", self.ENCODING, 'UTF-16BE');
         if value[1] == '_':
             # U+00A0 NO-BREAK SPACE
-            return self.__convertEncoding("\x00\xA0", self.ENCODING, 'UCS-2BE');
+            return self.__convertEncoding("\x00\xA0", self.ENCODING, 'UTF-16BE');
         if value[1] == 'L':
             # U+2028 LINE SEPARATOR
-            return self.__convertEncoding("\x20\x28", self.ENCODING, 'UCS-2BE');
+            return self.__convertEncoding("\x20\x28", self.ENCODING, 'UTF-16BE');
         if value[1] == 'P':
             # U+2029 PARAGRAPH SEPARATOR
-            return self.__convertEncoding("\x20\x29", self.ENCODING, 'UCS-2BE');
+            return self.__convertEncoding("\x20\x29", self.ENCODING, 'UTF-16BE');
         if value[1] == 'x':
-            char = pack('n', int(value[2,2 + 2], 16));
+            char = pack('>H', int(value[2:2 + 2], 16));
 
-            return self.__convertEncoding(char, self.ENCODING, 'UCS-2BE');
+            return self.__convertEncoding(char, self.ENCODING, 'UTF-16BE');
         if value[1] == 'u':
-            char = pack('n', int(value[2,2 + 4]), 16);
+            char = pack('>H', int(value[2:2 + 4], 16));
 
-            return self.__convertEncoding(char, self.ENCODING, 'UCS-2BE');
+            return self.__convertEncoding(char, self.ENCODING, 'UTF-16BE');
         if value[1] == 'U':
-            char = pack('N', int(value[2,2 + 8], 16));
+            char = pack('>L', int(value[2:2 + 8], 16));
 
-            return self.__convertEncoding(char, self.ENCODING, 'UCS-4BE');
+            return self.__convertEncoding(char, self.ENCODING, 'UTF-32BE');
 
 
 
@@ -1339,11 +1386,11 @@ class Escaper(Object):
 
     @classmethod
     def requiresDoubleQuoting(cls, value):
-        """Determines if a PHP value would require double quoting in YAML.:
+        """Determines if a PHP value would require double quoting in YAML.
 
         @param: string value A PHP value
 
-        @return Boolean True if the value would require double quotes.:
+        @return Boolean True if the value would require double quotes.
 
         """
 
@@ -1363,14 +1410,12 @@ class Escaper(Object):
 
     @classmethod
     def __mapReplace(cls, fromList, toList, string):
-        s = str(string);
-
         for k in range(len(fromList)):
             v = fromList[k];
             r = toList[k];
-            s.replace(v, r);
+            string = string.replace(v, r);
 
-        return s;
+        return string;
 
     @classmethod
     def requiresSingleQuoting(cls, value):

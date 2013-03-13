@@ -15,7 +15,7 @@ yaml: |
   avg: 0.278
   rbi: 147
 python: |
-  OrderedDict(['hr' , 65), ('avg' , 0.278), ('rbi' = 147)])
+  OrderedDict([('hr' , 65), ('avg' , 0.278), ('rbi', 147)])
 ---
 test: Mapping of scalars to sequences
 spec: 2.3
@@ -140,7 +140,7 @@ yaml: |
 python: |
   [
     [ 'name', 'hr', 'avg' ],
-    [ 'Mark McGwire', 65, 0.278 },
+    [ 'Mark McGwire', 65, 0.278 ],
     [ 'Sammy Sosa', 63, 0.288 ]
   ]
 ---
@@ -764,20 +764,18 @@ yaml: |
     Backup contact is Nancy
     Billsmer @ 338-4338.
 python: |
-  dict(
-     'invoice' = 34843, 'date' = mktime(0, 0, 0, 1, 23, 2001),
-     'bill-to' =
-      dict( 'given' = 'Chris', 'family' = 'Dumars', 'address' = dict( 'lines' = "458 Walkman Dr.\nSuite #292\n", 'city' = 'Royal Oak', 'state' = 'MI', 'postal' = 48046 ) )
-     , 'ship-to' =
-      dict( 'given' = 'Chris', 'family' = 'Dumars', 'address' = dict( 'lines' = "458 Walkman Dr.\nSuite #292\n", 'city' = 'Royal Oak', 'state' = 'MI', 'postal' = 48046 ) )
-     , 'product' =
-       list(
-        dict( 'sku' = 'BL394D', 'quantity' = 4, 'description' = 'Basketball', 'price' = 450.00 ),
-        dict( 'sku' = 'BL4438H', 'quantity' = 1, 'description' = 'Super Hoop', 'price' = 2392.00 )
-      ),
-     'tax' = 251.42, 'total' = 4443.52,
-     'comments' = "Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.\n"
-  )
+  OrderedDict([
+    ('invoice', 34843), ('date', time.mktime(time.strptime("2001-01-23", '%Y-%m-%d'))),
+    ('bill-to', OrderedDict([ ('given', 'Chris'), ('family', 'Dumars'), ('address', OrderedDict([ ('lines', "458 Walkman Dr.\nSuite #292\n"), ('city', 'Royal Oak'), ('state', 'MI'), ('postal', 48046) ]) ) ])
+    ), ('ship-to', OrderedDict([ ('given', 'Chris'), ('family', 'Dumars'), ('address', OrderedDict([ ('lines', "458 Walkman Dr.\nSuite #292\n"), ('city', 'Royal Oak'), ('state', 'MI'), ('postal', 48046) ]) ) ])
+    ), ('product', [
+            OrderedDict([ ('sku', 'BL394D'), ('quantity', 4), ('description', 'Basketball'), ('price', 450.00) ]),
+            OrderedDict([ ('sku', 'BL4438H'), ('quantity', 1), ('description', 'Super Hoop'), ('price', 2392.00) ])
+        ]
+    ),
+    ('tax', 251.42), ('total', 4443.52),
+    ('comments', "Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.\n")
+  ])
 ---
 test: Log file
 todo: true
@@ -890,7 +888,7 @@ yaml: |
 python: |
    OrderedDict([
       ('invoice' , 34843),
-      ('date' , mktime(0, 0, 0, 1, 23, 2001)),
+      ('date' , time.mktime(time.strptime("2001-01-23", '%Y-%m-%d'))),
       ('total' , 4443.52)
    ])
 ---
@@ -1048,7 +1046,8 @@ yaml: |
    repeated use of this value.
   alias : *A001
 python: |
-  OrderedDict([ 'anchor' , 'This scalar has an anchor.'),
+  OrderedDict([
+    ('anchor' , 'This scalar has an anchor.'),
     ('override' , "The alias node below is a repeated use of this value.\n"),
     ('alias' , "The alias node below is a repeated use of this value.\n" )
   ])

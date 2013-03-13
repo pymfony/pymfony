@@ -11,6 +11,7 @@ from __future__ import absolute_import;
 import unittest
 import os
 import re
+import time
 
 from pymfony.component.system import Object
 from pymfony.component.system.types import OrderedDict
@@ -18,6 +19,7 @@ from pymfony.component.system.types import OrderedDict
 from pymfony.component.yaml import Parser
 from pymfony.component.yaml import Dumper
 from pymfony.component.yaml.exception import DumpException
+from pymfony.component.system.serialiser import serialize
 
 """
 """
@@ -54,21 +56,29 @@ class DumperTest(unittest.TestCase):
             f.close();
 
             # split YAMLs documents
-            for yaml in re.split('---( %YAML\:1\.0)?', yamls, re.M) :
+            for yaml in re.split('^---( %YAML\:1\.0)?', yamls, flags=re.M):
                 if ( not yaml) :
                     continue;
 
 
                 test = self._parser.parse(yaml);
+
+                if not isinstance(test, dict):
+                    continue;
+
                 if 'dump_skip' in test and test['dump_skip'] :
                     continue;
                 elif 'todo' in test and test['todo'] :
                     # TODO
                     pass;
                 else:
-                    expected = eval(test['python'].strip());
-                    # FIXME: line feed
-                    self.assertEqual(expected, self._parser.parse(self._dumper.dump(expected, 10)), test['test']);
+                    try:
+                        expected = eval(test['python'].strip());
+
+                        self.assertEqual(expected, self._parser.parse(self._dumper.dump(expected, 10)), test['test']);
+
+                    except Exception as e:
+                        raise e;
 
     def testInlineLevel(self):
 
@@ -156,7 +166,7 @@ foobar:
 
         dump = self._dumper.dump(OrderedDict([('foo' , A()), ('bar' , 1)]), 0, 0, False, True);
 
-        self.assertEqual('{ foo: !!python/object:O:30:"Symfony\Component\Yaml\Tests\A":1:{s:1:"a";s:3:"foo";}, bar: 1 }', dump, '->dump() is able to dump objects');
+        self.assertEqual('{{ foo: !!python/object:{0}, bar: 1 }}'.format(serialize(A())), dump, '->dump() is able to dump objects');
 
 
     def testObjectSupportDisabledButNoExceptions(self):

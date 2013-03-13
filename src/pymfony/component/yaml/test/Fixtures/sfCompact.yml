@@ -98,11 +98,8 @@ python: |
         ('item' , 'Super Hoop'),
         ('quantity' , 1),
       ]),
-      [
-        'Basketball',
-        'Big Shoes'
-      ]
-    ]
+      [ 'Basketball', 'Big Shoes' ]
+    ])
   ])
 --- %YAML:1.0
 test: Compact notation
