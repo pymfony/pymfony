@@ -35,7 +35,7 @@ def find_package_data():
 
 setup(
     name="pymfony.system",
-    version="2.2.0b1",
+    version="2.2.0a1",
     package_dir={'pymfony.component.system': ''},
     packages=find_packages(),
     package_data=find_package_data(),
@@ -46,13 +46,14 @@ setup(
     long_description=long_description,
     license="MIT",
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 1 - Planning",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: Implementation :: PyPy",
         "Operating System :: OS Independent",
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",

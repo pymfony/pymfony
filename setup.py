@@ -53,7 +53,7 @@ def find_package_data():
 
 setup(
     name="pymfony",
-    version="0.1.0",
+    version="2.2.0a1",
     package_dir={'': 'src'},
     packages=find_packages(),
     package_data=find_package_data(),
@@ -71,6 +71,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.2",
         "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: Implementation :: PyPy",
         "Operating System :: OS Independent",
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
