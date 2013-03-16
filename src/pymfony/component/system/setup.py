@@ -24,6 +24,9 @@ f.close();
 def find_packages():
     return [
         'pymfony.component.system',
+        'pymfony.component.system.py2',
+        'pymfony.component.system.py2.minor6',
+        'pymfony.component.system.py3',
     ];
 
 def find_package_data():
