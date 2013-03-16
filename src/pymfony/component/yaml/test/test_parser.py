@@ -17,7 +17,7 @@ import time;
 from pymfony.component.system import Object;
 from pymfony.component.system.types import OrderedDict;
 from pymfony.component.system.exception import StandardException;
-from pymfony.component.system.serialiser import serialize;
+from pymfony.component.system.serializer import serialize;
 
 from pymfony.component.yaml.exception import ParseException;
 from pymfony.component.yaml import Parser;

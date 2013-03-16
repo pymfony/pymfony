@@ -19,8 +19,8 @@ from pymfony.component.system.types import String;
 from pymfony.component.system.types import Convert;
 from pymfony.component.system.types import OrderedDict;
 from pymfony.component.system.exception import InvalidArgumentException;
-from pymfony.component.system.serialiser import serialize;
-from pymfony.component.system.serialiser import unserialize;
+from pymfony.component.system.serializer import serialize;
+from pymfony.component.system.serializer import unserialize;
 
 from pymfony.component.yaml.exception import ParseException;
 from pymfony.component.yaml.exception import RuntimeException;

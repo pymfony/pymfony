@@ -10,13 +10,13 @@ from __future__ import absolute_import;
 
 from pickle import dumps;
 from pickle import loads;
+
 try:
     from base64 import encodebytes;
     from base64 import decodebytes;
 except Exception:
     from base64 import encodestring as encodebytes;
     from base64 import decodestring as decodebytes;
-
 
 """
 """

@@ -11,8 +11,8 @@ from __future__ import absolute_import;
 import unittest;
 
 from pymfony.component.system import Object;
-from pymfony.component.system.serialiser import serialize;
-from pymfony.component.system.serialiser import unserialize;
+from pymfony.component.system.serializer import serialize;
+from pymfony.component.system.serializer import unserialize;
 
 """
 """

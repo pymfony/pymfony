@@ -15,7 +15,7 @@ import time;
 
 from pymfony.component.system import Object;
 from pymfony.component.system.types import OrderedDict;
-from pymfony.component.system.serialiser import serialize;
+from pymfony.component.system.serializer import serialize;
 
 from pymfony.component.yaml import Parser;
 from pymfony.component.yaml import Dumper;
