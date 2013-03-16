@@ -77,7 +77,7 @@ setup(
         "Environment :: Console",
         "Environment :: Web Environment",
         "Topic :: Internet :: WWW/HTTP",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content"
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Software Development :: Libraries :: PHP Classes",
         "Topic :: Software Development :: Libraries :: Application Frameworks",
     ],
