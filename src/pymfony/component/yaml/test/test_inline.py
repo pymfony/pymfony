@@ -8,11 +8,12 @@
 
 from __future__ import absolute_import;
 
-import unittest
+import unittest;
 
-from pymfony.component.yaml.exception import ParseException
-from pymfony.component.yaml import Inline
-from pymfony.component.system.types import OrderedDict
+from pymfony.component.yaml.exception import ParseException;
+from pymfony.component.yaml import Inline;
+
+from pymfony.component.system.types import OrderedDict;
 
 """
 """

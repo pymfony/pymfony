@@ -12,25 +12,22 @@ import math;
 import time;
 import re;
 import os;
-from struct import pack
+from struct import pack;
 
-from pymfony.component.system import Object
-from pymfony.component.system.types import String
-from pymfony.component.system.types import Convert
-from pymfony.component.system.types import OrderedDict
-from pymfony.component.system.exception import InvalidArgumentException
-from pymfony.component.system.serialiser import serialize
-from pymfony.component.system.serialiser import unserialize
+from pymfony.component.system import Object;
+from pymfony.component.system.types import String;
+from pymfony.component.system.types import Convert;
+from pymfony.component.system.types import OrderedDict;
+from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.serialiser import serialize;
+from pymfony.component.system.serialiser import unserialize;
 
-from pymfony.component.yaml.exception import ParseException
-from pymfony.component.yaml.exception import RuntimeException
-from pymfony.component.yaml.exception import DumpException
-import locale
-from pymfony.component.system.types import Array
+from pymfony.component.yaml.exception import ParseException;
+from pymfony.component.yaml.exception import RuntimeException;
+from pymfony.component.yaml.exception import DumpException;
 
 """
 """
-
 
 class Ref(Object):
     def __init__(self, i = 0):
@@ -76,17 +73,18 @@ class Parser(Object):
         self.__offset = offset;
 
     def __mb_detect_encoding(self, text, encoding_list=['ascii']):
-        '''Return first matched encoding in encoding_list, otherwise return None.
+        """Return first matched encoding in encoding_list, otherwise return None.
         See [url]http://docs.python.org/2/howto/unicode.html#the-unicode-type[/url] for more info.
-        See [url]http://docs.python.org/2/library/codecs.html#standard-encodings[/url] for encodings.'''
+        See [url]http://docs.python.org/2/library/codecs.html#standard-encodings[/url] for encodings.
+        """
         for best_enc in encoding_list:
             try:
                 text.encode(encoding=best_enc, errors='strict');
-            except Exception as e:
+            except Exception:
                 best_enc = False;
             else:
                 break;
-        return best_enc
+        return best_enc;
 
     def parse(self, value, exceptionOnInvalidType = False, objectSupport = False):
         """Parses a YAML string to a PHP value.
@@ -200,7 +198,7 @@ class Parser(Object):
                     raise e;
 
 
-                if ('<<' == key) :
+                if False and ('<<' == key) : # FIXME: merge
                     if values['value'] and values['value'].startswith('*') :
                         isInPlace = values['value'][1:];
                         if isInPlace not in self.__refs :
@@ -223,7 +221,7 @@ class Parser(Object):
                         parsed = parser.parse(value, exceptionOnInvalidType, objectSupport);
 
                         merged = OrderedDict();
-                        if not isinstance(parsed, (dict, list)) : # FIXME: merge
+                        if not isinstance(parsed, (dict, list)) :
                             raise ParseException('YAML merge keys used with a scalar value instead of an array.', self.__getRealCurrentLineNb() + 1, self.__currentLine);
                         if isinstance(parsed, list) :
                             # Numeric array, merge individual elements
@@ -303,26 +301,6 @@ class Parser(Object):
 
                     return value;
 
-
-#                switch (preg_last_error())
-#                    case PREG_INTERNAL_ERROR:
-#                        error = 'Internal PCRE error.';
-#                        break;
-#                    case PREG_BACKTRACK_LIMIT_ERROR:
-#                        error = 'pcre.backtrack_limit reached.';
-#                        break;
-#                    case PREG_RECURSION_LIMIT_ERROR:
-#                        error = 'pcre.recursion_limit reached.';
-#                        break;
-#                    case PREG_BAD_UTF8_ERROR:
-#                        error = 'Malformed UTF-8 data.';
-#                        break;
-#                    case PREG_BAD_UTF8_OFFSET_ERROR:
-#                        error = 'Offset doesn\'t correspond to the begin of a valid UTF-8 code point.';
-#                        break;
-#                    default:
-#                        error = 'Unable to parse.';
-
                 error = 'Unable to parse.';
 
                 raise ParseException(error, self.__getRealCurrentLineNb() + 1, self.__currentLine);
@@ -333,7 +311,7 @@ class Parser(Object):
                     v = list(data.values())[-1];
                 else:
                     v = data[-1];
-                self.__refs[isRef] = v.__class__(v);
+                self.__refs[isRef] = v;
 
 
         return None if not data else data;
@@ -700,11 +678,8 @@ class Parser(Object):
 
 
         ret = False;
-        if (
-            self.__getCurrentLineIndentation() == currentIndentation
-            and
-            self.__isStringUnIndentedCollectionItem()
-        ):
+        if (self.__getCurrentLineIndentation() == currentIndentation
+            and self.__isStringUnIndentedCollectionItem() ):
             ret = True;
 
 
@@ -958,7 +933,7 @@ class Inline(Object):
         """Parses a sequence to a YAML string.
 
         @param: string sequence
-        @param integer &i
+        @param integer i
 
         @return string A YAML string
 
@@ -1006,16 +981,16 @@ class Inline(Object):
             i.add(1);
 
 
-        raise ParseException(
-            'Malformed inline YAML string {0}'.format(sequence)
-        );
+        raise ParseException('Malformed inline YAML string {0}'.format(
+            sequence
+        ));
 
     @classmethod
     def __parseMapping(cls, mapping, i = None):
         """Parses a mapping to a YAML string.
 
         @param: string mapping
-        @param integer &i
+        @param integer i
 
         @return string A YAML string
 
@@ -1129,7 +1104,13 @@ class Inline(Object):
         if re.match('^(-|\+)?[0-9,]+(\.[0-9]+)?$', scalar):
             return float(scalar.replace(',', ''));
         if cls.__getTimestampRegex().match(scalar):
-            return time.mktime(time.strptime(scalar, '%Y-%m-%d %H:%M:%S'));
+            try:
+                return time.mktime(time.strptime(scalar, '%Y-%m-%d'));
+            except Exception:
+                try:
+                    return time.mktime(time.strptime(scalar, '%Y-%m-%d %H:%M:%S'));
+                except Exception:
+                    return time.mktime(time.strptime(scalar, '%Y-%m-%dT%H:%M:%S'));
 
         return str(scalar);
 
@@ -1333,21 +1314,15 @@ class Unescaper(Object):
         if value[1] == 'N':
             # U+0085 NEXT LINE
             return "\uc285";
-            char = pack('>H', int("0085", 16));
-            return self.__convertEncoding(char, self.ENCODING, 'UTF-16BE');
-            return self.__convertEncoding(b"\x00\x85", self.ENCODING, 'UTF-16BE');
         if value[1] == '_':
             # U+00A0 NO-BREAK SPACE
             return "\uc2a0";
-            return self.__convertEncoding(b"\x00\xA0", self.ENCODING, 'UTF-16BE');
         if value[1] == 'L':
             # U+2028 LINE SEPARATOR
             return "\ue280a8";
-            return self.__convertEncoding(b"\x20\x28", self.ENCODING, 'UTF-16BE');
         if value[1] == 'P':
             # U+2029 PARAGRAPH SEPARATOR
             return "\ue280a9";
-            return self.__convertEncoding(b"\x20\x29", self.ENCODING, 'UTF-16BE');
         if value[1] == 'x':
             char = pack('>H', int(value[2:2 + 2], 16));
 
@@ -1605,7 +1580,7 @@ class Yaml(Object):
             raise e;
 
     @classmethod
-    def dump(cls, array, inline = 2, indent = 2, exceptionOnInvalidType = False, objectSupport = False):
+    def dump(cls, array, inline = 2, indent = 4, exceptionOnInvalidType = False, objectSupport = False):
         """Dumps a PHP array to a YAML string.
 
         The dump method, when supplied with an array, will do its best

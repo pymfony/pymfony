@@ -8,18 +8,19 @@
 
 from __future__ import absolute_import;
 
-import unittest
-import os
-import re
-import time
+import unittest;
+import os;
+import re;
+import time;
 
-from pymfony.component.system import Object
-from pymfony.component.system.types import OrderedDict
+from pymfony.component.system import Object;
+from pymfony.component.system.types import OrderedDict;
+from pymfony.component.system.serialiser import serialize;
 
-from pymfony.component.yaml import Parser
-from pymfony.component.yaml import Dumper
-from pymfony.component.yaml.exception import DumpException
-from pymfony.component.system.serialiser import serialize
+from pymfony.component.yaml import Parser;
+from pymfony.component.yaml import Dumper;
+from pymfony.component.yaml.exception import DumpException;
+
 
 """
 """

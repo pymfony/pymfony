@@ -8,20 +8,20 @@
 
 from __future__ import absolute_import;
 
-import unittest
-import re
-from os.path import dirname
-import time
+import unittest;
+import re;
+from os.path import dirname;
+import time;
 
 
-from pymfony.component.system import Object
-from pymfony.component.system.types import OrderedDict
-from pymfony.component.system.exception import StandardException
-from pymfony.component.system.serialiser import serialize
+from pymfony.component.system import Object;
+from pymfony.component.system.types import OrderedDict;
+from pymfony.component.system.exception import StandardException;
+from pymfony.component.system.serialiser import serialize;
 
-from pymfony.component.yaml.exception import ParseException
-from pymfony.component.yaml import Parser
-from pymfony.component.yaml import Yaml
+from pymfony.component.yaml.exception import ParseException;
+from pymfony.component.yaml import Parser;
+from pymfony.component.yaml import Yaml;
 """
 """
 

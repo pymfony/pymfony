@@ -8,9 +8,9 @@
 
 from __future__ import absolute_import;
 
-from pymfony.component.system import Object
-from pymfony.component.system.oop import interface
-from pymfony.component.system.exception import RuntimeException
+from pymfony.component.system import Object;
+from pymfony.component.system.oop import interface;
+from pymfony.component.system.exception import RuntimeException;
 
 """
 """
@@ -28,7 +28,7 @@ class ExceptionInterface(Object):
 
 
 class RuntimeException(RuntimeException, ExceptionInterface):
-    """Exception class thrown(, when an error occurs during parsing.):
+    """Exception class thrown when an error occurs during parsing.
 
     @author: Romain Neutron <imprec@gmail.com>
 
@@ -40,7 +40,7 @@ class RuntimeException(RuntimeException, ExceptionInterface):
 
 
 class ParseException(RuntimeException):
-    """Exception class thrown(, when an error occurs during parsing.):
+    """Exception class thrown when an error occurs during parsing.
 
     @author: Fabien Potencier <fabien@symfony.com>
 
@@ -175,11 +175,10 @@ class ParseException(RuntimeException):
 
 
 class DumpException(RuntimeException):
-    """Exception class thrown(, when an error occurs during dumping.):
+    """Exception class raise when an error occurs during dumping.
 
     @author: Fabien Potencier <fabien@symfony.com>
 
     @api
 
     """
-

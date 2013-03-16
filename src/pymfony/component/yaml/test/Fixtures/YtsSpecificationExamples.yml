@@ -560,9 +560,9 @@ yaml: |
   string: '12345'
 python: |
   OrderedDict([
-    ('' , None),
-    (1 , True),
-    (0 , False),
+    (None , None),
+    (True , True),
+    (False , False),
     ('string' , '12345')
   ])
 ---
