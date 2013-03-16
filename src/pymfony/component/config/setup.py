@@ -24,6 +24,7 @@ f.close();
 def find_packages():
     return [
         'pymfony.component.config',
+        'pymfony.component.config.definition',
     ];
 
 def find_package_data():
