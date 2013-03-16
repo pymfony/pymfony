@@ -17,6 +17,5 @@ You can run the unit tests with the following command:
     $ cd path/to/pymfony/component/yaml/
     $ curl -O https://raw.github.com/pypa/virtualenv/master/virtualenv.py
     $ python virtualenv.py vendor
-    $ vendor/bin/pip install -r requirements.txt
-    $ vendor/bin/pip install nose
+    $ vendor/bin/pip install -r requirements.txt -e . nose
     $ vendor/bin/nosetests
