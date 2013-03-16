@@ -174,7 +174,8 @@ class OutputFormatter(OutputFormatterInterface):
 
         """
 
-        return re.sub(r"([^\\]?)<", r'\1\<', text, re.DOTALL | re.IGNORECASE);
+        pattern = re.compile(r"([^\\]?)<", re.DOTALL | re.IGNORECASE);
+        return pattern.sub(r"\1\<", text);
 
 
     def __init__(self, decorated = None, styles = dict()):
