@@ -23,7 +23,7 @@ f.close();
 
 def find_packages():
     return [
-        'pymfony.component.yaml',
+        'pymfony.component.system',
     ];
 
 def find_package_data():
@@ -33,13 +33,13 @@ def find_package_data():
 setup(
     name="pymfony.yaml",
     version="2.2.0b1",
-    package_dir={'pymfony.component.yaml': ''},
+    package_dir={'pymfony.component.system': ''},
     packages=find_packages(),
     package_data=find_package_data(),
     author="Alexandre Quercia",
     author_email="alquerci@email.com",
-    url="http://github.com/alquerci/pymfony-yaml",
-    description='Pymfony Yaml Component',
+    url="http://github.com/alquerci/pymfony-system",
+    description='Pymfony System Component',
     long_description=long_description,
     license="MIT",
     classifiers=[
