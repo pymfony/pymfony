@@ -32,7 +32,7 @@ def find_package_data():
     };
 
 setup(
-    name="pymfony.yaml",
+    name="pymfony.config",
     version="2.2.0b1",
     package_dir={'pymfony.component.config': ''},
     packages=find_packages(),

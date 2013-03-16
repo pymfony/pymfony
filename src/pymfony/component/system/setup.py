@@ -34,7 +34,7 @@ def find_package_data():
     };
 
 setup(
-    name="pymfony.yaml",
+    name="pymfony.system",
     version="2.2.0b1",
     package_dir={'pymfony.component.system': ''},
     packages=find_packages(),
