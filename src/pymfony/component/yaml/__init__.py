@@ -79,7 +79,7 @@ class Parser(Object):
         """
         for best_enc in encoding_list:
             try:
-                text.encode(encoding=best_enc, errors='strict');
+                text.encode(best_enc, 'strict');
             except Exception:
                 best_enc = False;
             else:

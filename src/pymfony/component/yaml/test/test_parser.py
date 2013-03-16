@@ -67,7 +67,7 @@ class ParserTest(unittest.TestCase):
             f.close();
 
             # split YAMLs documents
-            for yaml in re.split('^---( %YAML\:1\.0)?', yamls, flags=re.M):
+            for yaml in re.compile('^---( %YAML\:1\.0)?', re.M).split(yamls):
                 if ( not yaml) :
                     continue;
 
