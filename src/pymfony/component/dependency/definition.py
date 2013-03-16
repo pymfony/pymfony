@@ -238,7 +238,8 @@ class Definition(Object):
         return self;
 
     def setProperties(self, properties):
-        """@api:
+        """
+        @api:
 
         @param: dict properties An array of properties
         """
@@ -247,14 +248,16 @@ class Definition(Object):
         return self;
 
     def getProperties(self):
-        """@api:
+        """
+        @api:
 
         @return dict
         """
         return self.__properties;
 
     def setProperty(self, key, value):
-        """@api:
+        """
+        @api:
 
         """
         self.__properties[key] = value;
@@ -717,8 +720,7 @@ class DefinitionDecorator(Definition):
 
 
     def setClass(self, className):
-        """@inheritDoc
-
+        """
         @api
 
         """
@@ -729,8 +731,7 @@ class DefinitionDecorator(Definition):
 
 
     def setFactoryClass(self, className):
-        """@inheritDoc}
-
+        """
         @api
 
         """
@@ -741,8 +742,7 @@ class DefinitionDecorator(Definition):
 
 
     def setFactoryMethod(self, method):
-        """@inheritDoc}
-
+        """
         @api
 
         """
@@ -753,8 +753,7 @@ class DefinitionDecorator(Definition):
 
 
     def setFactoryService(self, service):
-        """@inheritDoc}
-
+        """
         @api
 
         """
@@ -765,8 +764,7 @@ class DefinitionDecorator(Definition):
 
 
     def setConfigurator(self, closure):
-        """@inheritDoc}
-
+        """
         @api
 
         """
@@ -777,8 +775,7 @@ class DefinitionDecorator(Definition):
 
 
     def setFile(self, filename):
-        """@inheritDoc}
-
+        """
         @api
 
         """
@@ -789,8 +786,7 @@ class DefinitionDecorator(Definition):
 
 
     def setPublic(self, boolean):
-        """@inheritDoc}
-
+        """
         @api
 
         """

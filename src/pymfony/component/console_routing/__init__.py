@@ -166,9 +166,6 @@ class Router(RouterInterface):
         return self.__definition;
 
     def getRouteCollection(self):
-        """@inheritdoc
-
-        """
 
         if None is self._collection :
             self._collection = RouteCollection(self.getDefinition());
@@ -182,9 +179,6 @@ class Router(RouterInterface):
 
 
     def matchRequest(self, request):
-        """@inheritdoc}
-
-        """
         assert isinstance(request, Request);
 
         return self.getRequestMatcher().matchRequest(request);

@@ -382,7 +382,14 @@ class BaseNode(NodeInterface):
 
     @final
     def finalize(self, value):
-        """@final:"""
+        """Finalizes a value, applying all finalization closures.
+
+        @param mixed $value The value to finalize
+
+        @return mixed The finalized value
+
+        @raise InvalidConfigurationException
+        """
         self._validateType(value);
         value = self._finalizeValue(value);
 
@@ -1134,9 +1141,6 @@ class NumericNode(ScalarNode):
 
 
     def _finalizeValue(self, value):
-        """@inheritDoc
-
-        """
 
         value = ScalarNode._finalizeValue(self, value);
 
@@ -1170,9 +1174,6 @@ class IntegerNode(NumericNode):
     """
 
     def _validateType(self, value):
-        """@inheritDoc
-
-        """
 
         if ( not isinstance(value, int)) or value is False or value is True:
             ex = InvalidTypeException(
@@ -1193,9 +1194,6 @@ class FloatNode(NumericNode):
     """
 
     def _validateType(self, value):
-        """@inheritDoc
-
-        """
 
         # Integers are also accepted, we just cast them
         if (isinstance(value, int)) and value is not True and value is not False:

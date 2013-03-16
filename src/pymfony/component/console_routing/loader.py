@@ -99,8 +99,7 @@ class JsonFileLoader(FileLoader, LoaderInterface):
 
 
     def supports(self, resource, resource_type = None):
-        """@inheritdoc
-
+        """
         @api
 
         """

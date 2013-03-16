@@ -47,9 +47,6 @@ class ContainerAwareConsoleKernel(ConsoleKernel):
 
 
     def handle(self, request, requestType = ConsoleKernelInterface.MASTER_REQUEST, catch = True):
-        """@inheritdoc}
-
-        """
         assert isinstance(request, Request);
 
         if not self._container.isScopeActive('request'):

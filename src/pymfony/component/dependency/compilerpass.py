@@ -47,15 +47,9 @@ class RepeatedPass(CompilerPassInterface):
         """
         assert isinstance(passes, list);
 
-        self.__repeat = False;
-        """@var Boolean
+        self.__repeat = False; # @var Boolean
 
-        """
-
-        self.__passes = None;
-        """@var RepeatablePassInterface[]
-
-        """
+        self.__passes = None; # @var RepeatablePassInterface[]
 
         for cPass in passes:
             if ( not isinstance(cPass, RepeatablePassInterface)) :
@@ -580,9 +574,6 @@ class AnalyzeServiceReferencesPass(RepeatablePassInterface):
         self.__onlyConstructorArguments = bool(onlyConstructorArguments);
 
     def setRepeatedPass(self, repeatedPass):
-        """@inheritDoc
-
-        """
         assert isinstance(repeatedPass, RepeatedPass);
 
         self.__repeatedPass = repeatedPass;
@@ -1090,9 +1081,6 @@ class InlineServiceDefinitionsPass(RepeatablePassInterface):
         self.__currentId = None;
 
     def setRepeatedPass(self, repeatedPass):
-        """@inheritDoc
-
-        """
         assert isinstance(repeatedPass, RepeatedPass);
 
         self.__repeatedPass = repeatedPass;
@@ -1221,9 +1209,6 @@ class RemoveUnusedDefinitionsPass(RepeatablePassInterface):
         self.__repeatedPass = None;
 
     def setRepeatedPass(self, repeatedPass):
-        """@inheritDoc
-
-        """
         assert isinstance(repeatedPass, RepeatedPass);
 
         self.__repeatedPass = repeatedPass;

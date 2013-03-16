@@ -147,10 +147,8 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
 
     def terminate(self, request, response):
-        """@inheritdoc
-
-        @api
-
+        """
+        @api:
         """
         assert isinstance(response, Response);
         assert isinstance(request, Request);

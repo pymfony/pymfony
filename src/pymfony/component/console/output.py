@@ -130,8 +130,8 @@ class ConsoleOutputInterface(OutputInterface):
     """
 
     def getErrorOutput(self):
-        """@return OutputInterface
-
+        """
+        @return OutputInterface
         """
 
     def setErrorOutput(self, error):

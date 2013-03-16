@@ -53,9 +53,6 @@ class RequestMatcher(RequestMatcherInterface):
 
 
     def matchRequest(self, request):
-        """@inheritdoc}
-
-        """
         assert isinstance(request, Request);
 
         ret = self._matchCollection(request, self._routes)

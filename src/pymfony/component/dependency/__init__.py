@@ -56,7 +56,8 @@ class Scope(ScopeInterface):
 
 
     def __init__(self, name, parentName = ContainerInterface.SCOPE_CONTAINER):
-        """@api:
+        """
+        @api:
 
         """
 
@@ -68,7 +69,8 @@ class Scope(ScopeInterface):
 
 
     def getName(self):
-        """@api:
+        """
+        @api:
 
         """
 
@@ -76,7 +78,8 @@ class Scope(ScopeInterface):
 
 
     def getParentName(self):
-        """@api:
+        """
+        @api:
 
         """
 

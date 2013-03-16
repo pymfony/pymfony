@@ -258,12 +258,14 @@ class ScopeInterface(Object):
     """
 
     def getName(self):
-        """@api
+        """
+        @api
 
         """
 
     def getParentName(self):
-        """@api
+        """
+        @api
 
         """
 
