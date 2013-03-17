@@ -201,7 +201,7 @@ class GenericEvent(Event, ArrayAccessInterface, IteratorAggregateInterface):
         @param subject: mixed The subject of the event, usually an object.
         @param arguments: dict Arguments to store in the event.
         """
-        assert isinstance(arguments, list);
+        assert isinstance(arguments, dict);
 
         Event.__init__(self);
         self._subject = subject;
@@ -464,7 +464,7 @@ class ImmutableEventDispatcher(EventDispatcherInterface):
 
     def dispatch(self, eventName, event=None):
         assert isinstance(event, Event);
-        self.__dispatcher.dispatch(eventName, event);
+        return self.__dispatcher.dispatch(eventName, event);
 
     def addListener(self, eventName, listener, priority=0):
         raise BadMethodCallException(
@@ -539,13 +539,13 @@ class ContainerAwareEventDispatcher(EventDispatcher):
         self._lazyLoad(eventName);
 
         if eventName in self.__listeners:
-            for key, l in self.__listeners.items():
+            for key, l in self.__listeners[eventName].copy().items():
                 i = -1;
                 for args in self.__listenerIds[eventName]:
                     i += 1;
                     serviceId, method, priority = args;
                     if key == serviceId+'.'+method:
-                        if listener is [l, method]:
+                        if listener == [l, method]:
                             del self.__listeners[eventName][key];
                             if not self.__listeners[eventName]:
                                 del self.__listeners[eventName];
@@ -563,6 +563,15 @@ class ContainerAwareEventDispatcher(EventDispatcher):
             return True;
 
         return EventDispatcher.hasListeners(self, eventName=eventName)
+
+    def getListeners(self, eventName=None):
+        if eventName is None:
+            for serviceEventName in self.__listenerIds.keys():
+                self._lazyLoad(serviceEventName);
+        else:
+            self._lazyLoad(eventName);
+
+        return EventDispatcher.getListeners(self, eventName);
 
     def addSubscriberService(self, serviceId, className):
         """Adds a service as event subscriber
@@ -655,4 +664,4 @@ class ContainerAwareEventDispatcher(EventDispatcher):
                         priority
                     );
 
-                    self.__listeners[eventName][key] = listener;
+                self.__listeners[eventName][key] = listener;
