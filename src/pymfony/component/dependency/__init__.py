@@ -445,8 +445,8 @@ class Container(IntrospectableContainerInterface):
             services = self._scopeStacks[name].pop();
             self._scopedServices.update(services);
 
-            services = [self._services, services];
-            self._services = Array.diffKey(*services);
+            for scopeServices in services.values():
+                self._services.update(scopeServices);
 
 
 
