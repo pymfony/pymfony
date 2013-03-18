@@ -12,6 +12,7 @@ import re;
 from pymfony.component.system import ClassLoader;
 from pymfony.component.system import Object;
 from pymfony.component.system import Tool;
+from pymfony.component.system import SourceFileLoader;
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.types import OrderedDict;
@@ -41,7 +42,6 @@ from pymfony.component.dependency.parameterbag import FrozenParameterBag;
 from pymfony.component.dependency.compiler import PassConfig;
 from pymfony.component.dependency.compiler import Compiler;
 from pymfony.component.dependency.interface import CompilerPassInterface;
-
 """
 """
 
@@ -1344,10 +1344,14 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                 'The DIC does not know how to construct this service.'
                 ''.format(identifier)
             );
+
         parameterBag = self.getParameterBag();
 
-        # if (None is not definition.getFile()) :
-        #    require_once parameterBag.resolveValue(definition.getFile());
+        if None is not definition.getFile() :
+            path = parameterBag.resolveValue(definition.getFile());
+            module = SourceFileLoader.load(path);
+        else:
+            module = None;
 
         value = parameterBag.resolveValue(definition.getArguments());
         value = parameterBag.unescapeValue(value);
@@ -1358,6 +1362,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                 factory = parameterBag.resolveValue(
                     definition.getFactoryClass()
                 );
+                factory = ClassLoader.load(factory, module);
             elif not definition.getFactoryService() is None:
                 factory = self.get(parameterBag.resolveValue(
                     definition.getFactoryService()
@@ -1369,11 +1374,10 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                     ''.format(identifier)
                 );
 
-            className = ".".join([factory, definition.getFactoryMethod()]);
+            service = getattr(factory, definition.getFactoryMethod())(*arguments);
         else:
             className = parameterBag.resolveValue(definition.getClass());
-
-        service = ClassLoader.load(className)(*arguments);
+            service = ClassLoader.load(className, module)(*arguments);
 
         scope = definition.getScope();
         if self.SCOPE_PROTOTYPE  != scope :

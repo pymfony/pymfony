@@ -9,6 +9,7 @@
 from __future__ import absolute_import;
 
 import sys;
+import os;
 import inspect;
 
 from pymfony.component.system.oop import abstract;
@@ -19,6 +20,15 @@ if sys.version_info < (3,):
 else:
     from pymfony.component.system.py3 import *;
 
+if sys.version_info < (3, 3):
+    import imp;
+    def _load_source(modulename, filename):
+        return imp.load_source(modulename, filename);
+else:
+    import importlib;
+    def _load_source(modulename, filename):
+        loader = importlib.machinery.SourceFileLoader(modulename, filename);
+        return loader.load_module();
 
 """
 """
@@ -371,10 +381,13 @@ class ClassLoader(Object):
     __classes = {};
     __badClasses = {};
     @classmethod
-    def load(cls, qualClassName):
+    def load(cls, qualClassName, module = None):
         """
         @raise ImportError: When the class can not be load
         """
+        if module is not None:
+            assert isinstance(module, type(sys));
+
         if qualClassName in cls.__badClasses:
             raise ImportError("No class named {0}".format(qualClassName));
         elif qualClassName in cls.__classes:
@@ -393,14 +406,80 @@ class ClassLoader(Object):
             classType = getattr(module, className, False);
         else:
             try:
-                classType = eval(qualClassName);
+                if module is not None:
+                    classType = getattr(module, qualClassName, False);
+                else:
+                    classType = eval(qualClassName);
             except Exception:
                 classType = None;
 
         if classType:
-            cls.__classes[qualClassName] = classType;
+            if module is not None:
+                cls.__classes[module] = classType;
+            else:
+                cls.__classes[qualClassName] = classType;
         else:
-            cls.__badClasses[qualClassName] = True;
-            raise ImportError("No class named {0}".format(qualClassName));
+            if module is not None:
+                cls.__badClasses[module] = True;
+                raise ImportError('No class named "{0}" on module "{1}".'.format(
+                    qualClassName,
+                    '.'.join([str(module.__package__), str(module.__name__)])
+                ));
+            else:
+                cls.__badClasses[qualClassName] = True;
+                raise ImportError('No class named "{0}".'.format(qualClassName));
 
         return classType;
+
+
+class SourceFileLoader(Object):
+    __badModules = {};
+    __modules = {};
+
+    @classmethod
+    def load(cls, path):
+        """Load a Python source file and return a representative module.
+
+        @param path: string  The path to the file
+
+        @return: module
+
+        @raise ImportError: When the file can not be load
+
+        """
+
+        if not os.path.isfile(path):
+            raise ImportError('Try to import a not exists file "{0}".'.format(path));
+
+        if not os.access(path, os.R_OK):
+            raise ImportError('Try to import a not readable file "{0}".'.format(path));
+
+        normalizePath = cls.__normalizePath(path);
+
+        if normalizePath in cls.__modules:
+            return cls.__modules[normalizePath];
+
+        if normalizePath in cls.__badModules:
+            raise ImportError('The file "{0}" can not be imported.'.format(
+                normalizePath
+            ));
+
+        try:
+            module = _load_source(normalizePath, normalizePath);
+            assert isinstance(module, type(sys));
+        except Exception as e:
+            cls.__badModules[normalizePath] = True;
+            raise ImportError('The file "{0}" can not be imported; {1}'.format(
+                normalizePath,
+                str(e)
+            ));
+        else:
+            cls.__modules[normalizePath] = module;
+
+        return module;
+
+
+    @classmethod
+    def __normalizePath(cls, path):
+        newPath = os.path.normpath(os.path.normcase(os.path.realpath(path)));
+        return newPath.replace('\\', '/');

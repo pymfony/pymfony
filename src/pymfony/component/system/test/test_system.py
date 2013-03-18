@@ -15,6 +15,8 @@ import inspect;
 from pymfony.component.system import Tool;
 from pymfony.component.system import Object;
 from pymfony.component.system import CloneBuilder;
+from pymfony.component.system import ClassLoader;
+from pymfony.component.system import SourceFileLoader;
 from pymfony.component.system.reflection import ReflectionObject;
 
 """
@@ -46,6 +48,21 @@ class TestTool(unittest.TestCase):
 class CloneBuilderTest(unittest.TestCase):
     def testBuild(self):
         self.assertFalse(self is CloneBuilder.build(self));
+
+
+class ClassLoaderTest(unittest.TestCase):
+    def testLoad(self):
+        ClassLoader.load('os.path').sep;
+
+    def testLoadWithModule(self):
+        module = ClassLoader.load('os');
+        ClassLoader.load('path', module).sep;
+
+
+class SourceFileLoaderTest(unittest.TestCase):
+    def testLoad(self):
+        SourceFileLoader.load(__file__).SourceFileLoaderTest;
+
 
 if __name__ == "__main__":
     unittest.main();
