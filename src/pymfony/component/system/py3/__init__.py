@@ -50,4 +50,6 @@ class AbstractCloneBuilder(OOPObject):
         'frozenset': lambda o: o.copy(),
         'dict': dict,
         'bool': bool,
+
+        'OrderedDict': lambda o: o.__class__(o),
     };

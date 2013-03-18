@@ -18,6 +18,7 @@ from pymfony.component.system import CloneBuilder;
 from pymfony.component.system import ClassLoader;
 from pymfony.component.system import SourceFileLoader;
 from pymfony.component.system.reflection import ReflectionObject;
+from pymfony.component.system.types import OrderedDict;
 
 """
 """
@@ -47,7 +48,12 @@ class TestTool(unittest.TestCase):
 
 class CloneBuilderTest(unittest.TestCase):
     def testBuild(self):
-        self.assertFalse(self is CloneBuilder.build(self));
+        self._orderdedDict = OrderedDict();
+        clone = CloneBuilder.build(self);
+        self.assertFalse(self is clone);
+        self.assertFalse(self._orderdedDict is clone._orderdedDict);
+        self.assertEqual(self._orderdedDict, clone._orderdedDict);
+        self.assertFalse(self.testBuild is clone.testBuild);
 
 
 class ClassLoaderTest(unittest.TestCase):

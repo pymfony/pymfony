@@ -57,4 +57,6 @@ class AbstractCloneBuilder(OOPObject):
         'long': long,
         'xrange': lambda o: xrange(len(o)),
         'buffer': buffer,
+
+        'OrderedDict': lambda o: o.__class__(o),
     };
