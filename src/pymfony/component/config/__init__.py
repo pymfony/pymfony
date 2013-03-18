@@ -15,11 +15,13 @@ else:
     from urlparse import urlparse;
 
 from pymfony.component.system import Object;
-from pymfony.component.system import Tool;
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.types import String;
 from pymfony.component.system.types import Array;
 from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.exception import RuntimeException;
+from pymfony.component.system.serializer import unserialize;
+from pymfony.component.system.serializer import serialize;
 
 """
 """
@@ -87,3 +89,137 @@ class FileLocator(FileLocatorInterface):
         if os.path.isabs(name) and urlparse(name).scheme:
             return True;
 
+
+class ConfigCache(Object):
+    """ConfigCache manages PHP cache files.
+
+    When debug is enabled, it knows when to flush the cache
+    thanks to an array of ResourceInterface instances.
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    """
+
+
+    def __init__(self, path, debug):
+        """Constructor.
+
+        @param string  path  The absolute cache path
+        @param Boolean debug Whether debugging is enabled or not
+
+        """
+
+        self.__file = path;
+        self.__debug = bool(debug);
+
+
+    def __str__(self):
+        """Gets the cache file path.
+
+        @return string The cache file path
+
+        """
+
+        return self.__file;
+
+
+    def isFresh(self):
+        """Checks if the cache is still fresh.:
+
+        This method always returns True when debug is off and the
+        cache file exists.
+
+        @return Boolean True if the cache is fresh, False otherwise:
+
+        """
+
+        if not os.path.isfile(self.__file) :
+            return False;
+
+
+        if not self.__debug :
+            return True;
+
+
+        metadata = self.__file+'.meta';
+        if not os.path.isfile(metadata) :
+            return False;
+
+
+        time = os.path.getmtime(self.__file);
+        f = open(metadata);
+        content = f.read();
+        f.close();
+        meta = unserialize(content);
+        for resource in meta :
+            if not resource.isFresh(time) :
+                return False;
+
+        return True;
+
+
+    def write(self, content, metadata = None):
+        """Writes cache.
+
+        @param string              content  The content to write in the cache
+        @param ResourceInterface[] metadata An array of ResourceInterface instances
+
+        @raise RuntimeException When cache file can't be wrote
+
+        """
+        assert isinstance(metadata, list);
+
+        dirname = os.path.dirname(self.__file);
+        if not os.path.isdir(dirname) :
+            try:
+                os.makedirs(dirname, 0o777);
+            except os.error:
+                raise RuntimeException('Unable to create the {0} directory'.format(dirname));
+
+        elif not os.access(dirname, os.W_OK) :
+            raise RuntimeException('Unable to write in the {0} directory'.format(dirname));
+
+        try:
+            if os.path.exists(self.__file):
+                if os.path.exists(self.__file+'.old'):
+                    os.remove(self.__file+'.old');
+                os.rename(self.__file, self.__file+'.old');
+            f = open(self.__file, 'w');
+            f.write(content);
+        except Exception as e:
+            os.rename(self.__file+'.old', self.__file);
+            raise RuntimeException('Failed to write cache file "{0}".'.format(self.__file), 0, e);
+        else:
+            if hasattr(os, 'chmod'):
+                umask = os.umask(0o220);
+                os.umask(umask);
+                os.chmod(self.__file, 0o666 & ~umask);
+            if os.path.exists(self.__file+'.old'):
+                os.remove(self.__file+'.old');
+        finally:
+            f.close();
+
+
+        if None is not metadata and True is self.__debug :
+            filename = self.__file+'.meta';
+            content = serialize(metadata);
+
+            try:
+                if os.path.exists(filename):
+                    if os.path.exists(filename+'.old'):
+                        os.remove(filename+'.old');
+                    os.rename(filename, filename+'.old');
+                f = open(filename, 'w');
+                f.write(content);
+            except Exception as e:
+                os.rename(filename+'.old', filename);
+                raise RuntimeException('Failed to write cache file "{0}".'.format(self.__file), 0, e);
+            else:
+                if hasattr(os, 'chmod'):
+                    umask = os.umask(0o220);
+                    os.umask(umask);
+                    os.chmod(filename, 0o666 & ~umask);
+                if os.path.exists(filename+'.old'):
+                    os.remove(filename+'.old');
+            finally:
+                f.close();

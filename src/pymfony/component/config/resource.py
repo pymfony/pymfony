@@ -25,7 +25,7 @@ class ResourceInterface(Object):
     """ResourceInterface is the interface that must be implemented
     by all Resource classes.
     """
-    def toString(self):
+    def __str__(self):
         """Returns a string representation of the Resource.
 
         @return: string
@@ -52,9 +52,12 @@ class ResourceInterface(Object):
 
 class FileResource(ResourceInterface, SerializableInterface):
     def __init__(self, resource):
-        self.__resource = str(os.path.realpath(str(resource)));
+        if resource:
+            self.__resource = str(os.path.realpath(str(resource)));
+        else:
+            self.__resource = '';
 
-    def toString(self):
+    def __str__(self):
         return self.__resource;
 
     def getResource(self):
@@ -94,7 +97,7 @@ class DirectoryResource(ResourceInterface, SerializableInterface):
         self.__pattern = pattern;
 
 
-    def __toString(self):
+    def __str__(self):
         """Returns a string representation of the Resource.
 
         @return string A string representation of the Resource

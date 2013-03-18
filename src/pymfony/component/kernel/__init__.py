@@ -18,16 +18,20 @@ from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.exception import LogicException;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.exception import RuntimeException;
+from pymfony.component.system.serializer import unserialize;
+from pymfony.component.system.serializer import serialize;
 
+from pymfony.component.config import ConfigCache;
 from pymfony.component.config.loader import LoaderResolver;
 from pymfony.component.config.loader import DelegatingLoader;
 
+from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.interface import ContainerInterface;
 from pymfony.component.dependency.interface import ContainerAwareInterface;
-from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.parameterbag import ParameterBag;
 from pymfony.component.dependency.loader import IniFileLoader;
 from pymfony.component.dependency.loader import JsonFileLoader;
+from pymfony.component.dependency.loader import YamlFileLoader;
 from pymfony.component.dependency.compilerpass import CheckDefinitionValidityPass;
 from pymfony.component.dependency.compilerpass import ResolveReferencesToAliasesPass;
 from pymfony.component.dependency.compilerpass import ResolveInvalidReferencesPass;
@@ -49,7 +53,6 @@ from pymfony.component.kernel.config import FileLocator;
 from pymfony.component.kernel.config import FileResourceLocatorInterface;
 from pymfony.component.kernel.dependency import MergeExtensionConfigurationPass;
 from pymfony.component.kernel.debug import ExceptionHandler;
-from pymfony.component.dependency.loader import YamlFileLoader
 
 """
 """
@@ -269,11 +272,61 @@ class Kernel(KernelInterface):
         self._booted = True;
 
 
+    def _getContainerClass(self):
+        """Gets the container class.
+
+        @return string The container class
+
+        """
+
+        return self._name+self._environment[0].upper() + self._environment[1:]+('Debug' if self._debug else '')+'ProjectContainer';
+
+
+    def _getContainerBaseClass(self):
+        """Gets the container's base class.
+
+        All names except Container must be fully qualified.
+
+        @return string
+
+        """
+
+        return 'Container';
+
 
     def _initializeContainer(self):
-        """Initializes the service container."""
-        self._container = self._buildContainer();
+        """Initializes the service container.
+
+        The cached version of the service container is used when fresh,
+        otherwise the container is built.
+
+        """
+
+        className = self._getContainerClass();
+        cache = ConfigCache(self.getCacheDir()+'/'+className+'.dat', self._debug);
+        fresh = True;
+        if not cache.isFresh() :
+            container = self._buildContainer();
+            self._dumpContainer(cache, container, className, self._getContainerBaseClass());
+
+            fresh = False;
+
+        if fresh :
+            f = open(str(cache));
+            try:
+                content = f.read();
+            finally:
+                f.close();
+
+            self._container = unserialize(content);
+        else:
+            self._container = container;
+
         self._container.set('kernel', self);
+
+        if not fresh and self._container.has('cache_warmer') :
+            self._container.get('cache_warmer').warmUp(self._container.getParameter('kernel.cache_dir'));
+
 
     def _initializeBundles(self):
         """Initializes the data structures related to the bundle management.
@@ -442,6 +495,25 @@ class Kernel(KernelInterface):
 
     def _getContainerBuilder(self):
         return ContainerBuilder(ParameterBag(self._getKernelParameters()));
+
+
+    def _dumpContainer(self, cache, container, className, baseClass):
+        """Dumps the service container to PHP code in the cache.
+
+        @param ConfigCache cache The config cache
+        @param ContainerBuilder container The service container
+        @param string class The name of the class to generate
+        @param string baseClass The name of the container's base class
+
+        """
+        assert isinstance(container, ContainerBuilder);
+        assert isinstance(cache, ConfigCache);
+
+        # cache the container
+        content = serialize(container);
+
+        cache.write(content, container.getResources());
+
 
     def shutdown(self):
         if not self._booted:

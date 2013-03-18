@@ -696,7 +696,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         """
         assert isinstance(resource, ResourceInterface);
 
-        if not self.__trackResources:
+        if not self.__trackResources or not str(resource):
             return self;
 
         self.__resources.append(resource);

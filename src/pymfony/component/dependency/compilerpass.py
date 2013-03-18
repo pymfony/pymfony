@@ -786,7 +786,7 @@ class CheckReferenceValidityPass(CompilerPassInterface):
             self.__currentScope = scope;
 
             if (ContainerInterface.SCOPE_CONTAINER == scope) :
-                self.__currentScopeChildren = scopes.keys();
+                self.__currentScopeChildren = list(scopes.keys());
                 self.__currentScopeAncestors = dict();
             elif (ContainerInterface.SCOPE_PROTOTYPE  != scope) :
                 self.__currentScopeChildren = children[scope];
