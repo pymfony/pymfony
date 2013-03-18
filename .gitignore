@@ -1,8 +1,8 @@
 # Pymfony
-/virtualenv.py
-/vendor/
-cache/*
-logs/*
+virtualenv.py
+vendor
+cache
+logs
 
 # Python compiled source
 *.py[cod]
