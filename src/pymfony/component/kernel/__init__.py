@@ -49,6 +49,7 @@ from pymfony.component.kernel.config import FileLocator;
 from pymfony.component.kernel.config import FileResourceLocatorInterface;
 from pymfony.component.kernel.dependency import MergeExtensionConfigurationPass;
 from pymfony.component.kernel.debug import ExceptionHandler;
+from pymfony.component.dependency.loader import YamlFileLoader
 
 """
 """
@@ -435,6 +436,7 @@ class Kernel(KernelInterface):
         resolver = LoaderResolver([
             IniFileLoader(container, locator),
             JsonFileLoader(container, locator),
+            YamlFileLoader(container, locator),
         ]);
         return DelegatingLoader(resolver);
 

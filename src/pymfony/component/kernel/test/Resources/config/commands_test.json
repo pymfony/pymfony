@@ -7,6 +7,6 @@
         }
     },
     "_main":{
-        "resource": "commands.json"
+        "resource": "commands.yml"
     }
 }

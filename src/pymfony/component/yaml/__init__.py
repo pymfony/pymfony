@@ -1554,7 +1554,7 @@ class Yaml(Object):
         # if content is a file, process it
         filename = '';
         if ("\n" not in content and os.path.isfile(content)) :
-            if (False is os.access(filename, os.R_OK)) :
+            if (True is os.access(filename, os.R_OK)) :
                 raise ParseException(
                     'Unable to parse "{0}" as the file is not readable.'
                     ''.format(filename)
@@ -1563,7 +1563,7 @@ class Yaml(Object):
             filename = content;
 
             f = open(filename);
-            content = f.read(filename);
+            content = f.read();
             f.close();
 
 

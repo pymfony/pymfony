@@ -9,6 +9,7 @@
 from __future__ import absolute_import;
 
 import sys;
+from pymfony.component.dependency.interface import ContainerInterface
 if sys.version_info[0] >= 3:
     from configparser import ConfigParser;
 else:
@@ -30,6 +31,8 @@ from pymfony.component.dependency import Reference;
 from pymfony.component.dependency.definition import Alias;
 from pymfony.component.dependency.definition import DefinitionDecorator
 from pymfony.component.dependency.exception import InvalidArgumentException;
+
+from pymfony.component.yaml import Yaml;
 
 """
 """
@@ -98,33 +101,43 @@ class IniFileLoader(FileLoader):
 class JsonFileLoader(FileLoader):
     """JsonFileLoader loads parameters from JSON files."""
 
-    def load(self, resource, resourceType=None):
+    def load(self, resource, resourceType = None):
         path = self._locator.locate(resource);
-
-        self._container.addResource(FileResource(path));
 
         content = self._parseFile(path);
 
-        if not content:
+        self._container.addResource(FileResource(path));
+
+        # empty file
+        if content is None:
             return;
 
         # imports
         self.__parseImports(content, path);
 
         # parameters
-        self.__parseParameters(content);
+        if 'parameters' in content:
+            for key, value in content['parameters'].items():
+                self._container.setParameter(key, self.__resolveServices(value));
 
         # extensions
         self.__loadFromExtensions(content);
 
         # services
-        self.__parseDefinitions(content, path);
+        self.__parseDefinitions(content, resource);
 
-    def supports(self, resource, resourceType=None):
-        if isinstance(resource, String):
-            if os.path.basename(resource).endswith(".json"):
-                return True;
-        return False;
+
+    def supports(self, resource, resourceType = None):
+        """Returns true if this class supports the given resource.
+
+        @param resource:     mixed  A resource
+        @param resourceType: string The resource type
+
+        @return Boolean true if this class supports the given resource,
+            false otherwise
+
+        """
+        return isinstance(resource, String) and resource.endswith("{0}json".format(os.path.extsep));
 
     def _parseFile(self, filename):
         """Parses a JSON file.
@@ -141,7 +154,7 @@ class JsonFileLoader(FileLoader):
         del f;
 
         if not s:
-            return dict();
+            return None;
 
         try:
             result = json.loads(s);
@@ -150,15 +163,24 @@ class JsonFileLoader(FileLoader):
 
         return self.__validate(result, filename);
 
-    def __validate(self, content, path):
+    def __validate(self, content, resource):
+        """Validates a YAML file.
+
+        @param content:  mixed
+        @param resource: string
+
+        @return: dict
+
+        @raise InvalidArgumentException: When service file is not valid
+
+        """
         if content is None:
             return;
 
         if not isinstance(content, dict):
-            raise InvalidArgumentException(
-                'The "{0}" file is not valid.'
-                ''.format(path)
-            );
+            raise InvalidArgumentException('The "{0}" file is not valid.'.format(
+                resource
+            ));
 
         for namespace in content.keys():
             if namespace in ['imports', 'parameters', 'services']:
@@ -171,44 +193,59 @@ class JsonFileLoader(FileLoader):
                     'for "{0}" (in {1}). Looked for namespace "{0}", found "{2}"'
                     ''.format(
                         namespace,
-                        path,
+                        resource,
                         '", "'.join(extensionNamespaces)
                 ));
 
         return content;
 
-    def __parseImports(self, content, path):
+
+    def __parseImports(self, content, resource):
+        """Parses all imports
+
+        @param content:  dict
+        @param resource: string
+
+        """
         if 'imports' not in content:
             return;
 
         for imports in content['imports']:
-            self.setCurrentDir(os.path.dirname(path));
-            self.imports(imports['resource'], None, 'ignore_error' in imports, path);
+            self.setCurrentDir(os.path.dirname(resource));
+            self.imports(imports['resource'], None, bool(imports['ignore_errors']) if 'ignore_errors' in imports else False, resource);
 
 
-    def __parseParameters(self, content):
-        if not 'parameters' in content:
-            return;
+    def __parseDefinitions(self, content, resource):
+        """Parses definitions
 
-        for key, value in content['parameters'].items():
-            self._container.setParameter(key, value);
+        @param content:  dict
+        @param resource: string
 
-
-    def __parseDefinitions(self, content, path):
+        """
         if not 'services' in content:
             return;
 
         for identifier, service in content['services'].items():
-            self.__parseDefinition(identifier, service, path);
+            self.__parseDefinition(identifier, service, resource);
 
-    def __parseDefinition(self, identifier, service, path):
+
+    def __parseDefinition(self, identifier, service, resource):
+        """Parses a definition.
+
+        @param identifier: string
+        @param service:    dict
+        @param resource:   string
+
+        @raise InvalidArgumentException: When tags are invalid
+
+        """
 
         if isinstance(service, String) and service.startswith('@') :
             self._container.setAlias(identifier, service[1:]);
 
             return;
         elif 'alias' in service :
-            public = 'public' not in service or service['public'] in ("true", True, 1, "1");
+            public = 'public' not in service or bool(service['public']);
             self._container.setAlias(identifier, Alias(service['alias'], public));
 
             return;
@@ -225,86 +262,102 @@ class JsonFileLoader(FileLoader):
         if 'scope' in service:
             definition.setScope(service['scope']);
 
-        if 'arguments' in service:
-            definition.setArguments(
-                self.__resolveServices(service['arguments'])
-            );
         if 'synthetic' in service:
             definition.setSynthetic(service['synthetic']);
+
         if 'public' in service:
             definition.setPublic(service['public']);
+
         if 'abstract' in service:
             definition.setAbstract(service['abstract']);
+
         if 'factory_class' in service:
             definition.setFactoryClass(service['factory_class']);
+
         if 'factory_method' in service:
             definition.setFactoryMethod(service['factory_method']);
+
         if 'factory_service' in service:
             definition.setFactoryService(service['factory_service']);
+
         if 'file' in service:
             definition.setFile(service['file']);
+
+        if 'arguments' in service:
+            definition.setArguments(self.__resolveServices(service['arguments']));
+
         if 'properties' in service:
-            definition.setProperties(
-                self.__resolveServices(service['properties'])
-            );
+            definition.setProperties(self.__resolveServices(service['properties']));
+
         if 'configurator' in service:
             if isinstance(service['configurator'], String):
                 definition.setConfigurator(service['configurator']);
             else:
                 definition.setConfigurator([
-                    self.__resolveServices(service['configurator'])[0],
+                    self.__resolveServices(service['configurator'][0]),
                     service['configurator'][1]
                 ]);
+
         if 'calls' in service:
             for call in service['calls']:
-                if len(call) == 2:
-                    args = self.__resolveServices(call[1]);
-                else:
-                    args = list();
+                args = self.__resolveServices(call[1]) if len(call) >= 2 else [];
                 definition.addMethodCall(call[0], args);
+
         if 'tags' in service:
             if not isinstance(service['tags'], list):
                 raise InvalidArgumentException(
-                    'Parameter "tags" must be an array for service '
-                    '"{0}" in {1}.'.format(identifier, path)
+                    'Parameter "tags" must be a list for service '
+                    '"{0}" in {1}.'.format(identifier, resource)
                 );
 
             for tag in service['tags']:
-                if not isinstance(tag, dict) and 'name' in tag:
+                if not isinstance(tag, dict) or 'name' not in tag:
                     raise InvalidArgumentException(
                         'A "tags" entry is missing a "name" key for service '
-                        '"{0}" in {1}.'.format(identifier, path)
+                        '"{0}" in {1}.'.format(identifier, resource)
                     );
 
                 name = tag['name'];
                 del tag['name'];
 
-                for attributes, value in tag.items():
-                    if not isinstance(
-                        value,
-                        (type(None),String,int,float,bool)
-                        ):
+                for value in tag.values():
+                    if not isinstance(value, (type(None),String,int,float,bool)):
                         raise InvalidArgumentException(
                             'A "tags" attribute must be of a scalar-type '
                             'for service "{0}", tag "{1}" in {2}.'
-                            ''.format(identifier, name, path)
+                            ''.format(identifier, name, resource)
                         );
 
                 definition.addTag(name, tag);
 
         self._container.setDefinition(identifier, definition);
 
+
     def __resolveServices(self, value):
+        """Resolves services.
+
+        @param value: string
+
+        @return: Reference
+
+        """
         if isinstance(value, list):
             value = list(map(self.__resolveServices, value));
         if isinstance(value, String) and value.startswith("@"):
-            value = value[1:];
+            if value.startswith("@?"):
+                value = value[2:];
+                invalidBehavior = ContainerInterface.IGNORE_ON_INVALID_REFERENCE;
+            else:
+                value = value[1:];
+                invalidBehavior = ContainerInterface.EXCEPTION_ON_INVALID_REFERENCE;
+
             if value.endswith("="):
                 value = value[:-1];
                 strict = False;
             else:
                 strict = True;
-            value = Reference(value, strict);
+
+            value = Reference(value, invalidBehavior, strict);
 
         return value;
 
@@ -312,7 +365,7 @@ class JsonFileLoader(FileLoader):
     def __loadFromExtensions(self, content):
         """Loads from Extensions
 
-         @param array content
+        @param content: dict
 
         """
         assert isinstance(content, dict);
@@ -321,7 +374,290 @@ class JsonFileLoader(FileLoader):
             if namespace in ['imports', 'parameters', 'services']:
                 continue;
 
-            if not isinstance(values, (list, dict)) :
+            if not isinstance(values, dict) :
+                values = {};
+
+            self._container.loadFromExtension(namespace, values);
+
+
+class YamlFileLoader(FileLoader):
+    """YamlFileLoader loads YAML files service definitions.
+
+    The YAML format does not support anonymous services (cf. the XML loader).
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    """
+
+    def load(self, resource, resourceType = None):
+        """Loads a Yaml file.
+
+        @param resource:     mixed  The resource
+        @param resourceType: string The resource type
+
+        """
+        path = self._locator.locate(resource);
+
+        content = self._loadFile(path);
+
+        self._container.addResource(FileResource(path));
+
+        # empty file
+        if content is None:
+            return;
+
+        # imports
+        self.__parseImports(content, path);
+
+        # parameters
+        if 'parameters' in content:
+            for key, value in content['parameters'].items():
+                self._container.setParameter(key, self.__resolveServices(value));
+
+
+        # extensions
+        self.__loadFromExtensions(content);
+
+        # services
+        self.__parseDefinitions(content, resource);
+
+
+    def supports(self, resource, resourceType = None):
+        """Returns true if this class supports the given resource.
+
+        @param resource:     mixed  A resource
+        @param resourceType: string The resource type
+
+        @return Boolean true if this class supports the given resource,
+            false otherwise
+
+        """
+        return isinstance(resource, String) and resource.endswith("{0}yml".format(os.path.extsep));
+
+
+    def __parseImports(self, content, resource):
+        """Parses all imports
+
+        @param content:  dict
+        @param resource: string
+
+        """
+        if 'imports' not in content:
+            return;
+
+        for imports in content['imports']:
+            self.setCurrentDir(os.path.dirname(resource));
+            self.imports(imports['resource'], None, bool(imports['ignore_errors']) if 'ignore_errors' in imports else False, resource);
+
+
+    def __parseDefinitions(self, content, resource):
+        """Parses definitions
+
+        @param content:  dict
+        @param resource: string
+
+        """
+        if not 'services' in content:
+            return;
+
+        for identifier, service in content['services'].items():
+            self.__parseDefinition(identifier, service, resource);
+
+    def __parseDefinition(self, identifier, service, resource):
+        """Parses a definition.
+
+        @param identifier: string
+        @param service:    dict
+        @param resource:   string
+
+        @raise InvalidArgumentException: When tags are invalid
+
+        """
+
+        if isinstance(service, String) and service.startswith('@') :
+            self._container.setAlias(identifier, service[1:]);
+
+            return;
+        elif 'alias' in service :
+            public = 'public' not in service or bool(service['public']);
+            self._container.setAlias(identifier, Alias(service['alias'], public));
+
+            return;
+
+
+        if 'parent' in service :
+            definition = DefinitionDecorator(service['parent']);
+        else :
+            definition = Definition();
+
+        if 'class' in service:
+            definition.setClass(service['class']);
+
+        if 'scope' in service:
+            definition.setScope(service['scope']);
+
+        if 'synthetic' in service:
+            definition.setSynthetic(service['synthetic']);
+
+        if 'public' in service:
+            definition.setPublic(service['public']);
+
+        if 'abstract' in service:
+            definition.setAbstract(service['abstract']);
+
+        if 'factory_class' in service:
+            definition.setFactoryClass(service['factory_class']);
+
+        if 'factory_method' in service:
+            definition.setFactoryMethod(service['factory_method']);
+
+        if 'factory_service' in service:
+            definition.setFactoryService(service['factory_service']);
+
+        if 'file' in service:
+            definition.setFile(service['file']);
+
+        if 'arguments' in service:
+            definition.setArguments(self.__resolveServices(service['arguments']));
+
+        if 'properties' in service:
+            definition.setProperties(self.__resolveServices(service['properties']));
+
+        if 'configurator' in service:
+            if isinstance(service['configurator'], String):
+                definition.setConfigurator(service['configurator']);
+            else:
+                definition.setConfigurator([
+                    self.__resolveServices(service['configurator'][0]),
+                    service['configurator'][1]
+                ]);
+
+        if 'calls' in service:
+            for call in service['calls']:
+                args = self.__resolveServices(call[1]) if len(call) >= 2 else [];
+                definition.addMethodCall(call[0], args);
+
+        if 'tags' in service:
+            if not isinstance(service['tags'], list):
+                raise InvalidArgumentException(
+                    'Parameter "tags" must be a list for service '
+                    '"{0}" in {1}.'.format(identifier, resource)
+                );
+
+            for tag in service['tags']:
+                if not isinstance(tag, dict) or 'name' not in tag:
+                    raise InvalidArgumentException(
+                        'A "tags" entry is missing a "name" key for service '
+                        '"{0}" in {1}.'.format(identifier, resource)
+                    );
+
+                name = tag['name'];
+                del tag['name'];
+
+                for value in tag.values():
+                    if not isinstance(value, (type(None),String,int,float,bool)):
+                        raise InvalidArgumentException(
+                            'A "tags" attribute must be of a scalar-type '
+                            'for service "{0}", tag "{1}" in {2}.'
+                            ''.format(identifier, name, resource)
+                        );
+
+                definition.addTag(name, tag);
+
+        self._container.setDefinition(identifier, definition);
+
+
+    def _loadFile(self, resource):
+        """Loads a YAML file.
+
+        @param resource: string
+
+        @return dict The file content
+
+        """
+
+        return self.__validate(Yaml.parse(resource), resource);
+
+
+    def __validate(self, content, resource):
+        """Validates a YAML file.
+
+        @param content:  mixed
+        @param resource: string
+
+        @return: dict
+
+        @raise InvalidArgumentException: When service file is not valid
+
+        """
+        if content is None:
+            return;
+
+        if not isinstance(content, dict):
+            raise InvalidArgumentException('The "{0}" file is not valid.'.format(
+                resource
+            ));
+
+        for namespace in content.keys():
+            if namespace in ['imports', 'parameters', 'services']:
+                continue;
+
+            if not self._container.hasExtension(namespace):
+                extensionNamespaces = filter(None, map(lambda e: e.getAlias(), self._container.getExtensions()));
+                raise InvalidArgumentException(
+                    'There is no extension able to load the configuration '
+                    'for "{0}" (in {1}). Looked for namespace "{0}", found "{2}"'
+                    ''.format(
+                        namespace,
+                        resource,
+                        '", "'.join(extensionNamespaces)
+                ));
+
+        return content;
+
+
+    def __resolveServices(self, value):
+        """Resolves services.
+
+        @param value: string
+
+        @return: Reference
+
+        """
+        if isinstance(value, list):
+            value = list(map(self.__resolveServices, value));
+        if isinstance(value, String) and value.startswith("@"):
+            if value.startswith("@?"):
+                value = value[2:];
+                invalidBehavior = ContainerInterface.IGNORE_ON_INVALID_REFERENCE;
+            else:
+                value = value[1:];
+                invalidBehavior = ContainerInterface.EXCEPTION_ON_INVALID_REFERENCE;
+
+            if value.endswith("="):
+                value = value[:-1];
+                strict = False;
+            else:
+                strict = True;
+
+            value = Reference(value, invalidBehavior, strict);
+
+        return value;
+
+
+    def __loadFromExtensions(self, content):
+        """Loads from Extensions
+
+        @param content: dict
+
+        """
+        assert isinstance(content, dict);
+
+        for namespace, values in content.items():
+            if namespace in ['imports', 'parameters', 'services']:
+                continue;
+
+            if not isinstance(values, dict) :
                 values = {};
 
             self._container.loadFromExtension(namespace, values);

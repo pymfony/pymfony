@@ -26,6 +26,7 @@ from pymfony.component.console.input import InputOption;
 from pymfony.component.console_routing import RouteCollection;
 from pymfony.component.console_routing import Route;
 from pymfony.component.console_routing.interface import LoaderInterface;
+from pymfony.component.yaml import Yaml
 
 """
 """
@@ -98,16 +99,12 @@ class JsonFileLoader(FileLoader, LoaderInterface):
         return collection;
 
 
-    def supports(self, resource, resource_type = None):
+    def supports(self, resource, resourceType = None):
         """
         @api
 
         """
-        if isinstance(resource, String):
-            if os.path.basename(resource).endswith(".json"):
-                if resource_type is None or resource_type == "json":
-                    return True;
-        return False;
+        return isinstance(resource, String) and resource.endswith("{0}json".format(os.path.extsep)) and (resourceType is None or resourceType == "json");
 
     def _parseFile(self, filename):
         """Parses a JSON file.
@@ -124,7 +121,7 @@ class JsonFileLoader(FileLoader, LoaderInterface):
         del f;
 
         if not s:
-            return OrderedDict();
+            return None;
 
         try:
             result = JSONDecoderOrderedDict().decode(s);
@@ -286,3 +283,19 @@ class JsonFileLoader(FileLoader, LoaderInterface):
                         'in route "{0}" in file "{1}".'
                         ''.format(name, path)
                     );
+
+class YamlFileLoader(JsonFileLoader):
+    def supports(self, resource, resourceType = None):
+        """Returns true if this class supports the given resource.
+
+        @param resource:     mixed  A resource
+        @param resourceType: string The resource type
+
+        @return Boolean true if this class supports the given resource,
+            false otherwise
+
+        """
+        return isinstance(resource, String) and resource.endswith("{0}yml".format(os.path.extsep)) and (resourceType is None or resourceType == "yaml");
+
+    def _parseFile(self, filename):
+        return Yaml.parse(filename);

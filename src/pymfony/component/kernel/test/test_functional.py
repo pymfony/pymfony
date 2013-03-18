@@ -56,8 +56,8 @@ class Test(unittest.TestCase):
         currdir = op.realpath(op.dirname(__file__));
         formater = lambda v: op.normpath(op.normcase(op.realpath(v)));
         values = {
-            "@/Resources/config/config.json": op.join(
-                currdir, "Resources/config/config.json"
+            "@/Resources/config/config_test.json": op.join(
+                currdir, "Resources/config/config_test.json"
             ),
             "Resources/config": op.join(currdir, "Resources/config"),
         };

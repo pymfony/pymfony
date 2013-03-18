@@ -1415,12 +1415,16 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                     closure[0] = self.get(str(closure[0]));
                 else:
                     closure[0] = parameterBag.resolveValue(closure[0]);
+                    closure[0] = ClassLoader.load(closure[0]);
+
+                closure = getattr(closure[0], closure[1]);
 
             if not Tool.isCallable(closure):
                 raise InvalidArgumentException(
                     'The configure callable for class "{0}" is not a callable.'
                     ''.format(type(service).__name__)
                 );
+
             closure(service);
 
         return service;

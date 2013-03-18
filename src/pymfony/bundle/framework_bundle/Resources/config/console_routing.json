@@ -3,6 +3,7 @@
 		"console.router_listener.class": "pymfony.component.console_kernel.listener.RouterListener",
 		"console.router.class": "pymfony.bundle.framework_bundle.console.Router",
 		"console.routing.loader.json.class": "pymfony.component.console_routing.loader.JsonFileLoader",
+		"console.routing.loader.yaml.class": "pymfony.component.console_routing.loader.YamlFileLoader",
 		"console.routing.loader.class": "pymfony.bundle.framework_bundle.routing.DelegatingLoader",
 		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver"
 		},
@@ -18,6 +19,15 @@
 		},
 		"console.routing.loader.json":{
 			"class": "%console.routing.loader.json.class%",
+			"tags": [
+				{"name": "console.routing.loader"}
+			],
+			"arguments":[
+				"@file_locator"
+			]
+		},
+		"console.routing.loader.yaml":{
+			"class": "%console.routing.loader.yaml.class%",
 			"tags": [
 				{"name": "console.routing.loader"}
 			],

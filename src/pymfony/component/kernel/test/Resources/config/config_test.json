@@ -1,6 +1,6 @@
 {
     "imports": [
-        {"resource": "config.json"}
+        {"resource": "config.yml"}
     ],
     "framework":{
         "console":{
