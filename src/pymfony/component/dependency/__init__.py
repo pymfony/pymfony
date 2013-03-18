@@ -375,11 +375,11 @@ class Container(IntrospectableContainerInterface):
         if self.SCOPE_CONTAINER != self._scopes[name] and  self._scopes[name] not in self._scopedServices :
             raise RuntimeException(
                 'The parent scope "{0}" must be active when entering this '
-                'scope.'.foemat(self._scopes[name])
+                'scope.'.format(self._scopes[name])
             );
 
 
-        # check if a scope of this name is already active, if so we need to:
+        # check if a scope of this name is already active, if so we need to
         # remove all services of this scope, and those of any of its child
         # scopes from the global services map
         if name in self._scopedServices :
