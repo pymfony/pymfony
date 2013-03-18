@@ -38,7 +38,7 @@ class AppKernel(Kernel):
 
 
 
-class Test(unittest.TestCase):
+class FunctionnalTest(unittest.TestCase):
     def setUp(self):
         self._kernel = AppKernel("test", True);
         self._request = Request.create(["script", "-q"]);
