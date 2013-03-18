@@ -22,9 +22,10 @@ except Exception:
 """
 
 CHARSET = 'UTF-8';
+PICKLE_PROTOCOL = 2;
 
 def serialize(obj):
-    return encodebytes(dumps(obj)).decode(CHARSET).replace('\n', '');
+    return encodebytes(dumps(obj, PICKLE_PROTOCOL)).decode(CHARSET).replace('\n', '');
 
 def unserialize(s):
     return loads(decodebytes(s.encode(CHARSET)));
