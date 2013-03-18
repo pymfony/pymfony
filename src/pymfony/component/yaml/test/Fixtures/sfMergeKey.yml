@@ -1,6 +1,5 @@
 --- %YAML:1.0
 test: Simple In Place Substitution
-todo: true
 brief: >
     If you want to reuse an entire alias, only overwriting what is different
     you can use a << in place substitution. This is not part of the official

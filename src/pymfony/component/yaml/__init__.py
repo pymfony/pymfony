@@ -198,7 +198,7 @@ class Parser(Object):
                     raise e;
 
 
-                if False and ('<<' == key) : # FIXME: merge
+                if ('<<' == key) :
                     if values['value'] and values['value'].startswith('*') :
                         isInPlace = values['value'][1:];
                         if isInPlace not in self.__refs :
@@ -237,7 +237,7 @@ class Parser(Object):
                                             i += 1;
                                         merged[i] = v;
                                 else:
-                                    tmp = parsedItem;
+                                    tmp = parsedItem.copy();
                                     tmp.update(merged);
                                     merged = tmp;
 
@@ -271,7 +271,7 @@ class Parser(Object):
 
                 else :
                     if (isInPlace) :
-                        data = self.__refs[isInPlace];
+                        data = self.__refs[isInPlace].copy();
                     else :
                         data[key] = self.__parseValue(values['value'], exceptionOnInvalidType, objectSupport);
 
