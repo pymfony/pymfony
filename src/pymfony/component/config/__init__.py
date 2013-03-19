@@ -64,7 +64,7 @@ class FileLocator(FileLocatorInterface):
 
         filepaths = list();
 
-        paths = [""];
+        paths = [];
         if currentPath:
             paths.append(currentPath);
         paths.extend(self._paths);
@@ -86,8 +86,16 @@ class FileLocator(FileLocatorInterface):
 
 
     def __isAbsolutePath(self, name):
-        if os.path.isabs(name) and urlparse(name).scheme:
+        if (name.startswith('/') or name.startswith('\\')
+            or ( len(name) > 3 and name[0].isalpha()
+                and name[1] == ':'
+                and (name[2] == '\\' or name[2] == '/')
+            )
+            or urlparse(name)[0]
+        ):
             return True;
+
+        return False;
 
 
 class ConfigCache(Object):

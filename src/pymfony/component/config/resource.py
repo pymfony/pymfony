@@ -136,18 +136,19 @@ class DirectoryResource(ResourceInterface, SerializableInterface):
 
 
         newestMTime = os.path.getmtime(self.__resource);
-        files = os.listdir(self.__resource);
-        for filename in files:
-            # if regex filtering is enabled only check matching files:
-            if (self.__pattern and os.path.isfile(filename) and  not re.match(self.__pattern, os.path.basename(filename))) :
-                continue;
+        for root, dirs, files in os.walk(self.__resource, followlinks=True):
+            for filename in files + dirs:
+                filename = '/'.join([root, filename]);
+                # if regex filtering is enabled only check matching files:
+                if (self.__pattern and os.path.isfile(filename) and  not re.search(self.__pattern, os.path.basename(filename))) :
+                    continue;
 
-            # always monitor directories for changes, except the .. entries
-            # (otherwise deleted files wouldn't get detected)
-            if os.path.isdir(filename) and '/..' == filename[-3:] :
-                continue;
+                # always monitor directories for changes, except the .. entries
+                # (otherwise deleted files wouldn't get detected)
+                if os.path.isdir(filename) and '/..' == filename[-3:] :
+                    continue;
 
-            newestMTime = max(os.path.getmtime(filename), newestMTime);
+                newestMTime = max(os.path.getmtime(filename), newestMTime);
 
         return newestMTime < timestamp;
 
