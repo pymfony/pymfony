@@ -59,10 +59,7 @@ class CloneBuilderTest(unittest.TestCase):
 class ClassLoaderTest(unittest.TestCase):
     def testLoad(self):
         ClassLoader.load('os.path').sep;
-
-    def testLoadWithModule(self):
-        module = ClassLoader.load('os');
-        ClassLoader.load('path', module).sep;
+        self.assertEqual(ClassLoader.load('Exception'), Exception);
 
 
 class SourceFileLoaderTest(unittest.TestCase):

@@ -11,6 +11,7 @@ from __future__ import absolute_import;
 import sys;
 import os;
 import inspect;
+import re;
 
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
@@ -380,54 +381,51 @@ class Tool(Object):
 class ClassLoader(Object):
     __classes = {};
     __badClasses = {};
+    __validVarNamePattern = re.compile('[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*');
+
     @classmethod
-    def load(cls, qualClassName, module = None):
-        """
+    def load(cls, qualClassName):
+        """Load a fully qualify class name.
+
+        @param qualClassName: string  A fully qualify class name to load.
+
+        @return: type  A class
+
         @raise ImportError: When the class can not be load
+
         """
-        if module is not None:
-            assert isinstance(module, type(sys));
+
+        if qualClassName in cls.__classes:
+            return cls.__classes[qualClassName];
 
         if qualClassName in cls.__badClasses:
-            raise ImportError("No class named {0}".format(qualClassName));
-        elif qualClassName in cls.__classes:
-            return cls.__classes[qualClassName];
+            raise ImportError('No class named "{0}".'.format(qualClassName));
+
+        classType = None;
 
         if '.' in qualClassName:
             moduleName, className = Tool.split(qualClassName);
+
             try:
-                module = __import__(moduleName, globals(), {}, [className], 0);
+                module = __import__(moduleName, {}, {}, [className], 0);
             except TypeError:
-                module = __import__(moduleName, globals(), {}, ["__init__"], 0);
+                module = __import__(moduleName, {}, {}, ["__init__"], 0);
             except ImportError as e:
                 cls.__badClasses[qualClassName] = True;
                 raise e;
 
             classType = getattr(module, className, False);
-        else:
+        elif cls.__validVarNamePattern.match(qualClassName):
             try:
-                if module is not None:
-                    classType = getattr(module, qualClassName, False);
-                else:
-                    classType = eval(qualClassName);
+                classType = eval(qualClassName, {}, {});
             except Exception:
                 classType = None;
 
         if classType:
-            if module is not None:
-                cls.__classes[module] = classType;
-            else:
-                cls.__classes[qualClassName] = classType;
+            cls.__classes[qualClassName] = classType;
         else:
-            if module is not None:
-                cls.__badClasses[module] = True;
-                raise ImportError('No class named "{0}" on module "{1}".'.format(
-                    qualClassName,
-                    '.'.join([str(module.__package__), str(module.__name__)])
-                ));
-            else:
-                cls.__badClasses[qualClassName] = True;
-                raise ImportError('No class named "{0}".'.format(qualClassName));
+            cls.__badClasses[qualClassName] = True;
+            raise ImportError('No class named "{0}".'.format(qualClassName));
 
         return classType;
 

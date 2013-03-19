@@ -1362,7 +1362,10 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                 factory = parameterBag.resolveValue(
                     definition.getFactoryClass()
                 );
-                factory = ClassLoader.load(factory, module);
+                if module is not None:
+                    factory = getattr(module, factory);
+                else:
+                    factory = ClassLoader.load(factory);
             elif not definition.getFactoryService() is None:
                 factory = self.get(parameterBag.resolveValue(
                     definition.getFactoryService()
@@ -1377,7 +1380,10 @@ class ContainerBuilder(Container, TaggedContainerInterface):
             service = getattr(factory, definition.getFactoryMethod())(*arguments);
         else:
             className = parameterBag.resolveValue(definition.getClass());
-            service = ClassLoader.load(className, module)(*arguments);
+            if module is not None:
+                service = getattr(module, className)(*arguments);
+            else:
+                service = ClassLoader.load(className)(*arguments);
 
         scope = definition.getScope();
         if self.SCOPE_PROTOTYPE  != scope :
