@@ -64,7 +64,7 @@ class ClassLoaderTest(unittest.TestCase):
 
 class SourceFileLoaderTest(unittest.TestCase):
     def testLoad(self):
-        SourceFileLoader.load(__file__).SourceFileLoaderTest;
+        SourceFileLoader.load(inspect.getabsfile(self.__class__)).SourceFileLoaderTest;
 
 
 if __name__ == "__main__":
