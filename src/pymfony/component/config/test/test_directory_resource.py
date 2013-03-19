@@ -43,10 +43,17 @@ class DirectoryResourceTest(unittest.TestCase):
 
         shutil.rmtree(directory, ignore_errors=True);
 
-    def _touch(self, path, mtime = time(), atime = time()):
-        if not os.path.exists(path):
+    def _touch(self, path, mtime = None, atime = None):
+        currTime =  time();
+        if mtime is None:
+            mtime = currTime;
+        if atime is None:
+            atime = currTime;
+        try:
+            os.utime(path, (atime, mtime));
+        except Exception:
             open(path, 'a').close();
-        os.utime(path, (atime, mtime));
+            os.utime(path, (atime, mtime));
 
 
     def testGetResource(self):
@@ -109,7 +116,9 @@ class DirectoryResourceTest(unittest.TestCase):
 
         resource = DirectoryResource(self._directory);
         os.unlink(self._directory+'/tmp.xml');
-        self.assertFalse(resource.isFresh(time()), '->isFresh() returns False if an existing file is removed');
+        # Update the modification time it don't on Unix system.
+        self._touch(self._directory, time() + 20);
+        self.assertFalse(resource.isFresh(time() + 10), '->isFresh() returns False if an existing file is removed');
 
 
     def testIsFreshDeleteDirectory(self):
