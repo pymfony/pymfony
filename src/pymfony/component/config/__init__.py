@@ -28,13 +28,21 @@ from pymfony.component.system.serializer import serialize;
 
 @interface
 class FileLocatorInterface(Object):
-    def locate(self, name, currentPath=None, first=True):
+    """
+    @author Fabien Potencier <fabien@symfony.com>
+    """
+    def locate(self, name, currentPath = None, first = True):
         """Returns a full path for a given file name.
-        
+
         @param name: mixed The file name to locate
         @param currentPath: string The current path
         @param first: boolean Whether to return the first occurrence 
                       or an array of filenames
+
+        @return: string|list The full path to the file|A list of file paths
+
+        @raise InvalidArgumentException: When file is not found
+
         """
         pass;
 
@@ -42,10 +50,17 @@ class FileLocatorInterface(Object):
 
 
 class FileLocator(FileLocatorInterface):
-    def __init__(self, paths=None):
-        """
-        @param paths: string|list A path or an array of paths 
-            where to look for resources
+    """FileLocator uses an array of pre-defined paths to find files.
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    """
+    def __init__(self, paths = None):
+        """Constructor.
+
+        @param paths: string|list A path or an array of paths where to look
+            for resources
+
         """
         if paths is None:
             self._paths = list();
@@ -54,7 +69,19 @@ class FileLocator(FileLocatorInterface):
         else:
             self._paths = list(paths);
 
-    def locate(self, name, currentPath=None, first=True):
+    def locate(self, name, currentPath = None, first = True):
+        """Returns a full path for a given file name.
+
+        @param name: mixed The file name to locate
+        @param currentPath: string The current path
+        @param first: boolean Whether to return the first occurrence 
+                      or an array of filenames
+
+        @return: string|list The full path to the file|A list of file paths
+
+        @raise InvalidArgumentException: When file is not found
+
+        """
         if self.__isAbsolutePath(name):
             if not os.path.exists(name):
                 raise InvalidArgumentException(
@@ -85,13 +112,20 @@ class FileLocator(FileLocatorInterface):
         return Array.uniq(filepaths);
 
 
-    def __isAbsolutePath(self, name):
-        if (name.startswith('/') or name.startswith('\\')
-            or ( len(name) > 3 and name[0].isalpha()
-                and name[1] == ':'
-                and (name[2] == '\\' or name[2] == '/')
+    def __isAbsolutePath(self, path):
+        """Returns whether the file path is an absolute path.
+
+        @param path: string A file path
+
+        @return Boolean
+
+        """
+        if (path.startswith('/') or path.startswith('\\')
+            or ( len(path) > 3 and path[0].isalpha()
+                and path[1] == ':'
+                and (path[2] == '\\' or path[2] == '/')
             )
-            or urlparse(name)[0]
+            or urlparse(path)[0]
         ):
             return True;
 

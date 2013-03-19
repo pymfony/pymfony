@@ -14,6 +14,9 @@ from pymfony.component.system.exception import StandardException;
 
 class FileLoaderLoadException(StandardException):
     """Exception class for when a resource cannot be loaded or imported.
+
+    @author Ryan Weaver <ryan@thatsquality.com>
+
     """
 
     def __init__(self, resource, sourceResource=None, code=0, previous=None):
@@ -34,9 +37,13 @@ class FileLoaderLoadException(StandardException):
 
         StandardException.__init__(self, message, code, previous);
 
+
 class FileLoaderImportCircularReferenceException(FileLoaderLoadException):
     """Exception class for when a circular reference is detected when
     importing resources.
+
+    @author Fabien Potencier <fabien@symfony.com>
+
     """
     def __init__(self, resources, code=None, previous=None):
         """

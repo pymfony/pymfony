@@ -24,11 +24,15 @@ from pymfony.component.system.oop import interface;
 class ResourceInterface(Object):
     """ResourceInterface is the interface that must be implemented
     by all Resource classes.
+
+    @author Fabien Potencier <fabien@symfony.com>
+
     """
     def __str__(self):
         """Returns a string representation of the Resource.
 
-        @return: string
+        @return string A string representation of the Resource
+
         """
         pass;
 
@@ -38,7 +42,8 @@ class ResourceInterface(Object):
 
         @param timestamp: int The last time the resource was loaded
 
-        @return: Boolean
+        @return: Boolean True if the resource has not been updated, false otherwise
+
         """
         pass;
 
@@ -46,24 +51,54 @@ class ResourceInterface(Object):
         """Returns the resource tied to this Resource.
 
         @return: mixed The resource
+
         """
         pass;
 
 
 class FileResource(ResourceInterface, SerializableInterface):
+    """FileResource represents a resource stored on the filesystem.
+
+    The resource can be a file or a directory.
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    """
     def __init__(self, resource):
+        """Constructor.
+
+        @param string $resource The file path to the resource
+
+        """
         if resource:
             self.__resource = str(os.path.realpath(str(resource)));
         else:
             self.__resource = '';
 
     def __str__(self):
+        """Returns a string representation of the Resource.
+
+        @return string A string representation of the Resource
+
+        """
         return self.__resource;
 
     def getResource(self):
+        """Returns the resource tied to this Resource.
+
+        @return mixed The resource
+
+        """
         return self.__resource;
 
     def isFresh(self, timestamp):
+        """Returns true if the resource has not been updated since the given timestamp.
+
+        @param timestamp: integer The last time the resource was loaded
+
+        @return Boolean true if the resource has not been updated, false otherwise
+
+        """
         if not os.path.exists(self.__resource):
             return False;
         return os.path.getmtime(self.__resource) < timestamp;

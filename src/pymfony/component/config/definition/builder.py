@@ -35,28 +35,44 @@ from pymfony.component.config.definition.exception import InvalidDefinitionExcep
 
 @interface
 class NodeParentInterface(Object):
+    """An interface that must be implemented by all node parents
+
+    @author Victor Berchet <victor@suumit.com>
+
+    """
     pass;
 
 @interface
 class ParentNodeDefinitionInterface(Object):
+    """An interface that must be implemented by nodes which can have children
+
+    @author Victor Berchet <victor@suumit.com>
+
+    """
     def children(self):
         pass;
 
     def append(self, node):
-        """
-        @param node: NodeDefinition
-        """
-        pass;
+        assert isinstance(node, NodeDefinition);
 
     def setBuilder(self, builder):
-        """
-        @param builder: NodeBuilder
-        """
-        pass;
+        assert isinstance(builder, NodeBuilder);
 
 
+@abstract
 class NodeDefinition(NodeParentInterface):
+    """This class provides a fluent interface for defining a node.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self, name, parent=None):
+        """Constructor
+
+        @param name:   string               The name of the node
+        @param parent: NodeParentInterface  The parent
+
+        """
         if not parent is None:
             assert isinstance(parent, NodeParentInterface);
         self._name = str(name);
@@ -73,18 +89,6 @@ class NodeDefinition(NodeParentInterface):
         self._parent = parent;
         self._attributes = dict();
 
-    @abstract
-    def _createNode(self):
-        """Instantiate and configure the node according to this definition
-
-        @return: NodeInterface The node instance
-
-        @raise InvalidDefinitionException: When the definition is invalid 
-        """
-        pass;
-
-    def getName(self):
-        return self._name;
 
     def setParent(self, parent):
         """Sets the parent node.
@@ -96,6 +100,7 @@ class NodeDefinition(NodeParentInterface):
         assert isinstance(parent, NodeParentInterface);
         self._parent = parent;
         return self;
+
 
 
     def info(self, info):
@@ -301,7 +306,23 @@ class NodeDefinition(NodeParentInterface):
         return self._normalizationBuilder;
 
 
+    @abstract
+    def _createNode(self):
+        """Instantiate and configure the node according to this definition
+
+        @return: NodeInterface The node instance
+
+        @raise InvalidDefinitionException: When the definition is invalid
+        """
+        pass;
+
+
 class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
+    """This class provides a fluent interface for defining an array node.
+
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self, name, parent=None):
         NodeDefinition.__init__(self, name, parent=parent);
         self._performDeepMerging = True;
@@ -517,7 +538,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
         @return: ArrayNodeDefinition
         """
         assert isinstance(node, NodeDefinition);
-        self._children[node.getName()] = node.setParent(self);
+        self._children[node._name] = node.setParent(self);
         return self;
 
     def _getNodeBuilder(self):
@@ -665,8 +686,18 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
 
 
 class ExprBuilder(Object):
-    """This class builds an if expression."""
+    """This class builds an if expression.
+
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
+    @author: Christophe Coevoet <stof@notk.org>
+
+    """
     def __init__(self, node):
+        """Constructor
+
+        @param node: NodeDefinition The related node
+
+        """
         assert isinstance(node, NodeDefinition);
         self._node = node;
         self.ifPart = None;
@@ -828,10 +859,16 @@ class ExprBuilder(Object):
         return expressions;
 
 class MergeBuilder(Object):
-    """This class builds merge conditions."""
+    """This class builds merge conditions.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self, node):
-        """
+        """Constructor
+
         @param node: NodeDefinition
+
         """
         assert isinstance(node, NodeDefinition);
         self._node = node;
@@ -868,7 +905,15 @@ class MergeBuilder(Object):
 
 
 class NodeBuilder(NodeParentInterface):
+    """This class provides a fluent interface for building a node.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self):
+        """Constructor
+
+        """
         self._parent = None;
         self._nodeMapping = {
             'variable'  : __name__ + '.VariableNodeDefinition',
@@ -1056,10 +1101,16 @@ class NodeBuilder(NodeParentInterface):
 
 
 class NormalizationBuilder(Object):
-    """This class builds normalization conditions."""
+    """This class builds normalization conditions.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self, node):
-        """
-        @param node: NodeDefinition
+        """Constructor
+
+        @param node: NodeDefinition The related node
+
         """
         assert isinstance(node, NodeDefinition);
         self._node = node;
@@ -1097,6 +1148,11 @@ class NormalizationBuilder(Object):
 
 
 class TreeBuilder(NodeParentInterface):
+    """This is the entry class for building a config tree.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self):
         self._tree = None;
         self._root = None;
@@ -1139,6 +1195,11 @@ class TreeBuilder(NodeParentInterface):
 
 
 class VariableNodeDefinition(NodeDefinition):
+    """This class provides a fluent interface for defining a node.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def _instantiateNode(self):
         """Instantiate a Node
 
@@ -1173,23 +1234,49 @@ class VariableNodeDefinition(NodeDefinition):
 
 
 class ScalarNodeDefinition(VariableNodeDefinition):
+    """This class provides a fluent interface for defining a node.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def _instantiateNode(self):
+        """Instantiate a Node
+
+        @return ScalarNode The node
+
+        """
         return ScalarNode(self._name, self._parent);
 
 
 class BooleanNodeDefinition(ScalarNodeDefinition):
+    """This class provides a fluent interface for defining a node.
+
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self, name, parent=None):
         ScalarNodeDefinition.__init__(self, name, parent=parent);
         self._nullEquivalent = True;
 
     def _instantiateNode(self):
+        """Instantiate a Node
+
+        @return: BooleanNode The node
+
+        """
         return BooleanNode(self._name, self._parent);
 
 class ValidationBuilder(Object):
-    """This class builds validation conditions."""
+    """This class builds validation conditions.
+
+    @author Christophe Coevoet <stof@notk.org>
+
+    """
     def __init__(self, node):
-        """
-        @param node: NodeDefinition
+        """Constructor
+
+        @param node: NodeDefinition The related node
+
         """
         assert isinstance(node, NodeDefinition);
         self._node = node;
@@ -1215,7 +1302,7 @@ class ValidationBuilder(Object):
 class EnumNodeDefinition(ScalarNodeDefinition):
     """Enum Node Definition.
 
-    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+    @author: Johannes M. Schmitt <schmittjoh@gmail.com>
 
     """
 
@@ -1257,7 +1344,7 @@ class EnumNodeDefinition(ScalarNodeDefinition):
 
 @abstract
 class NumericNodeDefinition(ScalarNodeDefinition):
-    """Abstract class that(, contain common code of integer and float node definition.):
+    """Abstract class that contain common code of integer and float node definition.
 
     @author David Jeanmonod <david.jeanmonod@gmail.com>
 
@@ -1335,7 +1422,7 @@ class IntegerNodeDefinition(NumericNodeDefinition):
 class FloatNodeDefinition(NumericNodeDefinition):
     """This class provides a fluent interface for defining a float node.):
 
-    @author Jeanmonod David <david.jeanmonod@gmail.com>
+    @author: Jeanmonod David <david.jeanmonod@gmail.com>
 
     """
 

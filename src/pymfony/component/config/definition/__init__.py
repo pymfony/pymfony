@@ -107,6 +107,11 @@ class NodeInterface(Object):
 
 @interface
 class ConfigurationInterface(Object):
+    """Configuration interface
+
+    @author Victor Berchet <victor@suumit.com>
+
+    """
     def getConfigTreeBuilder(self):
         """Generates the configuration tree builder.
 
@@ -117,16 +122,25 @@ class ConfigurationInterface(Object):
 
 @interface
 class PrototypeNodeInterface(NodeInterface):
+    """This interface must be implemented by nodes which can be used as prototypes.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def setName(self, name):
         """Sets the name of the node.
 
         @param name: string The name of the node
+
         """
         pass;
 
 class Processor(Object):
     """This class is the entry point for config
     normalization/merging/finalization.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
     """
     def process(self, configTree, configs):
         """Processes an array of configurations.
@@ -134,6 +148,9 @@ class Processor(Object):
         @param configTree: NodeInterface The node tree describing
             the configuration
         @param configs: list An array of configuration items to process
+
+        @return dict The processed configuration
+
         """
         assert isinstance(configTree, NodeInterface);
         assert isinstance(configs, list);
@@ -149,7 +166,10 @@ class Processor(Object):
         """Processes an array of configurations.
 
         @param configuration: ConfigurationInterface The configuration class
-        @param configs: dict An array of configuration items to process
+        @param configs: list An array of configuration items to process
+
+        @return dict The processed configuration
+
         """
         assert isinstance(configuration, ConfigurationInterface);
         assert isinstance(configs, list);
@@ -204,8 +224,13 @@ class Processor(Object):
         return list(values);
 
 
+@abstract
 class BaseNode(NodeInterface):
-    """The base node class"""
+    """The base node class
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self, name, parent=None):
         """Constructor.
 
@@ -320,12 +345,27 @@ class BaseNode(NodeInterface):
         self._finalValidationClosures = closures;
 
     def isRequired(self):
+        """Checks if this node is required.
+
+        @return Boolean
+
+        """
         return self._required;
 
     def getName(self):
+        """Returns the name of this node
+
+        @return string The Node's name.
+
+        """
         return self._name;
 
     def getPath(self):
+        """Retrieves the path of this node.
+
+        @return string The Node's path
+
+        """
         path = self._name;
         if not self._parent is None:
             path = ".".join([self._parent.getPath(), self._name]);
@@ -333,7 +373,15 @@ class BaseNode(NodeInterface):
 
     @final
     def merge(self, leftSide, rightSide):
-        """
+        """Merges two values together.
+
+        @param leftSide:  mixed
+        @param rightSide: mixed
+
+        @return mixed The merged value
+
+        @raise ForbiddenOverwriteException:
+
         """
         if not self._allowOverwrite:
             raise ForbiddenOverwriteException(
@@ -351,9 +399,10 @@ class BaseNode(NodeInterface):
     def normalize(self, value):
         """Normalizes a value, applying all normalization closures.
 
-        @final:
+        @param value: mixed Value to normalize.
 
         @return: mixed The normalized value.
+
         """
         # pre-normalize value
         value  = self._preNormalize(value);
@@ -376,7 +425,10 @@ class BaseNode(NodeInterface):
     def _preNormalize(self, value):
         """Normalizes the value before any other normalization is applied.
 
+        @param value:
+
         @return: mixed The normalized array value
+
         """
         return value;
 
@@ -388,7 +440,8 @@ class BaseNode(NodeInterface):
 
         @return mixed The finalized value
 
-        @raise InvalidConfigurationException
+        @raise InvalidConfigurationException:
+
         """
         self._validateType(value);
         value = self._finalizeValue(value);
@@ -449,11 +502,15 @@ class BaseNode(NodeInterface):
         """
         pass;
 
+
 class VariableNode(BaseNode, PrototypeNodeInterface):
     """This node represents a value of variable type in the config tree.
 
     This node is intended for values of arbitrary type.
     Any PYTHON type is accepted as a value.
+
+    @author Jeremy Mikola <jmikola@gmail.com>
+
     """
     def __init__(self, name, parent=None):
         BaseNode.__init__(self, name, parent=parent);
@@ -504,6 +561,18 @@ class VariableNode(BaseNode, PrototypeNodeInterface):
         return rightSide;
 
 class ScalarNode(VariableNode):
+    """This node represents a scalar value in the config tree.
+
+    The following values are considered scalars:
+    * booleans
+    * strings
+    * null
+    * integers
+    * floats
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def _validateType(self, value):
         if not isinstance(value,(type(None),String,int,float,bool)) and \
             not value is None:
@@ -515,6 +584,11 @@ class ScalarNode(VariableNode):
             raise ex;
 
 class BooleanNode(ScalarNode):
+    """This node represents a Boolean value in the config tree.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def _validateType(self, value):
         if not isinstance(value, bool):
             ex = InvalidTypeException(
@@ -526,7 +600,18 @@ class BooleanNode(ScalarNode):
 
 
 class ArrayNode(BaseNode, PrototypeNodeInterface):
+    """Represents an Array node in the config tree.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self, name, parent=None):
+        """Constructor.
+
+        @param name:   string        The Node's name
+        @param parent: NodeInterface The node parent
+
+        """
         BaseNode.__init__(self, name, parent=parent);
 
         self._xmlRemappings = list();
@@ -542,6 +627,19 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
         self._normalizeKeys = bool(normalizeKeys);
 
     def _preNormalize(self, value):
+        """Normalizes keys between the different configuration formats.
+
+        Namely, you mostly have foo_bar in YAML while you have foo-bar in XML.
+        After running this method, all keys are normalized to foo_bar.
+
+        If you have a mixed key like foo-bar_moo, it will not be altered.
+        The key will also not be altered if the target key already exists.
+
+        @param value: mixed
+
+        @return dict The value with normalized keys
+
+        """
         if not self._normalizeKeys or not isinstance(value, dict):
             return value;
 
@@ -614,6 +712,11 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
         self._name = str(name);
 
     def hasDefaultValue(self):
+        """Checks if the node has a default value.
+
+        @return Boolean
+
+        """
         return self._addIfNotSet;
 
     def getDefaultValue(self):
@@ -663,6 +766,16 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
 
 
     def _finalizeValue(self, value):
+        """Finalizes the value of this node.
+
+        @param value: mixed
+
+        @return: mixed The finalised value
+
+        @raise UnsetKeyException:
+        @raise InvalidConfigurationException: if the node doesn't have enough children
+
+        """
         if value is False:
             raise UnsetKeyException(
                 'Unsetting key for path "{0}", value: {1}'
@@ -693,6 +806,13 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
         return value;
 
     def _validateType(self, value):
+        """Validates the type of the value.
+
+        @param value: mixed
+
+        @raise InvalidTypeException:
+
+        """
         if not isinstance(value, (dict, list)):
             if not self._allowFalse or value:
                 ex = InvalidTypeException(
@@ -703,6 +823,15 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
                 raise ex;
 
     def _normalizeValue(self, value):
+        """Normalizes the value.
+
+        @param value: mixed The value to normalize
+
+        @return: mixed The normalized value
+
+        @raise InvalidConfigurationException:
+
+        """
         if value is False:
             return value;
 
@@ -753,9 +882,16 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
 
 
     def _mergeValues(self, leftSide, rightSide):
-        """
-        @raise InvalidConfigurationException:
-        @raise RuntimeException:
+        """Merges values together.
+
+        @param leftSide:  mixed The left side to merge.
+        @param rightSide: mixed The right side to merge.
+
+        @return: mixed The merged values
+
+        @rasie InvalidConfigurationException:
+        @rasie RuntimeException:
+
         """
         if rightSide is False:
             # if this is still false after the last config has been merged the
@@ -796,7 +932,18 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
 
 
 class PrototypedArrayNode(ArrayNode):
+    """Represents a prototyped Array node in the config tree.
+
+    @author Johannes M. Schmitt <schmittjoh@gmail.com>
+
+    """
     def __init__(self, name, parent=None):
+        """Constructor.
+
+        @param name:   string        The Node's name
+        @param parent: NodeInterface The node parent
+
+        """
         ArrayNode.__init__(self, name, parent=parent);
         self._prototype = None;
         self._keyAttribute = None;
@@ -810,6 +957,7 @@ class PrototypedArrayNode(ArrayNode):
         must contain. By default this is zero, meaning no elements.
 
         @param numder: int
+
         """
         self._minNumberOfElements = int(numder);
 
@@ -837,6 +985,7 @@ class PrototypedArrayNode(ArrayNode):
         @param attribute: string The name of the attribute which value is
             to be used as a key
         @param remove: boolean Whether or not to remove the key
+
         """
         self._keyAttribute = str(attribute);
         self._removeKeyAttribute = bool(remove);
@@ -867,6 +1016,11 @@ class PrototypedArrayNode(ArrayNode):
         self._defaultValue = value;
 
     def hasDefaultValue(self):
+        """Checks if the node has a default value.
+
+        @return Boolean
+
+        """
         return True;
 
     def setAddChildrenIfNoneSet(self, children=None):
@@ -889,6 +1043,14 @@ class PrototypedArrayNode(ArrayNode):
         self._defaultChildren = children;
 
     def getDefaultValue(self):
+        """Retrieves the default value.
+
+        The default value could be either explicited or derived from the
+        prototype default value.
+
+        @return array The default value
+
+        """
         if self._defaultChildren:
             if self._prototype.hasDefaultValue():
                 default = self._prototype.getDefaultValue();
@@ -937,6 +1099,17 @@ class PrototypedArrayNode(ArrayNode):
         );
 
     def _finalizeValue(self, value):
+        """Finalizes the value of this node.
+
+        @param value: mixed
+
+        @return mixed The finalized value
+
+        @raise UnsetKeyException:
+        @raise InvalidConfigurationException: if the node doesn't have enough
+            children
+
+        """
         if value is False:
             raise UnsetKeyException(
                 'Unsetting key for path "%s", value: %s'
@@ -963,6 +1136,16 @@ class PrototypedArrayNode(ArrayNode):
         return value;
 
     def _normalizeValue(self, value):
+        """Normalizes the value.
+
+        @param value: mixed The value to normalize
+
+        @return mixed The normalized value
+
+        @raise InvalidConfigurationException:
+        @raise DuplicateKeyException:
+
+        """
         if value is False:
             return value;
 
@@ -1021,6 +1204,17 @@ class PrototypedArrayNode(ArrayNode):
         return normalized;
 
     def _mergeValues(self, leftSide, rightSide):
+        """Merges values together.
+
+        @param leftSide:  mixed The left side to merge.
+        @param rightSide: mixed The right side to merge.
+
+        @return mixed The merged values
+
+        @raise InvalidConfigurationException:
+        @raise RuntimeException:
+
+        """
         if rightSide is False:
             # if this is still false after the last config has been merged the
             # finalization pass will take care of removing this key entirely
@@ -1387,7 +1581,7 @@ class ReferenceDumper(Object):
         indent = len(text) + indent;
         formatString = '{0:>'+indent+'}';
 
-        self.reference += formatString.format(text)+"\n";
+        self.__reference += formatString.format(text)+"\n";
 
 
     def __writeArray(self, array, depth):
