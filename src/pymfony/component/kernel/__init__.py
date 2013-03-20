@@ -230,13 +230,14 @@ class Kernel(KernelInterface):
 
         parameters = {
             'kernel.root_dir': self._rootDir,
-            'kernel.logs_dir': self.getLogDir(),
-            'kernel.cache_dir': self.getCacheDir(),
             'kernel.environment': self._environment,
             'kernel.debug': self._debug,
             'kernel.name': self._name,
+            'kernel.cache_dir': self.getCacheDir(),
+            'kernel.logs_dir': self.getLogDir(),
             'kernel.bundles': bundles,
             'kernel.charset': self.getCharset(),
+            'kernel.container_class': self._getContainerClass(),
             'kernel.version': self.getVersion(),
         };
         parameters.update(self._getEnvParameters());
