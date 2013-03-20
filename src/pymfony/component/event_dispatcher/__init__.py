@@ -195,12 +195,14 @@ class GenericEvent(Event, ArrayAccessInterface, IteratorAggregateInterface):
     encapsulate.
     """
 
-    def __init__(self, subject=None, arguments={}):
+    def __init__(self, subject=None, arguments = None):
         """Encapsulate an event with subject and arguments.
 
         @param subject: mixed The subject of the event, usually an object.
         @param arguments: dict Arguments to store in the event.
         """
+        if arguments is None:
+            arguments = dict();
         assert isinstance(arguments, dict);
 
         Event.__init__(self);
@@ -249,13 +251,15 @@ class GenericEvent(Event, ArrayAccessInterface, IteratorAggregateInterface):
         """
         return self._arguments;
 
-    def setArguments(self, arguments={}):
+    def setArguments(self, arguments = None):
         """Set arguments property.
 
         @param arguments: dict Arguments.
 
         @return: GenericEvent The current instance.
         """
+        if arguments is None:
+            arguments = dict();
         assert isinstance(arguments, dict);
 
         self._arguments = arguments;

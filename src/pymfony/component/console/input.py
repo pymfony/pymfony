@@ -410,7 +410,7 @@ class InputDefinition(Object):
     XML_NL = "\n";
     XML_CHARSET = "UTF-8";
 
-    def __init__(self, definition = list()):
+    def __init__(self, definition = None):
         """Constructor.
 
         @param list definition A list of InputArgument and InputOption instance
@@ -418,6 +418,8 @@ class InputDefinition(Object):
         @api
 
         """
+        if definition is None:
+            definition = list();
         assert isinstance(definition, list);
 
         self.__arguments = None; # dict[name] = InputArgument
@@ -456,7 +458,7 @@ class InputDefinition(Object):
         self.setOptions(options);
 
 
-    def setArguments(self, arguments = list()):
+    def setArguments(self, arguments = None):
         """Sets the InputArgument objects.
 
         @param InputArgument[] arguments An array of InputArgument objects
@@ -464,6 +466,8 @@ class InputDefinition(Object):
         @api
 
         """
+        if arguments is None:
+            arguments = list();
 
         self.__arguments          = dict();
         self.__argumentsIndex     = list();
@@ -473,7 +477,7 @@ class InputDefinition(Object):
         self.addArguments(arguments);
 
 
-    def addArguments(self, arguments = list()):
+    def addArguments(self, arguments = None):
         """Adds an array of InputArgument objects.
 
         @param InputArgument[] arguments A list of InputArgument objects
@@ -481,6 +485,8 @@ class InputDefinition(Object):
         @api
 
         """
+        if arguments is None:
+            arguments = list();
         assert isinstance(arguments, list);
 
         if arguments:
@@ -629,7 +635,7 @@ class InputDefinition(Object):
         return values;
 
 
-    def setOptions(self, options = list()):
+    def setOptions(self, options = None):
         """Sets the InputOption objects.
 
         @param InputOption[] options A list of InputOption objects
@@ -637,13 +643,15 @@ class InputDefinition(Object):
         @api
 
         """
+        if options is None:
+            options = list();
 
         self.__options = dict();
         self.__shortcuts = dict();
         self.addOptions(options);
 
 
-    def addOptions(self, options = list()):
+    def addOptions(self, options = None):
         """Adds an array of InputOption objects.
 
         @param InputOption[] options A list of InputOption objects
@@ -651,6 +659,8 @@ class InputDefinition(Object):
         @api
 
         """
+        if options is None:
+            options = list();
 
         for option in options:
             self.addOption(option);

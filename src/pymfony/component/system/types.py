@@ -117,7 +117,7 @@ class ParameterBag(IteratorAggregateInterface, CountableInterface):
     """
 
 
-    def __init__(self, parameters = dict()):
+    def __init__(self, parameters = None):
         """Constructor.
      *
      * @param dict parameters A dictionary of parameters
@@ -125,6 +125,8 @@ class ParameterBag(IteratorAggregateInterface, CountableInterface):
      * @api
 
         """
+        if parameters is None:
+            parameters = dict();
         assert isinstance(parameters, dict);
 
         self._parameters = parameters;
@@ -154,7 +156,7 @@ class ParameterBag(IteratorAggregateInterface, CountableInterface):
         return list(self._parameters.keys());
 
 
-    def replace(self, parameters = dict()):
+    def replace(self, parameters = None):
         """Replaces the current parameters by a new set.
      *
      * @param dict parameters A dictionary of parameters
@@ -162,12 +164,14 @@ class ParameterBag(IteratorAggregateInterface, CountableInterface):
      * @api
 
         """
+        if parameters is None:
+            parameters = dict();
         assert isinstance(parameters, dict);
 
         self._parameters = parameters;
 
 
-    def add(self, parameters = dict()):
+    def add(self, parameters = None):
         """Adds parameters.
      *
      * @param dict parameters An dictionary of parameters
@@ -175,6 +179,8 @@ class ParameterBag(IteratorAggregateInterface, CountableInterface):
      * @api
 
         """
+        if parameters is None:
+            parameters = dict();
         assert isinstance(parameters, dict);
 
         self._parameters.update(parameters);

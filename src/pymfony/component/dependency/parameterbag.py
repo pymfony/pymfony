@@ -166,7 +166,9 @@ class ParameterBag(ParameterBagInterface):
         self._parameters = params;
         self._resolved = True;
 
-    def resolveValue(self, value, resolving=dict()):
+    def resolveValue(self, value, resolving = None):
+        if resolving is None:
+            resolving = dict();
         assert isinstance(resolving, dict);
         resolving = resolving.copy();
 
@@ -187,7 +189,9 @@ class ParameterBag(ParameterBagInterface):
 
         return self.resolveString(value, resolving);
 
-    def resolveString(self, value, resolving=dict()):
+    def resolveString(self, value, resolving = None):
+        if resolving is None:
+            resolving = dict();
         assert isinstance(resolving, dict);
         resolving = resolving.copy();
 

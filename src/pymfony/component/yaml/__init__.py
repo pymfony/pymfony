@@ -72,11 +72,13 @@ class Parser(Object):
 
         self.__offset = offset;
 
-    def __mb_detect_encoding(self, text, encoding_list=['ascii']):
+    def __mb_detect_encoding(self, text, encoding_list = None):
         """Return first matched encoding in encoding_list, otherwise return None.
         See [url]http://docs.python.org/2/howto/unicode.html#the-unicode-type[/url] for more info.
         See [url]http://docs.python.org/2/library/codecs.html#standard-encodings[/url] for encodings.
         """
+        if encoding_list is None:
+            encoding_list = ['ascii'];
         for best_enc in encoding_list:
             try:
                 text.encode(best_enc, 'strict');
@@ -832,7 +834,7 @@ class Inline(Object):
             return '{'+' {0} '.format(', '.join(output))+'}';
 
     @classmethod
-    def parseScalar(cls, scalar, delimiters = None, stringDelimiters = ['"', "'"], i = None, evaluate = True):
+    def parseScalar(cls, scalar, delimiters = None, stringDelimiters = None, i = None, evaluate = True):
         """Parses a scalar to a YAML string.
 
         @param: scalar scalar
@@ -846,6 +848,8 @@ class Inline(Object):
         @raise ParseException When malformed inline YAML string is parsed
 
         """
+        if stringDelimiters is None:
+            stringDelimiters = ['"', "'"];
         if i is None:
             i = Ref(0);
         assert isinstance(i, Ref);

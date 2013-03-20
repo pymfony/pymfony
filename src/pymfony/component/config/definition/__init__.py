@@ -1272,7 +1272,9 @@ class EnumNode(ScalarNode):
     """
 
 
-    def __init__(self, name, parent = None, values = list()):
+    def __init__(self, name, parent = None, values = None):
+        if values is None:
+            values = list();
         assert isinstance(values, list);
         if parent:
             assert isinstance(parent, NodeInterface);

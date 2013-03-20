@@ -36,7 +36,7 @@ class ConsoleKernel(ContainerAwareConsoleKernel):
     @author: Fabien Potencier <fabien@symfony.com>
     @author: Johannes M. Schmitt <schmittjoh@gmail.com>
     """
-    def forward(self, controller, attributes = dict()):
+    def forward(self, controller, attributes = None):
         """Forwards the request to another controller.
 
         @param: string controller The controller name (a string like BlogBundle:Post:index)
@@ -46,6 +46,8 @@ class ConsoleKernel(ContainerAwareConsoleKernel):
 
         @deprecated: in 2.2, will be removed in 2.3
         """
+        if attributes is None:
+            attributes = dict();
         assert isinstance(attributes, dict);
 
 #        trigger_error('forward() is deprecated since version 2.2 and will be removed in 2.3.', E_USER_DEPRECATED);
@@ -118,13 +120,15 @@ class ControllerNameParser(BaseControllerNameParser):
         raise InvalidArgumentException(msg);
 
 class Router(BaseRouter):
-    def __init__(self, container, resource, options=dict()):
+    def __init__(self, container, resource, options = None):
         """Constructor.
 
         @param: ContainerInterface container  A ContainerInterface instance
         @param: mixed              resource   The main resource to load
         @param: dict               options    A dictionary of options
         """
+        if options is None:
+            options = dict();
         assert isinstance(container, ContainerInterface);
 
         loader  = container.get('console.routing.loader');

@@ -178,7 +178,7 @@ class OutputFormatter(OutputFormatterInterface):
         return pattern.sub(r"\1\<", text);
 
 
-    def __init__(self, decorated = None, styles = dict()):
+    def __init__(self, decorated = None, styles = None):
         """Initializes console output formatter.
 
         @param Boolean          decorated Whether this formatter should actually decorate strings
@@ -187,6 +187,8 @@ class OutputFormatter(OutputFormatterInterface):
         @api
 
         """
+        if styles is None:
+            styles = dict();
         assert isinstance(styles, dict);
 
         self.__decorated = None;
@@ -431,7 +433,7 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
     };
 
 
-    def __init__(self, foreground = None, background = None, options = list()):
+    def __init__(self, foreground = None, background = None, options = None):
         """Initializes output formatter style.
 
         @param string foreground The style foreground color name
@@ -441,6 +443,8 @@ class OutputFormatterStyle(OutputFormatterStyleInterface):
         @api
 
         """
+        if options is None:
+            options = list();
         assert isinstance(options, list);
 
         self.__foreground = None;

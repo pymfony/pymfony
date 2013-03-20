@@ -40,7 +40,7 @@ class Router(RouterInterface):
 
     COMMAND_KEY = 'command';
 
-    def __init__(self, loader, resource, options = dict()):
+    def __init__(self, loader, resource, options = None):
         """Constructor.
 
         @param: LoaderInterface loader    A LoaderInterface instance
@@ -48,6 +48,8 @@ class Router(RouterInterface):
         @param dict            options    A dictionary of options
 
         """
+        if options is None:
+            options = dict();
         assert isinstance(loader, LoaderInterface);
         assert isinstance(options, dict);
 
@@ -203,7 +205,7 @@ class Route(InputDefinition):
 
     """
 
-    def __init__(self, path, description="", defaults = dict(), definition = list(), requirements = dict()):
+    def __init__(self, path, description="", defaults = None, definition = None, requirements = None):
         """Constructor.
 
         @param: string path The path pattern to match
@@ -214,6 +216,15 @@ class Route(InputDefinition):
 
         @api:
         """
+        if defaults is None:
+            defaults = dict();
+
+        if definition is None:
+            definition = list();
+
+        if requirements is None:
+            requirements = dict();
+
         assert isinstance(path, String);
         assert isinstance(description, String);
         assert isinstance(defaults, dict);
@@ -522,7 +533,9 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
     """
 
-    def __init__(self, definition = InputDefinition()):
+    def __init__(self, definition = None):
+        if definition is None:
+            definition = InputDefinition();
         assert isinstance(definition, InputDefinition);
 
         self.__routes = Array(); # @var: Route[]

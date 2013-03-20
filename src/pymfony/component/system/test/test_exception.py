@@ -18,7 +18,9 @@ from pymfony.component.system.exception import StandardException;
 
 class StandardExceptionTest(unittest.TestCase):
 
-    def __raiseException(self, arg1=None, arg2=list()):
+    def __raiseException(self, arg1=None, arg2 = None):
+        if arg2 is None:
+            arg2 = dict();
         try:
             try:
                 raise Exception('Basic exception message');
@@ -36,7 +38,7 @@ class StandardExceptionTest(unittest.TestCase):
         self.assertEqual(e.getMessage(), "Standard exception message");
         self.assertEqual(e.getCode(), 1);
         self.assertTrue(isinstance(e.getPrevious(), (BaseException, type(None))));
-        self.assertEqual(e.getLineno(), 26);
+        self.assertEqual(e.getLineno(), 28);
         self.assertEqual(e.getFile(), currentFile);
 
         self.assertEqual(e.getTrace()[0]['name'], "__raiseException");

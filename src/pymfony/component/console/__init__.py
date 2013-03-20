@@ -25,14 +25,18 @@ from pymfony.component.console.input import ArgvInput;
 
 
 class Request(ArgvInput):
-    def __init__(self, argv = None, attributes = dict()):
+    def __init__(self, argv = None, attributes = None):
+        if attributes is None:
+            attributes = dict();
         self.__argv = list(argv);
         self.initialize(argv, attributes);
 
     def __clone__(self):
         self.attributes = clone(self.attributes);
 
-    def initialize(self, argv = None, attributes = dict()):
+    def initialize(self, argv = None, attributes = None):
+        if attributes is None:
+            attributes = dict();
         self.attributes = ParameterBag(attributes);
         ArgvInput.__init__(self, argv);
 

@@ -47,9 +47,11 @@ class FileResourceLocatorInterface(Object):
 class FileLocator(BaseFileLocator):
     """FileLocator uses the KernelInterface to locate resources in packages.
     """
-    def __init__(self, kernel, path=None, paths=[]):
+    def __init__(self, kernel, path=None, paths = None):
         """
         """
+        if paths is None:
+            paths = list();
         assert isinstance(kernel, FileResourceLocatorInterface);
         self.__kernel = kernel;
         self.__path = path;

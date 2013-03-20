@@ -744,7 +744,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
 
         return self;
 
-    def loadFromExtension(self, extension, values={}):
+    def loadFromExtension(self, extension, values = None):
         """Loads the configuration for an extension.
 
         @param: string extension The extension alias or namespace
@@ -758,6 +758,9 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
+        if values is None:
+            values = dict();
+
         if self.isFrozen():
             raise BadMethodCallException(
                 'Cannot load from an extension on a frozen container.'

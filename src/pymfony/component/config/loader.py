@@ -85,12 +85,14 @@ class LoaderResolver(LoaderResolverInterface):
     @author Fabien Potencier <fabien@symfony.com>
 
     """
-    def __init__(self, loaders = list()):
+    def __init__(self, loaders = None):
         """Constructor.
 
         @param LoaderInterface[] $loaders An array of loaders
 
         """
+        if loaders is None:
+            loaders = list();
         self.__loaders = list();
         for loader in list(loaders):
             self.addLoader(loader);

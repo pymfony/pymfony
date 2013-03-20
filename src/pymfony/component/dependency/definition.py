@@ -344,7 +344,7 @@ class Definition(Object):
             self.addMethodCall(call[0], call[1]);
         return self;
 
-    def addMethodCall(self, method, arguments=[]):
+    def addMethodCall(self, method, arguments = None):
         """Adds a method to call after service initialization.
 
         @param: string method    The method name to call
@@ -357,6 +357,9 @@ class Definition(Object):
         @api
 
         """
+        if arguments is None:
+            arguments = list();
+
         arguments = list(arguments);
         method = str(method);
         if not method:
@@ -448,7 +451,7 @@ class Definition(Object):
         else:
             return list();
 
-    def addTag(self, name, attributes={}):
+    def addTag(self, name, attributes = None):
         """Adds a tag for this definition.
 
         @param: string name       The tag name
@@ -459,6 +462,9 @@ class Definition(Object):
         @api
 
         """
+        if attributes is None:
+            attributes = dict();
+
         assert isinstance(attributes, dict);
 
         if name not in self.__tags:
