@@ -23,7 +23,7 @@ class CacheWarmerTest(unittest.TestCase):
 
     def setUp(self):
 
-        self._cacheFile = tempfile.gettempdir() + 'sf2_cache_warmer_dir';
+        self._cacheFile = tempfile.gettempdir() + '/sf2_cache_warmer_dir';
         suffix = 0;
         while os.path.exists(self._cacheFile+str(suffix)):
             suffix += 1;

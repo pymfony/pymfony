@@ -24,7 +24,7 @@ class CacheWarmerAggregateTest(unittest.TestCase):
 
     def setUp(self):
 
-        self._cacheDir = tempfile.gettempdir() + 'sf2_cache_clearer_dir';
+        self._cacheDir = tempfile.gettempdir() + '/sf2_cache_clearer_dir';
         suffix = 0;
         while os.path.exists(self._cacheDir+str(suffix)):
             suffix += 1;
