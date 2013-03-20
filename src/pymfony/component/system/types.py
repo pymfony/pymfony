@@ -433,7 +433,7 @@ class Convert(Object):
             else:
                 break;
 
-        m = re.match("^"+EXPONENT_DNUM+"$", testValue);
+        m = re.search("^"+EXPONENT_DNUM+"$", testValue);
         if not m:
             return 0;
 

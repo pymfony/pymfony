@@ -348,7 +348,7 @@ class Container(IntrospectableContainerInterface):
         ids = list();
         r = ReflectionObject(self);
         for method in r.getMethods():
-            match = re.match('^get(.+)Service$', method.getName());
+            match = re.search('^get(.+)Service$', method.getName());
             if match :
                 ids.append(self.underscore(match.group(1)));
 

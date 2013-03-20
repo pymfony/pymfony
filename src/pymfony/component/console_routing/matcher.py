@@ -158,10 +158,10 @@ class RequestMatcher(RequestMatcherInterface):
         for key, regexp in route.getRequirements().items():
             regexp = "^" + regexp + "$";
             if request.hasArgument(key):
-                if not re.match(regexp, request.getArgument(key)):
+                if not re.search(regexp, request.getArgument(key)):
                     return [self.REQUIREMENT_MISMATCH, None];
             elif request.hasOption(key):
-                if not re.match(regexp, request.getOption(key)):
+                if not re.search(regexp, request.getOption(key)):
                     return [self.REQUIREMENT_MISMATCH, None];
             else:
                 return [self.REQUIREMENT_MISMATCH, None];

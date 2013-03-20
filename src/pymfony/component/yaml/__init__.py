@@ -126,7 +126,7 @@ class Parser(Object):
 
 
             isRef = isInPlace = isProcessed = False;
-            match = re.match('^\-((?P<leadspaces>\s+)(?P<value>.+?))?\s*$', self.__currentLine, flags=re.U);
+            match = re.search('^\-((?P<leadspaces>\s+)(?P<value>.+?))?\s*$', self.__currentLine, flags=re.U);
 
             if match :
                 values = {
@@ -143,7 +143,7 @@ class Parser(Object):
                     data = list();
 
                 if values['value']:
-                    matches = re.match('^&(?P<ref>[^ ]+) *(?P<value>.*)', values['value'], re.U);
+                    matches = re.search('^&(?P<ref>[^ ]+) *(?P<value>.*)', values['value'], re.U);
                     if matches:
                         isRef = matches.group('ref');
                         values['value'] = matches.group('value');
@@ -158,7 +158,7 @@ class Parser(Object):
                 else :
                     if (values['leadspaces']
                         and ' ' == values['leadspaces']
-                        and re.match('^(?P<key>'+Inline.REGEX_QUOTED_STRING+'|[^ \'"\\[].*?) *\:(\s+(?P<value>.+?))?\s*$', values['value'], re.U)
+                        and re.search('^(?P<key>'+Inline.REGEX_QUOTED_STRING+'|[^ \'"\\[].*?) *\:(\s+(?P<value>.+?))?\s*$', values['value'], re.U)
                     ):
                         # this is a compact notation element, add to next block and parse
                         c = self.__getRealCurrentLineNb();
@@ -175,11 +175,11 @@ class Parser(Object):
                         data.append(self.__parseValue(values['value'], exceptionOnInvalidType, objectSupport));
 
 
-            elif (re.match('^(?P<key>'+Inline.REGEX_QUOTED_STRING+'|[^ \'"\[\{].*?) *\:(\s+(?P<value>.+?))?\s*$', self.__currentLine, re.U)) :
+            elif (re.search('^(?P<key>'+Inline.REGEX_QUOTED_STRING+'|[^ \'"\[\{].*?) *\:(\s+(?P<value>.+?))?\s*$', self.__currentLine, re.U)) :
                 if (context and 'sequence' == context) :
                     raise ParseException('You cannot define a mapping item when in a sequence');
 
-                values = re.match('^(?P<key>'+Inline.REGEX_QUOTED_STRING+'|[^ \'"\[\{].*?) *\:(\s+(?P<value>.+?))?\s*$', self.__currentLine, re.U);
+                values = re.search('^(?P<key>'+Inline.REGEX_QUOTED_STRING+'|[^ \'"\[\{].*?) *\:(\s+(?P<value>.+?))?\s*$', self.__currentLine, re.U);
                 values = {
                     0: values.group(0),
                     'key': values.group('key'),
@@ -251,7 +251,7 @@ class Parser(Object):
                         isProcessed = merged;
 
                 elif values['value'] :
-                    matches = re.match('^&(?P<ref>[^ ]+) *(?P<value>.*)', values['value'], re.U);
+                    matches = re.search('^&(?P<ref>[^ ]+) *(?P<value>.*)', values['value'], re.U);
                     if matches:
                         isRef = matches.group('ref');
                         values['value'] = matches.group('value');
@@ -385,7 +385,7 @@ class Parser(Object):
 
             indent = self.__getCurrentLineIndentation();
 
-            match = re.match('^(?P<text> *)$', self.__currentLine);
+            match = re.search('^(?P<text> *)$', self.__currentLine);
             if match :
                 # empty line
                 data.append(match.group('text'));
@@ -458,7 +458,7 @@ class Parser(Object):
 
             return self.__refs[value];
 
-        matches = re.match('^(?P<separator>\||>)(?P<modifiers>\+|\-|\d+|\+\d+|\-\d+|\d+\+|\d+\-)?(?P<comments> +#.*)?$', value);
+        matches = re.search('^(?P<separator>\||>)(?P<modifiers>\+|\-|\d+|\+\d+|\-\d+|\d+\+|\d+\-)?(?P<comments> +#.*)?$', value);
         if (matches) :
             modifiers = matches.group('modifiers') if matches.group('modifiers') else '';
 
@@ -500,7 +500,7 @@ class Parser(Object):
         if ( not notEOF) :
             return '';
 
-        matches = re.match('^(?P<indent>'+((' ' * indentation) if indentation else ' +')+')(?P<text>.*)$', self.__currentLine, re.U);
+        matches = re.search('^(?P<indent>'+((' ' * indentation) if indentation else ' +')+')(?P<text>.*)$', self.__currentLine, re.U);
         if not matches :
             self.__moveToPreviousLine();
 
@@ -513,7 +513,7 @@ class Parser(Object):
         text += matches.group('text')+separator;
         while (self.__currentLineNb + 1 < len(self.__lines)):
             self.__moveToNextLine();
-            matches = re.match('^(?P<indent>[ ]{'+str(len(textIndent))+',})(?P<text>.+)$', self.__currentLine, re.U)
+            matches = re.search('^(?P<indent>[ ]{'+str(len(textIndent))+',})(?P<text>.+)$', self.__currentLine, re.U)
             if matches :
                 if ' ' == separator and previousIndent != matches.group('indent') :
                     text = text[0:-1]+"\n";
@@ -525,7 +525,7 @@ class Parser(Object):
 
                 continue;
 
-            matches = re.match('^(?P<text> *)$', self.__currentLine);
+            matches = re.search('^(?P<text> *)$', self.__currentLine);
             if matches:
                 text += re.sub('^[ ]{1,'+str(len(textIndent))+'}', '', matches.group('text'))+"\n";
             else :
@@ -796,7 +796,7 @@ class Inline(Object):
             return Escaper.escapeWithSingleQuotes(value);
         if '' == value:
             return "''";
-        if (cls.__getTimestampRegex().match(value)
+        if (cls.__getTimestampRegex().search(value)
             or value.lower() in ['null', '~', 'true', 'false']):
             return "'"+value+"'";
         if isinstance(value, String):
@@ -877,8 +877,8 @@ class Inline(Object):
                 if strpos != -1 :
                     output = output[0:strpos].rstrip();
 
-            elif (re.match('^(.+?)('+'|'.join(delimiters)+')', scalar[i.get():])) :
-                match = re.match('^(.+?)('+'|'.join(delimiters)+')', scalar[i.get():])
+            elif (re.search('^(.+?)('+'|'.join(delimiters)+')', scalar[i.get():])) :
+                match = re.search('^(.+?)('+'|'.join(delimiters)+')', scalar[i.get():])
                 output = match.group(1);
                 i.add(len(output));
             else :
@@ -911,7 +911,7 @@ class Inline(Object):
         items = re.split('[\'"]\s*(?:[,:]|[}\]]\s*,)', subject);
         subject = subject[:len(items[0]) + 1];
 
-        match = re.match('^'+cls.REGEX_QUOTED_STRING, scalar[i.get():], flags=re.U);
+        match = re.search('^'+cls.REGEX_QUOTED_STRING, scalar[i.get():], flags=re.U);
         if not match :
             raise ParseException(
                 'Malformed inline YAML string ({0}).'.format(
@@ -1105,9 +1105,9 @@ class Inline(Object):
             return 1e10000;
         if scalar.lower() == '-.inf':
             return -1e10000;
-        if re.match('^(-|\+)?[0-9,]+(\.[0-9]+)?$', scalar):
+        if re.search('^(-|\+)?[0-9,]+(\.[0-9]+)?$', scalar):
             return float(scalar.replace(',', ''));
-        if cls.__getTimestampRegex().match(scalar):
+        if cls.__getTimestampRegex().search(scalar):
             try:
                 return time.mktime(time.strptime(scalar, '%Y-%m-%d'));
             except Exception:

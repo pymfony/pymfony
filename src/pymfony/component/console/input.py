@@ -1943,18 +1943,18 @@ class StringInput(ArgvInput):
         cursor = 0;
         while (cursor < length):
             s = inputString[cursor:];
-            match = re.match('\s+', s);
+            match = re.search('^\s+', s);
             if (match) :
                 cursor += len(match.group(0));continue;
-            match = re.match('([^="\' ]+?)(=?)('+self.REGEX_QUOTED_STRING+'+)', s);
+            match = re.search('^([^="\' ]+?)(=?)('+self.REGEX_QUOTED_STRING+'+)', s);
             if (match) :
                 tokens.append(match.group(1)+match.group(2)+Tool.stripcslashes(match.group(3)[1:1+len(match.group(3)) - 2].replace('"\'', '').replace('\'"', '').replace('\'\'', '').replace('""', '')));
                 cursor += len(match.group(0));continue;
-            match = re.match(''+self.REGEX_QUOTED_STRING+'', s);
+            match = re.search('^'+self.REGEX_QUOTED_STRING+'', s);
             if (match) :
                 tokens.append(Tool.stripcslashes(match.group(0)[1:1+len(match.group(0)) - 2]));
                 cursor += len(match.group(0));continue;
-            match = re.match(''+self.REGEX_STRING+'', s);
+            match = re.search('^'+self.REGEX_STRING+'', s);
             if (match) :
                 tokens.append(Tool.stripcslashes(match.group(1)));
             else :
@@ -1970,5 +1970,3 @@ class StringInput(ArgvInput):
 
 
         return tokens;
-
-

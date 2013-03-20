@@ -381,7 +381,7 @@ class Tool(Object):
 class ClassLoader(Object):
     __classes = {};
     __badClasses = {};
-    __validVarNamePattern = re.compile('[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*');
+    __validVarNamePattern = re.compile('^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*$');
 
     @classmethod
     def load(cls, qualClassName):
@@ -415,7 +415,7 @@ class ClassLoader(Object):
                 raise e;
 
             classType = getattr(module, className, False);
-        elif cls.__validVarNamePattern.match(qualClassName):
+        elif cls.__validVarNamePattern.search(qualClassName):
             try:
                 classType = eval(qualClassName, {}, {});
             except Exception:
