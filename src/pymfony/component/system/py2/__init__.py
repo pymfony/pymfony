@@ -8,10 +8,6 @@
 
 from __future__ import absolute_import;
 
-import abc;
-import inspect;
-import pickle;
-
 from pymfony.component.system.oop import OOPMeta;
 from pymfony.component.system.oop import abstract;
 
