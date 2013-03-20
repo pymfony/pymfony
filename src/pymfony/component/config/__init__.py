@@ -222,24 +222,37 @@ class ConfigCache(Object):
             raise RuntimeException('Unable to write in the {0} directory'.format(dirname));
 
         try:
-            if os.path.exists(self.__file):
-                if os.path.exists(self.__file+'.old'):
-                    os.remove(self.__file+'.old');
-                os.rename(self.__file, self.__file+'.old');
-            f = open(self.__file, 'w');
+            suffix = 0;
+            while os.path.exists(self.__file+str(suffix)):
+                suffix += 1;
+            tmpFile = self.__file+str(suffix);
+            f = open(tmpFile, 'w');
             f.write(content);
-        except Exception as e:
-            os.rename(self.__file+'.old', self.__file);
-            raise RuntimeException('Failed to write cache file "{0}".'.format(self.__file), 0, e);
-        else:
+            f.close();
+            if os.path.exists(self.__file):
+                os.remove(self.__file);
+            os.rename(tmpFile, self.__file);
             if hasattr(os, 'chmod'):
                 umask = os.umask(0o220);
                 os.umask(umask);
                 os.chmod(self.__file, 0o666 & ~umask);
-            if os.path.exists(self.__file+'.old'):
-                os.remove(self.__file+'.old');
+        except Exception:
+            raise RuntimeException('Failed to write cache file "{0}".'.format(self.__file));
+        else:
+            try:
+                if hasattr(os, 'chmod'):
+                    umask = os.umask(0o220);
+                    os.umask(umask);
+                    os.chmod(self.__file, 0o666 & ~umask);
+            except Exception:
+                pass;
         finally:
-            f.close();
+            try:
+                f.close();
+            except Exception:
+                pass;
+            if os.path.exists(tmpFile):
+                os.remove(tmpFile);
 
 
         if None is not metadata and True is self.__debug :
@@ -247,21 +260,30 @@ class ConfigCache(Object):
             content = serialize(metadata);
 
             try:
-                if os.path.exists(filename):
-                    if os.path.exists(filename+'.old'):
-                        os.remove(filename+'.old');
-                    os.rename(filename, filename+'.old');
-                f = open(filename, 'w');
+                suffix = 0;
+                while os.path.exists(filename+str(suffix)):
+                    suffix += 1;
+                tmpFile = filename+str(suffix);
+                f = open(tmpFile, 'w');
                 f.write(content);
-            except Exception as e:
-                os.rename(filename+'.old', filename);
-                raise RuntimeException('Failed to write cache file "{0}".'.format(self.__file), 0, e);
-            else:
-                if hasattr(os, 'chmod'):
-                    umask = os.umask(0o220);
-                    os.umask(umask);
-                    os.chmod(filename, 0o666 & ~umask);
-                if os.path.exists(filename+'.old'):
-                    os.remove(filename+'.old');
-            finally:
                 f.close();
+                if os.path.exists(filename):
+                    os.remove(filename);
+                os.rename(tmpFile, filename);
+            except Exception:
+                pass;
+            else:
+                try:
+                    if hasattr(os, 'chmod'):
+                        umask = os.umask(0o220);
+                        os.umask(umask);
+                        os.chmod(filename, 0o666 & ~umask);
+                except Exception:
+                    pass;
+            finally:
+                try:
+                    f.close();
+                except Exception:
+                    pass;
+                if os.path.exists(tmpFile):
+                    os.remove(tmpFile);
