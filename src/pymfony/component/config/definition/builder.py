@@ -13,6 +13,7 @@ from pymfony.component.system import Object;
 from pymfony.component.system import Tool;
 from pymfony.component.system.types import String;
 from pymfony.component.system.types import Array;
+from pymfony.component.system.types import OrderedDict;
 from pymfony.component.system.reflection import ReflectionClass;
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
@@ -327,7 +328,7 @@ class ArrayNodeDefinition(NodeDefinition, ParentNodeDefinitionInterface):
         NodeDefinition.__init__(self, name, parent=parent);
         self._performDeepMerging = True;
         self._ignoreExtraKeys = None;
-        self._children = dict();
+        self._children = OrderedDict();
         self._prototype = None;
         self._atLeastOne = False;
         self._allowNewKeys = True;

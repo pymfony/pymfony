@@ -12,7 +12,8 @@ import json;
 from pymfony.component.system import Object;
 from pymfony.component.system import Tool;
 from pymfony.component.system.types import String;
-from pymfony.component.system.types import Array
+from pymfony.component.system.types import Array;
+from pymfony.component.system.types import OrderedDict;
 from pymfony.component.system.oop import abstract;
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.oop import final;
@@ -243,7 +244,7 @@ class BaseNode(NodeInterface):
         if parent is not None:
             assert isinstance(parent, NodeInterface);
 
-        self._attributes = dict();
+        self._attributes = OrderedDict();
 
         self._name = name;
         self._parent = parent;
@@ -615,7 +616,7 @@ class ArrayNode(BaseNode, PrototypeNodeInterface):
         BaseNode.__init__(self, name, parent=parent);
 
         self._xmlRemappings = list();
-        self._children = dict();
+        self._children = OrderedDict();
         self._allowFalse = False;
         self._allowNewKeys = True;
         self._addIfNotSet = False;
@@ -1491,9 +1492,9 @@ class ReferenceDumper(Object):
                 default = node.getDefaultValue();
 
                 if (True is default) :
-                    default = 'True';
+                    default = 'true';
                 elif (False is default) :
-                    default = 'False';
+                    default = 'false';
                 elif (None is default) :
                     default = '~';
                 elif isinstance(default, (list, dict)) :
@@ -1528,11 +1529,13 @@ class ReferenceDumper(Object):
         else:
             comments = '';
 
-        text = '{0:20} {1} {2}'.format(node.getName()+':', default, comments);
+        text = '{0:20} {1} {2}'.format(node.getName()+':', default, comments).rstrip(' ');
 
         info = node.getInfo()
         if info :
             self.__writeLine('');
+            # indenting multi-line info
+            info = info.replace('\n', ('\n{0:>'+str(depth * 4)+'}# ').format(' '));
             self.__writeLine('# '+info, depth * 4);
 
 
@@ -1581,7 +1584,7 @@ class ReferenceDumper(Object):
         """
 
         indent = len(text) + indent;
-        formatString = '{0:>'+indent+'}';
+        formatString = '{0:>'+str(indent)+'}';
 
         self.__reference += formatString.format(text)+"\n";
 
