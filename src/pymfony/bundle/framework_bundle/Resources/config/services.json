@@ -1,7 +1,9 @@
 {
 	"parameters": {
 		"file_locator.class": "pymfony.component.kernel.config.FileLocator",
-		"event_dispatcher.class": "pymfony.component.event_dispatcher.ContainerAwareEventDispatcher"
+		"event_dispatcher.class": "pymfony.component.event_dispatcher.ContainerAwareEventDispatcher",
+		"cache_warmer.class": "pymfony.component.kernel.cache_warmer.CacheWarmerAggregate",
+		"cache_clearer.class": "pymfony.component.kernel.cache_clearer.ChainCacheClearer"
 	},
 	"services": {
 		"file_locator": {
@@ -15,6 +17,18 @@
 			"class": "%event_dispatcher.class%",
 			"arguments": [
 				"@service_container"
+			]
+		},
+		"cache_warmer": {
+			"class": "%cache_warmer.class%",
+			"arguments": [
+				[]
+			]
+		},
+		"cache_clearer": {
+			"class": "%cache_clearer.class%",
+			"arguments": [
+				[]
 			]
 		},
 		"kernel": {

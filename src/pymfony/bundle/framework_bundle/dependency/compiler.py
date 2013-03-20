@@ -9,6 +9,7 @@ from __future__ import absolute_import;
 
 from pymfony.component.system import ClassLoader;
 from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.types import OrderedDict;
 
 from pymfony.component.dependency import ContainerBuilder;
 from pymfony.component.dependency.compilerpass import CompilerPassInterface;
@@ -110,3 +111,77 @@ class ConsoleRoutingResolverPass(CompilerPassInterface):
 
         for identifier, attributes in container.findTaggedServiceIds('console.routing.loader').items():
             definition.addMethodCall('addLoader', [Reference(identifier)]);
+
+
+
+
+class AddCacheClearerPass(CompilerPassInterface):
+    """Registers the cache clearers.
+
+    @author Dustin Dobervich <ddobervich@gmail.com>
+
+    """
+
+    def process(self, container):
+        """@inheritDoc
+
+        """
+        assert isinstance(container, ContainerBuilder);
+
+        if not container.hasDefinition('cache_clearer') :
+            return;
+
+
+        clearers = list();
+        for identifier in container.findTaggedServiceIds('kernel.cache_clearer').keys() :
+            clearers.append(Reference(identifier));
+
+
+        container.getDefinition('cache_clearer').replaceArgument(0, clearers);
+
+
+
+
+class AddCacheWarmerPass(CompilerPassInterface):
+    """Registers the cache warmers.
+
+    @author Fabien Potencier <fabien@symfony.com>
+
+    """
+
+    def process(self, container):
+        assert isinstance(container, ContainerBuilder);
+
+        if not container.hasDefinition('cache_warmer') :
+            return;
+
+
+        warmers = dict();
+        for identifier, attributes in container.findTaggedServiceIds('kernel.cache_warmer').items() :
+            priority = attributes[0]['priority'] if attributes and 'priority' in attributes[0] else '0';
+            if priority not in warmers:
+                warmers[priority] = list();
+            warmers[priority].append(Reference(identifier));
+
+
+        if not warmers :
+            return;
+
+
+        # sort by priority and flatten
+        krsortWarmers = self.__krsort(warmers);
+        warmers = list();
+        for warmerList in krsortWarmers.values():
+            for warmer in warmerList:
+                warmers.append(warmer);
+
+        container.getDefinition('cache_warmer').replaceArgument(0, warmers);
+
+    def __krsort(self, d):
+        assert isinstance(d, dict);
+
+        ret = OrderedDict();
+        for k in sorted(list(d.keys()), reverse=True):
+            ret[k] = d[k];
+
+        return ret;
