@@ -16,6 +16,8 @@ from pymfony.component.dependency.compilerpass import CompilerPassInterface;
 from pymfony.component.dependency.definition import Reference;
 
 from pymfony.component.event_dispatcher import EventSubscriberInterface;
+from pymfony.component.dependency.interface import ContainerInterface
+from pymfony.component.config import ConfigCache
 
 """
 """
@@ -185,3 +187,20 @@ class AddCacheWarmerPass(CompilerPassInterface):
             ret[k] = d[k];
 
         return ret;
+
+
+class CompilerDebugDumpPass(CompilerPassInterface):
+    def process(self, container):
+        assert isinstance(container, ContainerBuilder);
+
+        cache = ConfigCache(self.getCompilerLogFilename(container), False);
+        cache.write('\n'.join(container.getCompiler().getLog()));
+
+
+    @classmethod
+    def getCompilerLogFilename(cls, container):
+        assert isinstance(container, ContainerInterface);
+
+        className = container.getParameter('kernel.container_class');
+
+        return container.getParameter('kernel.cache_dir')+'/'+className+'Compiler.log';

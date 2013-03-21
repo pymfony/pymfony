@@ -18,6 +18,7 @@ from pymfony.bundle.framework_bundle.dependency.compiler import RegisterKernelLi
 from pymfony.bundle.framework_bundle.dependency.compiler import ConsoleRoutingResolverPass;
 from pymfony.bundle.framework_bundle.dependency.compiler import AddCacheWarmerPass;
 from pymfony.bundle.framework_bundle.dependency.compiler import AddCacheClearerPass;
+from pymfony.bundle.framework_bundle.dependency.compiler import CompilerDebugDumpPass;
 
 from pymfony.component.console_routing import RouteCollection;
 from pymfony.component.console_routing import Route;
@@ -51,3 +52,6 @@ class FrameworkBundle(Bundle):
         container.addCompilerPass(RegisterKernelListenersPass(), PassConfig.TYPE_AFTER_REMOVING);
         container.addCompilerPass(AddCacheWarmerPass());
         container.addCompilerPass(AddCacheClearerPass());
+
+        if container.getParameter('kernel.debug') :
+            container.addCompilerPass(CompilerDebugDumpPass(), PassConfig.TYPE_AFTER_REMOVING);
