@@ -16,6 +16,8 @@ from pymfony.component.dependency.compiler import PassConfig;
 
 from pymfony.bundle.framework_bundle.dependency.compiler import RegisterKernelListenersPass;
 from pymfony.bundle.framework_bundle.dependency.compiler import ConsoleRoutingResolverPass;
+from pymfony.bundle.framework_bundle.dependency.compiler import AddCacheWarmerPass;
+from pymfony.bundle.framework_bundle.dependency.compiler import AddCacheClearerPass;
 
 from pymfony.component.console_routing import RouteCollection;
 from pymfony.component.console_routing import Route;
@@ -47,3 +49,5 @@ class FrameworkBundle(Bundle):
 
         container.addCompilerPass(ConsoleRoutingResolverPass());
         container.addCompilerPass(RegisterKernelListenersPass(), PassConfig.TYPE_AFTER_REMOVING);
+        container.addCompilerPass(AddCacheWarmerPass());
+        container.addCompilerPass(AddCacheClearerPass());

@@ -682,7 +682,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        return Array.uniq(self.__resources);
+        return Array.uniq(self.__resources, str);
 
     def addResource(self, resource):
         """Adds a resource for this configuration.

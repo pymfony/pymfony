@@ -209,7 +209,7 @@ class ConfigCache(Object):
         @raise RuntimeException When cache file can't be wrote
 
         """
-        assert isinstance(metadata, list);
+        assert isinstance(metadata, list) or metadata is None;
 
         dirname = os.path.dirname(self.__file);
         if not os.path.isdir(dirname) :

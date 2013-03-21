@@ -47,7 +47,7 @@ class Array(OrderedDict):
         return d;
 
     @classmethod
-    def uniq(cls, iterable):
+    def uniq(cls, iterable, value_formater = None):
         assert isinstance(iterable, (list, dict));
         if isinstance(iterable, list):
             d = cls.toDict(iterable);
@@ -65,7 +65,10 @@ class Array(OrderedDict):
             pairs.append((k, v));
         seen = {};
         for k, v in pairs:
-            marker = v;
+            if value_formater :
+                marker = value_formater(v);
+            else:
+                marker = v;
             if marker not in seen.keys():
                 seen[marker] = 1;
                 append(k, v);

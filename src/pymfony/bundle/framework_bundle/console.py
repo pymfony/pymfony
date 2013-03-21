@@ -26,6 +26,7 @@ from pymfony.component.dependency.interface import ContainerInterface;
 
 from pymfony.bundle.framework_bundle.controller import ControllerNameParser as BaseControllerNameParser;
 
+from pymfony.component.kernel.cache_warmer import WarmableInterface;
 
 """
 """
@@ -119,7 +120,11 @@ class ControllerNameParser(BaseControllerNameParser):
 
         raise InvalidArgumentException(msg);
 
-class Router(BaseRouter):
+class Router(BaseRouter, WarmableInterface):
+    """This Router creates the Loader only when the cache is empty.
+
+    @author Fabien Potencier <fabien@symfony.com>
+    """
     def __init__(self, container, resource, options = None):
         """Constructor.
 
@@ -132,7 +137,7 @@ class Router(BaseRouter):
         assert isinstance(container, ContainerInterface);
 
         loader  = container.get('console.routing.loader');
-        BaseRouter.__init__(self, loader, resource, options=options);
+        BaseRouter.__init__(self, loader, resource, options);
 
         self.__container = container;
         self.__defaultRouteName = container.getParameter('console.router.default_route');
@@ -141,18 +146,32 @@ class Router(BaseRouter):
         self.getDefinition().addOption(InputOption('--env', '-e', InputOption.VALUE_REQUIRED, 'The Environment name.', environment));
         self.getDefinition().addOption(InputOption('--no-debug', None, InputOption.VALUE_NONE, 'Switches off debug mode.'));
 
-    def getRequestMatcher(self):
-        if self._matcher is None:
-            self._matcher = RequestMatcher(self.getRouteCollection(), self.__defaultRouteName);
 
-        return self._matcher;
+    def warmUp(self, cacheDir):
 
-    def getRouteCollection(self):
-        if self._collection is None:
-            self._collection = BaseRouter.getRouteCollection(self);
-            self.__resolveParameters(self._collection);
+        currentDir = self.getOption('cache_dir');
 
-        return self._collection;
+        # force cache generation
+        self.setOption('cache_dir', cacheDir);
+        self.getRequestMatcher();
+
+        self.setOption('cache_dir', currentDir);
+
+
+    def _doGetRequestMatcher(self):
+
+        matcher = BaseRouter._doGetRequestMatcher(self);
+        if isinstance(matcher, RequestMatcher) :
+            matcher.setDefaultRouteName(self.__defaultRouteName);
+
+        return matcher;
+
+    def _doGetRouteCollection(self):
+
+        collection = BaseRouter._doGetRouteCollection(self);
+        self.__resolveParameters(collection);
+
+        return collection;
 
     def __resolveParameters(self, collection):
         """Replaces placeholders with service container parameter values in:
@@ -182,10 +201,10 @@ class RequestMatcher(BaseRequestMatcher):
 
     @author: Alexandre Quercia <alquerci@email.com>
     """
-    def __init__(self, routes, defaultRouteName = ''):
+    def __init__(self, routes):
         BaseRequestMatcher.__init__(self, routes);
 
-        self.__defaultRouteName = defaultRouteName;
+        self.__defaultRouteName = '';
 
 
     def matchRequest(self, request):
@@ -198,3 +217,6 @@ class RequestMatcher(BaseRequestMatcher):
                 return self._getAttributes(route, self.__defaultRouteName, request);
             else:
                 raise e;
+
+    def setDefaultRouteName(self, defaultRouteName):
+        self.__defaultRouteName = defaultRouteName;

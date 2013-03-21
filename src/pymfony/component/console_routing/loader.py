@@ -268,6 +268,12 @@ class JsonFileLoader(FileLoader, LoaderInterface):
                 ''.format(name, path)
             );
 
+        if 'path' in config and not config['path']:
+            raise InvalidArgumentException(
+                'The "path" for the route "{0}" in file "{1}" cannot be empty.'
+                ''.format(name, path)
+            );
+
         if 'definition' in config:
             if 'arguments' in config['definition']:
                 if not isinstance(config['definition']['arguments'], OrderedDict):

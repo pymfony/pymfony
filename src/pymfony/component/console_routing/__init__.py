@@ -15,6 +15,8 @@ from pymfony.component.system.types import String;
 from pymfony.component.system.types import Array;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.reflection import ReflectionClass;
+from pymfony.component.system.serializer import serialize;
+from pymfony.component.system.serializer import unserialize;
 
 from pymfony.component.console import Request;
 from pymfony.component.console.input import InputDefinition;
@@ -25,6 +27,7 @@ from pymfony.component.console_routing.interface import RouterInterface;
 from pymfony.component.console_routing.interface import LoaderInterface;
 
 from pymfony.component.config.resource import ResourceInterface;
+from pymfony.component.config import ConfigCache;
 
 """
 """
@@ -82,9 +85,11 @@ class Router(RouterInterface):
         assert isinstance(options, dict);
 
         self._options = {
+            'cache_dir'              : None,
+            'debug'                  : False,
             'resource_type'          : None,
-            'matcher_class'          : "pymfony.component.console_routing.matcher.RequestMatcher",
-            'matcher_base_class'     : "pymfony.component.console_routing.matcher.RequestMatcher",
+            'request_matcher_class'  : "pymfony.component.console_routing.matcher.RequestMatcher",
+            'routes_cache_class'     : "ProjectRouteCollection",
         };
 
         # check option names and live merge, if errors are encountered Exception will be thrown:
@@ -152,31 +157,57 @@ class Router(RouterInterface):
 
         """
         if self.__definition is None:
-            self.__definition = InputDefinition([
-                InputArgument(self.COMMAND_KEY, InputArgument.REQUIRED, 'The command to execute'),
-
-                InputOption('--help', '-h', InputOption.VALUE_NONE, 'Display this help message.'),
-                InputOption('--quiet', '-q', InputOption.VALUE_NONE, 'Do not output any message.'),
-                InputOption('--verbose', '-v', InputOption.VALUE_NONE, 'Increase verbosity of messages.'),
-                InputOption('--version', '-V', InputOption.VALUE_NONE, 'Display this application version.'),
-                InputOption('--ansi', '', InputOption.VALUE_NONE, 'Force ANSI output.'),
-                InputOption('--no-ansi', '', InputOption.VALUE_NONE, 'Disable ANSI output.'),
-                InputOption('--no-interaction', '-n', InputOption.VALUE_NONE, 'Do not ask any interactive question.'),
-            ]);
-
+            self.__definition = self._doGetDefinition();
         return self.__definition;
+
+    def _doGetDefinition(self):
+        return InputDefinition([
+            InputArgument(self.COMMAND_KEY, InputArgument.REQUIRED, 'The command to execute'),
+
+            InputOption('--help', '-h', InputOption.VALUE_NONE, 'Display this help message.'),
+            InputOption('--quiet', '-q', InputOption.VALUE_NONE, 'Do not output any message.'),
+            InputOption('--verbose', '-v', InputOption.VALUE_NONE, 'Increase verbosity of messages.'),
+            InputOption('--version', '-V', InputOption.VALUE_NONE, 'Display this application version.'),
+            InputOption('--ansi', '', InputOption.VALUE_NONE, 'Force ANSI output.'),
+            InputOption('--no-ansi', '', InputOption.VALUE_NONE, 'Disable ANSI output.'),
+            InputOption('--no-interaction', '-n', InputOption.VALUE_NONE, 'Do not ask any interactive question.'),
+        ]);
+
 
     def getRouteCollection(self):
 
-        if None is self._collection :
-            self._collection = RouteCollection(self.getDefinition());
-            if self._resource:
-                self._collection.addCollection(self._loader.load(
-                    self._resource, self._options['resource_type']
-                ));
+        if None is not self._collection :
+            return self._collection;
 
+        if None is self._options['cache_dir'] or None is self._options['routes_cache_class'] :
+            self._collection = self._doGetRouteCollection();
+            return self._collection;
+
+        cacheClass = self._options['routes_cache_class'];
+        cache = ConfigCache(self._options['cache_dir']+'/'+cacheClass+'.dat', self._options['debug']);
+        fresh = True;
+        if not cache.isFresh() :
+            self._collection = self._doGetRouteCollection();
+
+            cache.write(serialize(self._collection), self._collection.getResources());
+
+            fresh = False;
+
+        if fresh :
+            f = open(str(cache));
+            try:
+                content = f.read();
+            finally:
+                f.close();
+            self._collection = unserialize(content);
 
         return self._collection;
+
+
+    def _doGetRouteCollection(self):
+        collection = self._loader.load(self._resource, self._options['resource_type']);
+        return collection.prependDefinition(self.getDefinition());
+
 
 
     def matchRequest(self, request):
@@ -193,8 +224,12 @@ class Router(RouterInterface):
         """
 
         if self._matcher is None:
-            self._matcher = ReflectionClass(self.getOption('matcher_class')).newInstance(self.getRouteCollection());
+            self._matcher = self._doGetRequestMatcher();
         return self._matcher;
+
+    def _doGetRequestMatcher(self):
+        r = ReflectionClass(self._options['request_matcher_class']);
+        return r.newInstance(self.getRouteCollection());
 
 
 class Route(InputDefinition):
@@ -266,6 +301,9 @@ class Route(InputDefinition):
         assert isinstance(path, String);
 
         self.__path = str(path);
+
+        if not self.__path :
+            raise InvalidArgumentException('The "path" cannot be empty.');
 
         return self;
 
@@ -580,6 +618,8 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         @param: string name  The route name
         @param Route  route A Route instance
 
+        @return: RouteCollection The current instance
+
         @api
 
         """
@@ -594,6 +634,8 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         self.__mergeDefinition(route, self.__definition);
 
         self.__routes[name] = route;
+
+        return self;
 
 
     def all(self):
@@ -623,6 +665,7 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         @param: string|list name The route name or an array of route names
 
+        @return: RouteCollection The current instance
         """
 
         if not isinstance(name, list):
@@ -630,6 +673,8 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         for n in name:
             self.__routes.pop(n, None);
+
+        return self;
 
 
 
@@ -639,6 +684,8 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         @param: RouteCollection collection      A RouteCollection instance
 
+        @return: RouteCollection The current instance
+
         @api
 
         """
@@ -647,8 +694,9 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         for name, route in collection.all().items():
             self.add(name, route);
 
-
         self.__resources = self.__resources + collection.getResources();
+
+        return self;
 
 
     def getResources(self):
@@ -658,7 +706,7 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         """
 
-        return Array.uniq(self.__resources);
+        return Array.uniq(self.__resources, str);
 
 
     def addResource(self, resource):
@@ -666,10 +714,13 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         @param: ResourceInterface resource A resource instance
 
+        @return: RouteCollection The current instance
         """
         assert isinstance(resource, ResourceInterface);
 
         self.__resources.append(resource);
+
+        return self;
 
 
     def getDefinition(self):
@@ -686,16 +737,21 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         @param: InputDefinition definition A resource instance
 
+        @return: RouteCollection The current instance
         """
         assert isinstance(definition, InputDefinition);
 
         self.__definition = definition;
+
+        return self;
 
 
     def prependDefinition(self, definition):
         """Prepends a definition to the definition of all child routes.
 
         @param: InputDefinition  definition   A definition to prepend
+
+        @return: RouteCollection The current instance
         """
         assert isinstance(definition, InputDefinition);
 
@@ -704,11 +760,15 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         for route in self.__routes.values():
             self.__mergeDefinition(route, definition);
 
+        return self;
+
 
     def addPrefix(self, prefix):
         """Adds a prefix to the path of all child routes.
 
         @param: string prefix       An optional prefix to add before each pattern of the route collection
+
+        @return: RouteCollection The current instance
 
         @api
 
@@ -722,6 +782,8 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         for route in self.__routes.values():
             route.setPath(prefix + ':' + route.getPath());
 
+        return self;
+
 
     def addDefaults(self, defaults):
         """Adds defaults to all routes.
@@ -730,6 +792,7 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         @param: dict defaults An array of default values
 
+        @return: RouteCollection The current instance
         """
         assert isinstance(defaults, dict);
 
@@ -737,6 +800,7 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
             for route in self.__routes.values():
                 route.addDefaults(defaults);
 
+        return self;
 
 
     def addRequirements(self, requirements):
@@ -746,12 +810,15 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
 
         @param: dict requirements An array of requirements
 
+        @return: RouteCollection The current instance
         """
         assert isinstance(requirements, dict);
 
         if requirements :
             for route in self.__routes.values():
                 route.addRequirements(requirements);
+
+        return self;
 
     def __mergeDefinition(self, definition, parentDefinition):
         """Merges the definition with the parentDefinition.

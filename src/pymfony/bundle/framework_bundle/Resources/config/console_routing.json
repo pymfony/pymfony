@@ -5,7 +5,10 @@
 		"console.routing.loader.json.class": "pymfony.component.console_routing.loader.JsonFileLoader",
 		"console.routing.loader.yaml.class": "pymfony.component.console_routing.loader.YamlFileLoader",
 		"console.routing.loader.class": "pymfony.bundle.framework_bundle.routing.DelegatingLoader",
-		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver"
+		"console.routing.resolver.class": "pymfony.component.config.loader.LoaderResolver",
+		"console.router.options.request_matcher_class": "pymfony.bundle.framework_bundle.console.RequestMatcher",
+		"console.router.options.routes.cache_class": "%kernel.name%%kernel.environment%RouteCollection",
+		"console.router.cache_warmer.class": "pymfony.bundle.framework_bundle.cache_warmer.ConsoleRouterCacheWarmer"
 		},
 	"services": {
 		"console.router_listener": {
@@ -49,11 +52,26 @@
 			"class": "%console.router.class%",
 			"arguments":[
 				"@service_container",
-				"%console.router.resource%"
+				"%console.router.resource%",
+				{
+					"cache_dir": "%kernel.cache_dir%",
+					"debug": "%kernel.debug%",
+					"request_matcher_class": "%console.router.options.request_matcher_class%",
+					"routes_cache_class": "%console.router.options.routes.cache_class%"
+				}
 			]
 		},
 		"console.router":{
 			"alias": "console.router.default"
+		},
+		"console.router.cache_warmer": {
+			"class": "%console.router.cache_warmer.class%",
+			"tag": [
+				{"name": "kernel.cache_warmer"}
+			],
+			"arguments": [
+				"@console.router"
+			]
 		}
 	}
 }
