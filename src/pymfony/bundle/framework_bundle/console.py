@@ -13,11 +13,11 @@ from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.reflection import ReflectionClass;
 
 from pymfony.component.console.input import InputOption;
+from pymfony.component.console import Request;
 
 from pymfony.component.console_routing import Router as BaseRouter;
 from pymfony.component.console_routing import RouteCollection;
 from pymfony.component.console_routing.matcher import RequestMatcher as BaseRequestMatcher;
-from pymfony.component.console_routing.exception import ResourceNotFoundException;
 
 from pymfony.component.console_kernel.dependency import ContainerAwareConsoleKernel;
 from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
@@ -27,6 +27,7 @@ from pymfony.component.dependency.interface import ContainerInterface;
 from pymfony.bundle.framework_bundle.controller import ControllerNameParser as BaseControllerNameParser;
 
 from pymfony.component.kernel.cache_warmer import WarmableInterface;
+from pymfony.component.kernel.bundle import Bundle;
 
 """
 """
@@ -169,6 +170,11 @@ class Router(BaseRouter, WarmableInterface):
     def _doGetRouteCollection(self):
 
         collection = BaseRouter._doGetRouteCollection(self);
+
+        for bundle in self.__container.get('kernel').getBundles().values() :
+            if isinstance(bundle, Bundle) :
+                bundle.registerCommands(collection);
+
         self.__resolveParameters(collection);
 
         return collection;
@@ -208,15 +214,27 @@ class RequestMatcher(BaseRequestMatcher):
 
 
     def matchRequest(self, request):
-        try:
-            return BaseRequestMatcher.matchRequest(self, request);
-        except ResourceNotFoundException as e:
-            if self.__defaultRouteName:
-                route = self._routes.get(self.__defaultRouteName);
-                self._handleRouteBinds(request, self.__defaultRouteName, route);
-                return self._getAttributes(route, self.__defaultRouteName, request);
-            else:
-                raise e;
+
+        if True is request.hasParameterOption(['--version', '-V']) :
+            return self._forward(request, 'framework_version');
+
+        if True is request.hasParameterOption(['--help', '-h']) :
+            request.attributes.set('wantHelps', True);
+            return self._forward(request, 'framework_help');
+
+        if not request.getFirstArgument() :
+            return self._forward(request, self.__defaultRouteName);
+
+        return BaseRequestMatcher.matchRequest(self, request);
+
 
     def setDefaultRouteName(self, defaultRouteName):
         self.__defaultRouteName = defaultRouteName;
+
+
+    def _forward(self, request, routeName):
+        assert isinstance(request, Request);
+
+        route = self._routes.get(routeName);
+        self._handleRouteBinds(request, routeName, route);
+        return self._getAttributes(route, routeName, request);

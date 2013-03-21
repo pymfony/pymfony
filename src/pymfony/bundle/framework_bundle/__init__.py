@@ -23,6 +23,11 @@ from pymfony.bundle.framework_bundle.dependency.compiler import CompilerDebugDum
 from pymfony.component.console_routing import RouteCollection;
 from pymfony.component.console_routing import Route;
 
+from pymfony.component.config.resource import FileResource;
+
+from pymfony.component.console.input import InputArgument;
+from pymfony.component.console.input import InputOption;
+
 """
 Pymfony FrameworkBundle
 """
@@ -31,15 +36,8 @@ class FrameworkBundle(Bundle):
     """Bundle.
 
     @author: Fabien Potencier <fabien@symfony.com>
-    """
-    def boot(self):
-        if self._container.has('console.router'):
-            routeCollection = self._container.get('console.router').getRouteCollection();
-            assert isinstance(routeCollection, RouteCollection);
 
-            routeCollection.add('framework_list', Route("list", "Lists commands", {
-                '_controller': "FrameworkBundle:List:show",
-            }));
+    """
 
     def build(self, container):
         assert isinstance(container, ContainerBuilder);
@@ -55,3 +53,25 @@ class FrameworkBundle(Bundle):
 
         if container.getParameter('kernel.debug') :
             container.addCompilerPass(CompilerDebugDumpPass(), PassConfig.TYPE_AFTER_REMOVING);
+
+
+    def registerCommands(self, collection):
+        assert isinstance(collection, RouteCollection);
+
+        collection\
+            .addResource(FileResource(__file__))\
+            .add('framework_list', Route("list", "Lists commands", {
+                '_controller': "FrameworkBundle:List:show",
+            }, [
+                InputArgument('namespace', InputArgument.OPTIONAL, 'The namespace name'),
+                InputOption('raw', None, InputOption.VALUE_NONE, 'To output raw command list'),
+            ]))\
+            .add('framework_version', Route("_fragment:framework:version", "Show application version", {
+                '_controller': "FrameworkBundle:Version:long",
+            }))\
+            .add('framework_help', Route("help", "Displays help for a command", {
+                '_controller': "FrameworkBundle:Help:show",
+            }, [
+                InputArgument('command_name', InputArgument.OPTIONAL, 'The command name', 'help'),
+                InputOption('xml', None, InputOption.VALUE_NONE, 'To output help as XML'),
+            ]))

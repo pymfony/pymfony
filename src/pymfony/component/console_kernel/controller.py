@@ -193,10 +193,10 @@ class ControllerResolver(ControllerResolverInterface):
             if name.startswith(self.PREFIX_OPTION):
                 attr = attr[len(self.PREFIX_OPTION):];
 
-            attr = attr.replace('_', '-');
+                attr = attr.replace('_', '-');
 
-            if attr.startswith('-'):
-                attr = '_' + attr[1:];
+                if attr.startswith('-'):
+                    attr = '_' + attr[1:];
 
             arg = [name, attr];
 

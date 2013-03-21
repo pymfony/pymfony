@@ -42,7 +42,7 @@ class FunctionnalTest(unittest.TestCase):
     def setUp(self):
         self._kernel = AppKernel("test", True);
         self._request = Request.create(["script", "-q"]);
-        self._response = self._kernel.getConsoleKernel().handle(self._request);
+        self._response = self._kernel.getConsoleKernel().handle(self._request, catch = False);
         self._response.setVerbosity(OutputInterface.VERBOSITY_QUIET);
         self.container = self._kernel.getContainer();
 

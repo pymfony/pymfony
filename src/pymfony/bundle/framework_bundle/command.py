@@ -10,16 +10,21 @@ from __future__ import absolute_import;
 import re;
 
 from pymfony.component.system.exception import StandardException;
+from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.reflection import ReflectionObject;
+from pymfony.component.system import clone;
 
 from pymfony.component.console import Response;
+from pymfony.component.console import Request;
+from pymfony.component.console.output import OutputInterface;
 
 from pymfony.component.console_routing import Router;
-from pymfony.component.console_routing import Route;
+from pymfony.component.console_routing.interface import RouterInterface;
 
 from pymfony.component.dependency import ContainerAware;
-from pymfony.component.console import Request
-from pymfony.component.console_kernel.exception import NotFoundConsoleException
+
+from pymfony.component.console_kernel.exception import NotFoundConsoleException;
+from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
 
 """
 """
@@ -30,23 +35,116 @@ class ListCommand(ContainerAware):
 
     @author: Fabien Potencier <fabien@symfony.com>
     """
-    def showAction(self):
+    def showAction(self, namespace = None, _o_raw = False):
         router = self._container.get('console.router');
         assert isinstance(router, Router);
-        commandList = list();
+        messages = list();
+
+        routes = list();
         for name, route in router.getRouteCollection().all().items():
-            assert isinstance(route, Route);
-
-            if name == '_default':
+            path = route.getPath();
+            if path.startswith('_fragment:') :
                 continue;
+            if namespace :
+                if ':' in path and path.split(':')[0] == namespace :
+                    routes.append(route);
+            else:
+                routes.append(route);
 
-            commandList.append(
-                "<info>{0}</info>: <comment>{1}</comment>".format(
-                route.getPath(),
-                route.getDescription(),
+        width = 0;
+        for route in routes :
+            width = len(route.getPath()) if len(route.getPath()) > width else width;
+        width += 2;
+
+        messages.append(self.__getHelp(router));
+        messages.append('');
+
+        if namespace :
+            messages.append("<comment>Available commands for the \"{0}\" namespace:</comment>".format(namespace));
+        else:
+            messages.append("<comment>Available commands:</comment>");
+
+        # add commands by namespace
+        lastNamespace = '_global';
+        spaces = list();
+        for route in self.__sortRoutes(routes) :
+            name = route.getPath();
+            if ':' in name :
+                space = name.split(':')[0];
+                append = spaces.append;
+            else:
+                space = '_global';
+                append = messages.append;
+            if not namespace and space != '_global' and lastNamespace != namespace :
+                spaces.append('<comment>{0}</comment>'.format(space));
+            lastNamespace = name;
+
+            append(
+                "  <info>{name:<{width}}</info> {desc}".format(
+                name = name,
+                desc = route.getDescription(),
+                width = width
             ));
 
-        return Response("Command List:\n- "+"\n- ".join(commandList));
+        messages.extend(spaces);
+
+        return Response("\n".join(messages));
+
+    def __sortRoutes(self, routes):
+        sortedRoutes = list();
+        routeNames = list();
+        routeMap = dict();
+        i = -1;
+        for route in routes :
+            i += 1;
+            routeNames.append(route.getPath());
+            routeMap[route.getPath()] = i;
+        routeNames.sort();
+        for routeName in routeNames:
+            sortedRoutes.append(routes[routeMap[routeName]]);
+        return sortedRoutes;
+
+
+    def __getHelp(self, router):
+        assert isinstance(router, RouterInterface);
+
+        definition  = router.getRouteCollection().getDefinition();
+        args = definition.getArguments();
+        definition.setArguments();
+        options = definition.asText();
+        definition.setArguments(args);
+        messages = [
+            self.forward("FrameworkBundle:Version:long").getContent(),
+            "",
+            "<comment>Usage:</comment>",
+            "  command [options] [arguments]",
+            "",
+            options,
+        ];
+
+        return '\n'.join(messages);
+
+
+    def forward(self, controller, attributes = None):
+        """Forwards the request to another controller.
+
+        @param: string controller The controller name (a string like BlogBundle:Post:index)
+        @param: dict  attributes An array of request attributes
+
+        @return: Response A Response instance
+        """
+        if attributes is None:
+            attributes = dict();
+        assert isinstance(attributes, dict);
+
+        attributes['_controller'] = controller;
+
+        subRequest = clone(self._container.get('request'));
+        subRequest.attributes.replace(attributes);
+
+        return self._container.get('console_kernel').handle(subRequest, ConsoleKernelInterface.SUB_REQUEST);
+
+
 
 class ExceptionCommand(ContainerAware):
     """ExceptionController to caught exceptions.
@@ -148,3 +246,41 @@ class ExceptionCommand(ContainerAware):
                 e = False;
 
         return content;
+
+
+class VersionCommand(ContainerAware):
+    def longAction(self):
+        name = self._container.getParameter('kernel.name');
+        version = self._container.getParameter('kernel.version');
+
+        if ('UNKNOWN' != name and 'UNKNOWN' != version) :
+            content = '<info>{0}</info> version <comment>{1}</comment>'.format(
+                name, version
+            );
+        else:
+            content = '<info>Console Tool</info>';
+
+        return Response(content);
+
+
+class HelpCommand(ContainerAware):
+    def showAction(self, command = 'help', command_name = 'help', _o_xml = False, wantHelps = False):
+        if wantHelps :
+            command_name = command;
+        router = self._container.get('console.router');
+
+        route = None;
+        for route in router.getRouteCollection().all().values():
+            if command_name == route.getPath() :
+                break;
+
+        if None is route:
+            raise InvalidArgumentException('The command "{0}" does not exists.'.format(command_name));
+
+        if _o_xml :
+            response = Response(route.asXml());
+            response.setOutputType(OutputInterface.OUTPUT_RAW);
+        else:
+            response = Response(route.asText());
+
+        return response;

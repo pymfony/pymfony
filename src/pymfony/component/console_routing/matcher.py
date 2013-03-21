@@ -154,14 +154,14 @@ class RequestMatcher(RequestMatcherInterface):
         """
         assert isinstance(route, Route);
         assert isinstance(request, Request);
-
+        # FIXME: arguments and option type with None False or True, take in consideration an optional argument
         for key, regexp in route.getRequirements().items():
             regexp = "^" + regexp + "$";
             if request.hasArgument(key):
-                if not re.search(regexp, request.getArgument(key)):
+                if not re.search(regexp, str(request.getArgument(key))):
                     return [self.REQUIREMENT_MISMATCH, None];
             elif request.hasOption(key):
-                if not re.search(regexp, request.getOption(key)):
+                if not re.search(regexp, str(request.getOption(key))):
                     return [self.REQUIREMENT_MISMATCH, None];
             else:
                 return [self.REQUIREMENT_MISMATCH, None];

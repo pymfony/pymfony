@@ -25,9 +25,7 @@
 			"arguments": [
 				"@event_dispatcher",
 				"@service_container",
-				"@console.command_resolver",
-				"%kernel.name%",
-				"%kernel.version%"
+				"@console.command_resolver"
 			]
 		},
 		"console.response_listener": {

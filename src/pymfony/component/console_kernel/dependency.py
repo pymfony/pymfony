@@ -29,7 +29,7 @@ class ContainerAwareConsoleKernel(ConsoleKernel):
     """
 
 
-    def __init__(self, dispatcher, container, controllerResolver, name='UNKNOWN', version='UNKNOWN'):
+    def __init__(self, dispatcher, container, controllerResolver):
         """Constructor.
 
         @param: EventDispatcherInterface    dispatcher         An EventDispatcherInterface instance
@@ -41,7 +41,7 @@ class ContainerAwareConsoleKernel(ConsoleKernel):
         assert isinstance(container, ContainerInterface);
         assert isinstance(dispatcher, EventDispatcherInterface);
 
-        ConsoleKernel.__init__(self, dispatcher, controllerResolver, name, version);
+        ConsoleKernel.__init__(self, dispatcher, controllerResolver);
 
         self._container = container;
 

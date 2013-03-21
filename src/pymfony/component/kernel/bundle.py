@@ -162,3 +162,15 @@ class Bundle(ContainerAware, BundleInterface):
 
     def getParent(self):
         return None;
+
+
+    def registerCommands(self, collection):
+        """Registers Commands.
+
+        It is only ever called once when the cache is empty.
+
+        This method can be overridden to register commands.
+
+        @param collection: pymfony.component.console_routing.RouteCollection
+
+        """

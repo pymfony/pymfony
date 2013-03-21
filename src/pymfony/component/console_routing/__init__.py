@@ -8,6 +8,9 @@
 
 from __future__ import absolute_import;
 
+import re;
+from xml.dom.minidom import Document;
+
 from pymfony.component.system import IteratorAggregateInterface;
 from pymfony.component.system import CountableInterface;
 from pymfony.component.system import clone;
@@ -300,10 +303,9 @@ class Route(InputDefinition):
         """
         assert isinstance(path, String);
 
-        self.__path = str(path);
+        self.__validatePath(path);
 
-        if not self.__path :
-            raise InvalidArgumentException('The "path" cannot be empty.');
+        self.__path = path;
 
         return self;
 
@@ -531,6 +533,57 @@ class Route(InputDefinition):
 
         return self.__synopsis;
 
+    def asText(self):
+        """Returns a textual representation of the InputDefinition.
+
+        @return string A string representing the InputDefinition
+
+        """
+
+        messages = [
+            '<comment>Usage:</comment>',
+            ' {0} {1}'.format(self.getPath(), self.getSynopsis()),
+            '',
+            '<comment>Description:</comment>',
+            ' {0}'.format(self.getDescription()),
+            '',
+            InputDefinition.asText(self),
+        ];
+
+        return '\n'.join(messages);
+
+    def asXml(self, asDom = False):
+        """Returns an XML representation of the InputDefinition.
+
+        @param Boolean asDom Whether to return a DOM or an XML string
+
+        @return string|DOMDocument An XML string representing the InputDefinition
+
+        """
+        dom = Document();
+        commandXML = dom.createElement(Router.COMMAND_KEY);
+        dom.appendChild(commandXML);
+        commandXML.setAttribute('id', self.getPath());
+        commandXML.setAttribute('name', self.getPath());
+
+        usageXML = dom.createElement('usage');
+        commandXML.appendChild(usageXML);
+        usageXML.appendChild(dom.createTextNode(self.getSynopsis()));
+
+        descriptionXML = dom.createElement('description');
+        commandXML.appendChild(descriptionXML);
+        descriptionXML.appendChild(dom.createTextNode(self.getDescription().replace('\n', '\n ')));
+
+        definition = InputDefinition.asXml(self, True);
+
+        commandXML.appendChild(dom.importNode(definition.getElementsByTagName('arguments').item(0), True));
+        commandXML.appendChild(dom.importNode(definition.getElementsByTagName('options').item(0), True));
+
+        if asDom:
+            return dom;
+        else:
+            return str(dom.toprettyxml(self.XML_INDENT, self.XML_NL, self.XML_CHARSET));
+
 
     def __sanitizeRequirement(self, key, regex):
 
@@ -554,6 +607,12 @@ class Route(InputDefinition):
             );
 
         return regex;
+
+    def __validatePath(self, path):
+
+        if not re.search('^[^\:]+(\:[^\:]+)*$', path) :
+            raise InvalidArgumentException('Command name "{0}" is invalid.'.format(path));
+
 
 
 class RouteCollection(IteratorAggregateInterface, CountableInterface):
