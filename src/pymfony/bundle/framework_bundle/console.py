@@ -173,7 +173,9 @@ class Router(BaseRouter, WarmableInterface):
 
         for bundle in self.__container.get('kernel').getBundles().values() :
             if isinstance(bundle, Bundle) :
-                bundle.registerCommands(collection);
+                bundleCollection = RouteCollection();
+                bundle.registerCommands(bundleCollection);
+                collection.addCollection(bundleCollection);
 
         self.__resolveParameters(collection);
 
