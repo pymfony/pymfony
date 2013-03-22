@@ -8,9 +8,12 @@
 from __future__ import absolute_import;
 
 import re;
+import shutil;
+import os;
 
 from pymfony.component.system.exception import StandardException;
 from pymfony.component.system.exception import InvalidArgumentException;
+from pymfony.component.system.exception import RuntimeException;
 from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system import clone;
 
@@ -284,3 +287,52 @@ class HelpCommand(ContainerAware):
             response = Response(route.asText());
 
         return response;
+
+
+class CacheCommand(ContainerAware):
+    def clearAction(self, _o_no_warmup, _o_no_optional_warmers):
+        realCacheDir = self._container.getParameter('kernel.cache_dir');
+        oldCacheDir = realCacheDir + '_old';
+
+        if not os.access(realCacheDir, os.W_OK) :
+            raise RuntimeException('Unable to write in the "{0}" directory'.format(realCacheDir));
+
+        kernel = self._container.get('kernel');
+
+        self._container.get('cache_clearer').clear(realCacheDir);
+
+        if _o_no_warmup :
+            if os.path.isdir(realCacheDir) :
+                shutil.rmtree(oldCacheDir, True);
+                shutil.copytree(realCacheDir, oldCacheDir, symlinks=True);
+                shutil.rmtree(realCacheDir);
+        else:
+            warmupDir = realCacheDir+'_new';
+            self._warmup(warmupDir, not _o_no_optional_warmers);
+
+            if os.path.isdir(realCacheDir) :
+                shutil.rmtree(oldCacheDir, True);
+                shutil.copytree(realCacheDir, oldCacheDir, symlinks=True);
+                shutil.rmtree(realCacheDir);
+
+            if os.path.isdir(warmupDir) :
+                shutil.rmtree(realCacheDir, True);
+                shutil.copytree(warmupDir, realCacheDir, symlinks=True);
+                shutil.rmtree(warmupDir, True);
+
+        shutil.rmtree(oldCacheDir, True);
+
+        return Response('Clearing the cache for the <info>{0}</info> environment with debug <info>{1}</info>'.format(kernel.getEnvironment(), kernel.isDebug()));
+
+
+    def _warmup(self, warmupDir, enableOptionalWarmers = True):
+
+        if os.path.isdir(warmupDir) :
+            shutil.rmtree(warmupDir, True);
+
+        warmer = self._container.get('cache_warmer');
+
+        if enableOptionalWarmers :
+            warmer.enableOptionalWarmers();
+
+        warmer.warmUp(warmupDir);

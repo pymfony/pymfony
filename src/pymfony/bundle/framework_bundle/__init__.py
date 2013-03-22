@@ -74,4 +74,11 @@ class FrameworkBundle(Bundle):
             }, [
                 InputArgument('command_name', InputArgument.OPTIONAL, 'The command name', 'help'),
                 InputOption('xml', None, InputOption.VALUE_NONE, 'To output help as XML'),
-            ]))
+            ]))\
+            .add('framework_cache_clear', Route('cache:clear', 'Clears the cache', {
+                '_controller': "FrameworkBundle:Cache:clear",
+            }, [
+                InputOption('no-warmup', '', InputOption.VALUE_NONE, 'Do not warm up the cache'),
+                InputOption('no-optional-warmers', '', InputOption.VALUE_NONE, 'Skip optional cache warmers (faster)'),
+            ]))\
+        ;
