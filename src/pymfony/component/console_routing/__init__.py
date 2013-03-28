@@ -14,10 +14,12 @@ from xml.dom.minidom import Document;
 from pymfony.component.system import IteratorAggregateInterface;
 from pymfony.component.system import CountableInterface;
 from pymfony.component.system import clone;
+from pymfony.component.system import Object;
 from pymfony.component.system.types import String;
 from pymfony.component.system.types import Array;
 from pymfony.component.system.exception import InvalidArgumentException;
 from pymfony.component.system.reflection import ReflectionClass;
+from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.serializer import serialize;
 from pymfony.component.system.serializer import unserialize;
 
@@ -30,6 +32,7 @@ from pymfony.component.console_routing.interface import RouterInterface;
 from pymfony.component.console_routing.interface import LoaderInterface;
 
 from pymfony.component.config.resource import ResourceInterface;
+from pymfony.component.config.resource import FileResource;
 from pymfony.component.config import ConfigCache;
 
 """
@@ -778,6 +781,24 @@ class RouteCollection(IteratorAggregateInterface, CountableInterface):
         assert isinstance(resource, ResourceInterface);
 
         self.__resources.append(resource);
+
+        return self;
+
+
+    def addObjectResource(self, objectResource):
+        """Adds the object class hierarchy as resources.
+
+        @param: object object An object instance
+
+        @return RouteCollection The current instance
+
+        """
+        assert isinstance(objectResource, Object);
+
+        parent = ReflectionObject(objectResource);
+        while parent:
+            self.addResource(FileResource(parent.getFileName()));
+            parent = parent.getParentClass();
 
         return self;
 

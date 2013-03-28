@@ -59,7 +59,6 @@ class FrameworkBundle(Bundle):
         assert isinstance(collection, RouteCollection);
 
         collection\
-            .addResource(FileResource(__file__))\
             .add('framework_list', Route("list", "Lists commands", {
                 '_controller': "FrameworkBundle:List:show",
             }, [
