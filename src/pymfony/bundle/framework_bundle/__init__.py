@@ -23,8 +23,6 @@ from pymfony.bundle.framework_bundle.dependency.compiler import CompilerDebugDum
 from pymfony.component.console_routing import RouteCollection;
 from pymfony.component.console_routing import Route;
 
-from pymfony.component.config.resource import FileResource;
-
 from pymfony.component.console.input import InputArgument;
 from pymfony.component.console.input import InputOption;
 
