@@ -154,7 +154,8 @@ class Router(BaseRouter, WarmableInterface):
 
         # force cache generation
         self.setOption('cache_dir', cacheDir);
-        self.getRequestMatcher();
+        self._collection = None;
+        self.getRouteCollection();
 
         self.setOption('cache_dir', currentDir);
 
