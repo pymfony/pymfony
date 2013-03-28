@@ -301,24 +301,15 @@ class CacheCommand(ContainerAware):
 
         self._container.get('cache_clearer').clear(realCacheDir);
 
-        if _o_no_warmup :
-            if os.path.isdir(realCacheDir) :
-                shutil.rmtree(oldCacheDir, True);
-                shutil.copytree(realCacheDir, oldCacheDir, symlinks=True);
-                shutil.rmtree(realCacheDir);
-        else:
-            warmupDir = realCacheDir+'_new';
+        if os.path.isdir(realCacheDir) :
+            shutil.rmtree(oldCacheDir, True);
+            shutil.copytree(realCacheDir, oldCacheDir, symlinks=True);
+            shutil.rmtree(realCacheDir);
+
+        if not _o_no_warmup :
+            warmupDir = realCacheDir;
             self._warmup(warmupDir, not _o_no_optional_warmers);
 
-            if os.path.isdir(realCacheDir) :
-                shutil.rmtree(oldCacheDir, True);
-                shutil.copytree(realCacheDir, oldCacheDir, symlinks=True);
-                shutil.rmtree(realCacheDir);
-
-            if os.path.isdir(warmupDir) :
-                shutil.rmtree(realCacheDir, True);
-                shutil.copytree(warmupDir, realCacheDir, symlinks=True);
-                shutil.rmtree(warmupDir, True);
 
         shutil.rmtree(oldCacheDir, True);
 
@@ -329,6 +320,12 @@ class CacheCommand(ContainerAware):
 
         if os.path.isdir(warmupDir) :
             shutil.rmtree(warmupDir, True);
+
+        parent = self._container.get('kernel');
+        classKernel = parent.__class__;
+
+        kernel = classKernel(parent.getEnvironment(), parent.isDebug());
+        kernel.boot();
 
         warmer = self._container.get('cache_warmer');
 
