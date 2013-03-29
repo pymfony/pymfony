@@ -333,3 +333,17 @@ class CacheCommand(ContainerAware):
             warmer.enableOptionalWarmers();
 
         warmer.warmUp(warmupDir);
+
+
+    def warmupAction(self, _o_no_optional_warmers):
+
+        kernel = self._container.get('kernel');
+
+        warmer = self._container.get('cache_warmer');
+
+        if not _o_no_optional_warmers :
+            warmer.enableOptionalWarmers();
+
+        warmer.warmUp(self._container.getParameter('kernel.cache_dir'));
+
+        return Response('Warming up the cache for the <info>{0}</info> environment with debug <info>{1}</info>'.format(kernel.getEnvironment(), kernel.isDebug()));

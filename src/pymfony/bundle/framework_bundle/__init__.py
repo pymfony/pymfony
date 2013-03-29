@@ -78,4 +78,9 @@ class FrameworkBundle(Bundle):
                 InputOption('no-warmup', '', InputOption.VALUE_NONE, 'Do not warm up the cache'),
                 InputOption('no-optional-warmers', '', InputOption.VALUE_NONE, 'Skip optional cache warmers (faster)'),
             ]))\
+            .add('framework_cache_warmup', Route('cache:warmup', 'Warms up an empty cache', {
+                '_controller': "FrameworkBundle:Cache:warmup",
+            }, [
+                InputOption('no-optional-warmers', '', InputOption.VALUE_NONE, 'Skip optional cache warmers (faster)'),
+            ]))\
         ;
