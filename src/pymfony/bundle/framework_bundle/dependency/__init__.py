@@ -10,7 +10,7 @@ from __future__ import absolute_import;
 from os.path import dirname;
 
 from pymfony.component.dependency import ContainerBuilder;
-from pymfony.component.dependency.loader import JsonFileLoader;
+from pymfony.component.dependency.loader import YamlFileLoader;
 
 from pymfony.component.config import FileLocator;
 from pymfony.component.config.definition import ConfigurationInterface;
@@ -37,11 +37,11 @@ class FrameworkExtension(Extension):
         assert isinstance(configs, list);
         assert isinstance(container, ContainerBuilder);
 
-        loader = JsonFileLoader(container, FileLocator(
+        loader = YamlFileLoader(container, FileLocator(
             dirname(__file__)+"/../Resources/config"
         ));
 
-        loader.load("services.json");
+        loader.load("services.yml");
 
         configuration = self.getConfiguration(configs, container);
         config = self._processConfiguration(configuration, configs);
@@ -62,7 +62,7 @@ class FrameworkExtension(Extension):
         assert isinstance(config, dict);
         assert isinstance(container, ContainerBuilder);
 
-        loader.load("console.json");
+        loader.load("console.yml");
 
         if 'router' in config:
             self.__registerConsoleRouterConfiguration(config['router'], container, loader);
@@ -79,7 +79,7 @@ class FrameworkExtension(Extension):
         """
         assert isinstance(config, dict);
 
-        loader.load("console_routing.json");
+        loader.load("console_routing.yml");
 
         container.setParameter('console.router.resource', config['resource']);
         container.setParameter('console.router.default_route', config['default_route']);

@@ -1,0 +1,37 @@
+parameters:
+    file_locator.class:         pymfony.component.kernel.config.FileLocator
+    event_dispatcher.class:     pymfony.component.event_dispatcher.ContainerAwareEventDispatcher
+    cache_warmer.class:         pymfony.component.kernel.cache_warmer.CacheWarmerAggregate
+    cache_clearer.class:        pymfony.component.kernel.cache_clearer.ChainCacheClearer
+
+services:
+    file_locator:
+        class: %file_locator.class%
+        arguments:
+            - "@kernel"
+            - %kernel.root_dir%/Resources
+
+    event_dispatcher:
+        class: %event_dispatcher.class%
+        arguments:
+            - "@service_container"
+
+    cache_warmer:
+        class: %cache_warmer.class%
+        arguments:
+            - []
+
+    cache_clearer:
+        class: %cache_clearer.class%
+        arguments:
+            - []
+
+    kernel:
+        synthetic: true
+
+    service_container:
+        synthetic: true
+
+    request:
+        scope:      request
+        synthetic:  true
