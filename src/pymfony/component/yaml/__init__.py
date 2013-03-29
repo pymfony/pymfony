@@ -158,7 +158,7 @@ class Parser(Object):
                 else :
                     if (values['leadspaces']
                         and ' ' == values['leadspaces']
-                        and re.search('^(?P<key>'+Inline.REGEX_QUOTED_STRING+'|[^ \'"\\[].*?) *\:(\s+(?P<value>.+?))?\s*$', values['value'], re.U)
+                        and re.search('^(?P<key>'+Inline.REGEX_QUOTED_STRING+'|[^ \'"\{\[].*?) *\:(\s+(?P<value>.+?))?\s*$', values['value'], re.U)
                     ):
                         # this is a compact notation element, add to next block and parse
                         c = self.__getRealCurrentLineNb();
@@ -513,7 +513,7 @@ class Parser(Object):
         text += matches.group('text')+separator;
         while (self.__currentLineNb + 1 < len(self.__lines)):
             self.__moveToNextLine();
-            matches = re.search('^(?P<indent>[ ]{'+str(len(textIndent))+',})(?P<text>.+)$', self.__currentLine, re.U)
+            matches = re.search('^(?P<indent> {'+str(len(textIndent))+',})(?P<text>.+)$', self.__currentLine, re.U)
             if matches :
                 if ' ' == separator and previousIndent != matches.group('indent') :
                     text = text[0:-1]+"\n";
@@ -527,7 +527,7 @@ class Parser(Object):
 
             matches = re.search('^(?P<text> *)$', self.__currentLine);
             if matches:
-                text += re.sub('^[ ]{1,'+str(len(textIndent))+'}', '', matches.group('text'))+"\n";
+                text += re.sub('^ {1,'+str(len(textIndent))+'}', '', matches.group('text'))+"\n";
             else :
                 self.__moveToPreviousLine();
 
