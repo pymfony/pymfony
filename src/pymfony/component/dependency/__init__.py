@@ -368,7 +368,7 @@ class Container(IntrospectableContainerInterface):
 
         if name not in self._scopes :
             raise InvalidArgumentException(
-                'The scope "{0}" does not exist.'.foemat(name)
+                'The scope "{0}" does not exist.'.format(name)
             );
 
 
