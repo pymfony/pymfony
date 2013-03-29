@@ -78,9 +78,9 @@ class ListCommand(ContainerAware):
             else:
                 space = '_global';
                 append = messages.append;
-            if not namespace and space != '_global' and lastNamespace != namespace :
+            if not namespace and space != '_global' and lastNamespace != space :
                 spaces.append('<comment>{0}</comment>'.format(space));
-            lastNamespace = name;
+            lastNamespace = space;
 
             append(
                 "  <info>{name:<{width}}</info> {desc}".format(
