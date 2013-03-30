@@ -12,6 +12,7 @@ import re;
 from pymfony.component.system import Object;
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.types import String;
+from pymfony.component.system.types import OrderedDict;
 
 from pymfony.component.dependency.exception import ParameterNotFoundException;
 from pymfony.component.dependency.exception import RuntimeException;
@@ -168,7 +169,7 @@ class ParameterBag(ParameterBagInterface):
 
     def resolveValue(self, value, resolving = None):
         if resolving is None:
-            resolving = dict();
+            resolving = OrderedDict();
         assert isinstance(resolving, dict);
         resolving = resolving.copy();
 
@@ -191,7 +192,7 @@ class ParameterBag(ParameterBagInterface):
 
     def resolveString(self, value, resolving = None):
         if resolving is None:
-            resolving = dict();
+            resolving = OrderedDict();
         assert isinstance(resolving, dict);
         resolving = resolving.copy();
 
@@ -227,7 +228,7 @@ class ParameterBag(ParameterBagInterface):
                     'A string value must be composed of strings and/or '
                     'numbers, but found parameter "{0}" of type {1} inside '
                     'string value "{2}".'
-                    "".format(key, type(resolved), value)
+                    "".format(key, type(resolved).__name__, value)
                 );
             resolved = str(resolved);
             _resolving[key] = True;

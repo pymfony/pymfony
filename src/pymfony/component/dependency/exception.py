@@ -104,18 +104,27 @@ class ParameterNotFoundException(InvalidArgumentException):
     def setSourceKey(self, key):
         self.__sourceKey = key;
 
+        self.updateRepr();
+
     def getSourceKey(self):
         return self.__sourceKey;
 
     def setSourceId(self, key):
         self.__sourceId = key;
 
+        self.updateRepr();
+
     def getSourceId(self):
         return self.__sourceId;
 
 class ParameterCircularReferenceException(RuntimeException):
-    pass;
+    def __init__(self, parameters):
+        RuntimeException.__init__(self, 'Circular reference detected for parameter "{0}" ("{1}" > "{2}").'.format(parameters[0], '" > "'.join(parameters), parameters[0]));
 
+        self.__parameters = parameters;
+
+    def getParameters(self):
+        return self.__parameters;
 
 
 class ServiceCircularReferenceException(RuntimeException):
