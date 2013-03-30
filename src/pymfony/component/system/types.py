@@ -107,6 +107,8 @@ class Array(OrderedDict):
             for key, value in dict1.items():
                 if key not in new.keys():
                     diff[key] = value;
+                else:
+                    diff.pop(key, None);
         return diff;
 
 
