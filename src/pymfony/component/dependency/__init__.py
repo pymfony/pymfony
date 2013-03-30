@@ -277,8 +277,8 @@ class Container(IntrospectableContainerInterface):
 
         """
         identifier = self._formatIdentifier(identifier);
-        method = 'get'+identifier.replace('_', '').replace('.', '_')+'Service';
-        return identifier in self._services.keys() or (hasattr(self, method) and isinstance(getattr(self, method), type(self.get)));
+        method = 'get'+self.camelize(identifier)+'Service';
+        return identifier in self._services.keys() or (hasattr(self, method) and isinstance(getattr(self, method), type(self.has)));
 
     def get(self, identifier, invalidBehavior = ContainerInterface.EXCEPTION_ON_INVALID_REFERENCE):
         """Gets a service.
@@ -305,9 +305,9 @@ class Container(IntrospectableContainerInterface):
             return self._services[identifier];
 
         if identifier in self._loading.keys():
-            raise ServiceCircularReferenceException(identifier, self._loading.keys());
+            raise ServiceCircularReferenceException(identifier, list(self._loading.keys()));
 
-        method = 'get'+identifier.replace('_', '').replace('.', '_')+'Service';
+        method = 'get'+self.camelize(identifier)+'Service';
         if (hasattr(self, method) and isinstance(getattr(self, method), type(self.get))):
             self._loading[identifier] = True;
 
@@ -533,9 +533,9 @@ class Container(IntrospectableContainerInterface):
         """
         def callback(match):
             if '.' == match.group(1):
-                return '_'+match.group(2);
+                return '_'+str(match.group(2)).upper();
             else:
-                return ''+match.group(2);
+                return ''+str(match.group(2)).upper();
 
         return re.sub('(^|_|\.)+(.)', callback, identifier);
 
