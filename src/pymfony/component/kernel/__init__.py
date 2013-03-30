@@ -32,21 +32,6 @@ from pymfony.component.dependency.parameterbag import ParameterBag;
 from pymfony.component.dependency.loader import IniFileLoader;
 from pymfony.component.dependency.loader import JsonFileLoader;
 from pymfony.component.dependency.loader import YamlFileLoader;
-from pymfony.component.dependency.compilerpass import CheckDefinitionValidityPass;
-from pymfony.component.dependency.compilerpass import ResolveReferencesToAliasesPass;
-from pymfony.component.dependency.compilerpass import ResolveInvalidReferencesPass;
-from pymfony.component.dependency.compilerpass import AnalyzeServiceReferencesPass;
-from pymfony.component.dependency.compilerpass import CheckCircularReferencesPass;
-from pymfony.component.dependency.compilerpass import CheckReferenceValidityPass;
-from pymfony.component.dependency.compilerpass import RemovePrivateAliasesPass;
-from pymfony.component.dependency.compilerpass import RemoveAbstractDefinitionsPass;
-from pymfony.component.dependency.compilerpass import ReplaceAliasByActualDefinitionPass;
-from pymfony.component.dependency.compilerpass import RepeatedPass;
-from pymfony.component.dependency.compilerpass import InlineServiceDefinitionsPass;
-from pymfony.component.dependency.compilerpass import RemoveUnusedDefinitionsPass;
-from pymfony.component.dependency.compilerpass import CheckExceptionOnInvalidReferenceBehaviorPass;
-from pymfony.component.dependency.compilerpass import ResolveDefinitionTemplatesPass;
-from pymfony.component.dependency.compilerpass import ResolveParameterPlaceHoldersPass;
 
 from pymfony.component.kernel.bundle import BundleInterface;
 from pymfony.component.kernel.config import FileLocator;
@@ -446,30 +431,6 @@ class Kernel(KernelInterface):
         container.getCompilerPassConfig().setMergePass(
             MergeExtensionConfigurationPass(extensions)
         );
-
-        container.getCompilerPassConfig().setOptimizationPasses([
-            ResolveDefinitionTemplatesPass(),
-            ResolveParameterPlaceHoldersPass(),
-            CheckDefinitionValidityPass(),
-            ResolveReferencesToAliasesPass(),
-            ResolveInvalidReferencesPass(),
-            AnalyzeServiceReferencesPass(),
-            CheckCircularReferencesPass(),
-            CheckReferenceValidityPass(),
-        ]);
-
-        container.getCompilerPassConfig().setRemovingPasses([
-            RemovePrivateAliasesPass(),
-            RemoveAbstractDefinitionsPass(),
-            ReplaceAliasByActualDefinitionPass(),
-            RepeatedPass([
-                AnalyzeServiceReferencesPass(),
-                InlineServiceDefinitionsPass(),
-                AnalyzeServiceReferencesPass(),
-                RemoveUnusedDefinitionsPass(),
-            ]),
-            CheckExceptionOnInvalidReferenceBehaviorPass(),
-        ]);
 
         cont = self.registerContainerConfiguration(
             self._getContainerLoader(container)

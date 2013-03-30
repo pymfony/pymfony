@@ -27,6 +27,7 @@ from pymfony.component.dependency.interface import IntrospectableContainerInterf
 from pymfony.component.dependency.interface import ContainerAwareInterface;
 from pymfony.component.dependency.interface import TaggedContainerInterface;
 from pymfony.component.dependency.interface import ExtensionInterface;
+from pymfony.component.dependency.interface import CompilerPassInterface;
 from pymfony.component.dependency.definition import Alias;
 from pymfony.component.dependency.definition import Definition;
 from pymfony.component.dependency.definition import Reference;
@@ -41,7 +42,6 @@ from pymfony.component.dependency.parameterbag import ParameterBagInterface;
 from pymfony.component.dependency.parameterbag import FrozenParameterBag;
 from pymfony.component.dependency.compiler import PassConfig;
 from pymfony.component.dependency.compiler import Compiler;
-from pymfony.component.dependency.interface import CompilerPassInterface;
 """
 """
 

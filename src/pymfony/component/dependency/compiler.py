@@ -9,6 +9,7 @@
 from __future__ import absolute_import;
 
 from pymfony.component.system import Object;
+from pymfony.component.system import ClassLoader;
 from pymfony.component.system.reflection import ReflectionObject;
 from pymfony.component.system.types import OrderedDict;
 
@@ -45,8 +46,30 @@ class PassConfig(Object):
         self.__beforeOptimizationPasses = list();
         self.__afterRemovingPasses = list();
         self.__beforeRemovingPasses = list();
-        self.__optimizationPasses = list();
-        self.__removingPasses = list();
+
+        self.__optimizationPasses = [
+            ClassLoader.load(__name__+'pass.ResolveDefinitionTemplatesPass')(),
+            ClassLoader.load(__name__+'pass.ResolveParameterPlaceHoldersPass')(),
+            ClassLoader.load(__name__+'pass.CheckDefinitionValidityPass')(),
+            ClassLoader.load(__name__+'pass.ResolveReferencesToAliasesPass')(),
+            ClassLoader.load(__name__+'pass.ResolveInvalidReferencesPass')(),
+            ClassLoader.load(__name__+'pass.AnalyzeServiceReferencesPass')(),
+            ClassLoader.load(__name__+'pass.CheckCircularReferencesPass')(),
+            ClassLoader.load(__name__+'pass.CheckReferenceValidityPass')(),
+        ];
+
+        self.__removingPasses = [
+            ClassLoader.load(__name__+'pass.RemovePrivateAliasesPass')(),
+            ClassLoader.load(__name__+'pass.RemoveAbstractDefinitionsPass')(),
+            ClassLoader.load(__name__+'pass.ReplaceAliasByActualDefinitionPass')(),
+            ClassLoader.load(__name__+'pass.RepeatedPass')([
+                ClassLoader.load(__name__+'pass.AnalyzeServiceReferencesPass')(),
+                ClassLoader.load(__name__+'pass.InlineServiceDefinitionsPass')(),
+                ClassLoader.load(__name__+'pass.AnalyzeServiceReferencesPass')(),
+                ClassLoader.load(__name__+'pass.RemoveUnusedDefinitionsPass')(),
+            ]),
+            ClassLoader.load(__name__+'pass.CheckExceptionOnInvalidReferenceBehaviorPass')(),
+        ];
 
     def getPasses(self):
         """Returns all passes in order to be processed.
