@@ -52,5 +52,5 @@ You can also contribute to the Symfony2 PHP framework, please read the
 [5]: http://symfony.com/doc/current/contributing/code/index.html
 [6]: http://symfony.com
 
-[0]: https://travis-ci.org/alquerci/pymfony.png?branch=master
-[7]: https://travis-ci.org/alquerci/pymfony
+[0]: https://travis-ci.org/pymfony/pymfony.png?branch=master
+[7]: https://travis-ci.org/pymfony/pymfony

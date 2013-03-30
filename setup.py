@@ -59,7 +59,7 @@ setup(
     package_data=find_package_data(),
     author="Alexandre Quercia",
     author_email="alquerci@email.com",
-    url="http://github.com/alquerci/pymfony",
+    url="http://github.com/pymfony/pymfony",
     description='An implementation of "Symfony2 PHP Framework" into Python',
     long_description=long_description,
     license="MIT",

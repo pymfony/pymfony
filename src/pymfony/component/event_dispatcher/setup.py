@@ -38,7 +38,7 @@ setup(
     package_data=find_package_data(),
     author="Alexandre Quercia",
     author_email="alquerci@email.com",
-    url="http://github.com/alquerci/pymfony-event_dispatcher",
+    url="http://github.com/pymfony/event_dispatcher",
     description='Pymfony EventDispatcher Component',
     long_description=long_description,
     license="MIT",

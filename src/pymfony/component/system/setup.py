@@ -41,7 +41,7 @@ setup(
     package_data=find_package_data(),
     author="Alexandre Quercia",
     author_email="alquerci@email.com",
-    url="http://github.com/alquerci/pymfony-system",
+    url="http://github.com/pymfony/system",
     description='Pymfony System Component',
     long_description=long_description,
     license="MIT",

@@ -39,7 +39,7 @@ setup(
     package_data=find_package_data(),
     author="Alexandre Quercia",
     author_email="alquerci@email.com",
-    url="http://github.com/alquerci/pymfony-config",
+    url="http://github.com/pymfony/config",
     description='Pymfony Config Component',
     long_description=long_description,
     license="MIT",
