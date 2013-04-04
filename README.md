@@ -1,10 +1,5 @@
-Pymfony
-=======
-
-[![Build Status][0]][7]
-
 What is Pymfony?
-----------------
+================
 
 Pymfony is an implementation of [Symfony2][6] PHP Framework with Python language.
 
@@ -18,10 +13,11 @@ Symfony target version
 
 [symfony@v2.2.0](https://github.com/symfony/symfony/tree/v2.2.0)
 
+
 Requirements
 ------------
 
-Pymfony is only supported on Python 2.6.8 and up.
+Pymfony is only supported on Python 2.6 and up.
 
 
 Installation
@@ -51,6 +47,3 @@ You can also contribute to the Symfony2 PHP framework, please read the
 [4]: ./
 [5]: http://symfony.com/doc/current/contributing/code/index.html
 [6]: http://symfony.com
-
-[0]: https://travis-ci.org/pymfony/pymfony.png?branch=master
-[7]: https://travis-ci.org/pymfony/pymfony
