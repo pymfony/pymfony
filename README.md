@@ -23,9 +23,7 @@ Pymfony is only supported on Python 2.6 and up.
 Installation
 ------------
 
-1. Go to the Pymfony root directory (e.g. cd path/to/Pymfony).
-2. Run `python setup.py install`
-3. Enjoy!
+The best way to install Pymfony is to download the [Pymfony Standard Edition](https://github.com/pymfony/pymfony-standard#readme)
 
 
 Contributing
