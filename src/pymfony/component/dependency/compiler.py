@@ -41,7 +41,7 @@ class PassConfig(Object):
         """Constructor.
 
         """
-        self.__mergePass = None;
+        self.__mergePass = ClassLoader.load(__name__+'pass.MergeExtensionConfigurationPass')();
 
         self.__beforeOptimizationPasses = list();
         self.__afterRemovingPasses = list();
