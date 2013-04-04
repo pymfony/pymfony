@@ -35,7 +35,7 @@ def find_package_data():
 
 setup(
     name="pymfony.system",
-    version="2.2.0a1",
+    version="0.1.0",
     package_dir={'pymfony.component.system': ''},
     packages=find_packages(),
     package_data=find_package_data(),

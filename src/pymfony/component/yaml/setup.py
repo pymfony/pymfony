@@ -32,7 +32,7 @@ def find_package_data():
 
 setup(
     name="pymfony.yaml",
-    version="2.2.0a1",
+    version="0.1.0",
     package_dir={'pymfony.component.yaml': ''},
     packages=find_packages(),
     package_data=find_package_data(),
