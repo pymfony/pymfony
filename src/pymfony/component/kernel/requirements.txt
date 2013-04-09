@@ -1,0 +1,4 @@
+git+https://github.com/pymfony/system.git@2.2#egg=pymfony.system
+git+https://github.com/pymfony/dependency.git@2.2#egg=pymfony.dependency
+git+https://github.com/pymfony/yaml.git@2.2#egg=pymfony.yaml
+git+https://github.com/pymfony/config.git@2.2#egg=pymfony.config
