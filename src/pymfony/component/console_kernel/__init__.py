@@ -91,7 +91,7 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
     """
 
-    def __init__(self, dispatcher, resolver, name = 'UNKNOWN', version = 'UNKNOWN'):
+    def __init__(self, dispatcher, resolver):
         """Constructor
 
         @param EventDispatcherInterface    dispatcher An EventDispatcherInterface instance
