@@ -376,10 +376,6 @@ class Request(ArgvInput):
         """
         return list(self.__argv);
 
-    def setFirstArgument(self, command):
-        if not self.getFirstArgument():
-            self._setTokens([command] + self.__argv[1:]);
-
 
 class Response(ConsoleOutput):
     statusTexts = {
