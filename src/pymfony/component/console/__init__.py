@@ -358,17 +358,6 @@ class Request(ArgvInput):
         request = cls(sys.argv, dict());
         return request;
 
-    @classmethod
-    def createFromString(cls, string):
-        """Creates a new request with values from PYTHON's sys.argv.
-
-        @param: string inputString  A string of parameters from the CLI
-
-        @return: Request
-        """
-        request = cls(StringInput(string), dict());
-        return request;
-
     def getArgv(self):
         """
 
