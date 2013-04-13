@@ -1922,9 +1922,12 @@ class StringInput(ArgvInput):
         if definition is not None:
             assert isinstance(definition, InputDefinition);
 
-        ArgvInput.__init__(self, list(), definition);
+        ArgvInput.__init__(self, list(), None);
 
         self._setTokens(self.__tokenize(inputString));
+
+        if None is not definition :
+            self.bind(definition);
 
 
     def __tokenize(self, inputString):

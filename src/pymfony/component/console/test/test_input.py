@@ -43,12 +43,14 @@ class StringInputTest(unittest.TestCase):
             InputOption('foo', None, InputOption.VALUE_REQUIRED),
         ]);
 
+        # call to bind
         input_ = StringInput('--foo=bar');
         input_.bind(definition);
+        self.assertEqual('bar', input_.getOption('foo'));
 
-        actual = input_.getOption('foo');
-
-        self.assertEqual('bar', actual);
+        # definition in constructor
+        input_ = StringInput('--foo=bar', definition);
+        self.assertEqual('bar', input_.getOption('foo'));
 
 
     def getTokenizeData(self):
