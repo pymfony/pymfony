@@ -139,16 +139,32 @@ foo
 foo: |-
     one
     two
+bar: |-
+    one
+    two
+"""
+
+        expected = OrderedDict([
+            ('foo', 'one\ntwo'),
+            ('bar', 'one\ntwo'),
+        ]);
+        tests.append(['Literal block chomping strip with single trailing newline', expected, yaml]);
+
+        yaml = """
+foo: |-
+    one
+    two
 
 bar: |-
     one
     two
+
 """;
         expected = OrderedDict([
             ('foo' , "one\ntwo"),
             ('bar' , "one\ntwo"),
         ]);
-        tests.append(['Literal block chomping strip with trailing newline', expected, yaml]);
+        tests.append(['Literal block chomping strip with multiple trailing newlines', expected, yaml]);
 
         yaml = """
 foo: |-
@@ -167,7 +183,6 @@ bar: |-
 foo: |
     one
     two
-
 bar: |
     one
     two
@@ -176,7 +191,23 @@ bar: |
             ('foo' , "one\ntwo\n"),
             ('bar' , "one\ntwo\n"),
         ]);
-        tests.append(['Literal block chomping clip with trailing newline', expected, yaml]);
+        tests.append(['Literal block chomping clip with single trailing newline', expected, yaml]);
+
+        yaml = """
+foo: |
+    one
+    two
+
+bar: |
+    one
+    two
+
+""";
+        expected = OrderedDict([
+            ('foo' , "one\ntwo\n"),
+            ('bar' , "one\ntwo\n"),
+        ]);
+        tests.append(['Literal block chomping clip with multiple trailing newlines', expected, yaml]);
 
         yaml = """
 foo: |
@@ -187,9 +218,23 @@ bar: |
     two""";
         expected = OrderedDict([
             ('foo' , "one\ntwo\n"),
-            ('bar' , "one\ntwo\n"),
+            ('bar' , "one\ntwo"),
         ]);
         tests.append(['Literal block chomping clip without trailing newline', expected, yaml]);
+
+        yaml = """
+foo: |+
+    one
+    two
+bar: |+
+    one
+    two
+""";
+        expected = OrderedDict([
+            ('foo' , "one\ntwo\n"),
+            ('bar' , "one\ntwo\n"),
+        ]);
+        tests.append(['Literal block chomping keep with single trailing newline', expected, yaml]);
 
         yaml = """
 foo: |+
@@ -199,12 +244,13 @@ foo: |+
 bar: |+
     one
     two
+
 """;
         expected = OrderedDict([
             ('foo' , "one\ntwo\n\n"),
             ('bar' , "one\ntwo\n\n"),
         ]);
-        tests.append(['Literal block chomping keep with trailing newline', expected, yaml]);
+        tests.append(['Literal block chomping keep with multiple trailing newlines', expected, yaml]);
 
         yaml = """
 foo: |+
@@ -215,9 +261,23 @@ bar: |+
     two""";
         expected = OrderedDict([
             ('foo' , "one\ntwo\n"),
-            ('bar' , "one\ntwo\n"),
+            ('bar' , "one\ntwo"),
         ]);
         tests.append(['Literal block chomping keep without trailing newline', expected, yaml]);
+
+        yaml = """
+foo: >-
+    one
+    two
+bar: >-
+    one
+    two
+""";
+        expected = OrderedDict([
+            ('foo' , "one two"),
+            ('bar' , "one two"),
+        ]);
+        tests.append(['Folded block chomping strip with single trailing newline', expected, yaml]);
 
         yaml = """
 foo: >-
@@ -227,12 +287,13 @@ foo: >-
 bar: >-
     one
     two
+
 """;
         expected = OrderedDict([
             ('foo' , "one two"),
             ('bar' , "one two"),
         ]);
-        tests.append(['Folded block chomping strip with trailing newline', expected, yaml]);
+        tests.append(['Folded block chomping strip with multiple trailing newlines', expected, yaml]);
 
         yaml = """
 foo: >-
@@ -251,7 +312,6 @@ bar: >-
 foo: >
     one
     two
-
 bar: >
     one
     two
@@ -260,7 +320,23 @@ bar: >
             ('foo' , "one two\n"),
             ('bar' , "one two\n"),
         ]);
-        tests.append(['Folded block chomping clip with trailing newline', expected, yaml]);
+        tests.append(['Folded block chomping clip with single trailing newline', expected, yaml]);
+
+        yaml = """
+foo: >
+    one
+    two
+
+bar: >
+    one
+    two
+
+""";
+        expected = OrderedDict([
+            ('foo' , "one two\n"),
+            ('bar' , "one two\n"),
+        ]);
+        tests.append(['Folded block chomping clip with multiple trailing newlines', expected, yaml]);
 
         yaml = """
 foo: >
@@ -271,9 +347,23 @@ bar: >
     two""";
         expected = OrderedDict([
             ('foo' , "one two\n"),
-            ('bar' , "one two\n"),
+            ('bar' , "one two"),
         ]);
         tests.append(['Folded block chomping clip without trailing newline', expected, yaml]);
+
+        yaml = """
+foo: >+
+    one
+    two
+bar: >+
+    one
+    two
+""";
+        expected = OrderedDict([
+            ('foo' , "one two\n"),
+            ('bar' , "one two\n"),
+        ]);
+        tests.append(['Folded block chomping keep with single trailing newline', expected, yaml]);
 
         yaml = """
 foo: >+
@@ -283,12 +373,13 @@ foo: >+
 bar: >+
     one
     two
+
 """;
         expected = OrderedDict([
             ('foo' , "one two\n\n"),
             ('bar' , "one two\n\n"),
         ]);
-        tests.append(['Folded block chomping keep with trailing newline', expected, yaml]);
+        tests.append(['Folded block chomping keep with multiple trailing newlines', expected, yaml]);
 
         yaml = """
 foo: >+
@@ -299,7 +390,7 @@ bar: >+
     two""";
         expected = OrderedDict([
             ('foo' , "one two\n"),
-            ('bar' , "one two\n"),
+            ('bar' , "one two"),
         ]);
         tests.append(['Folded block chomping keep without trailing newline', expected, yaml]);
 

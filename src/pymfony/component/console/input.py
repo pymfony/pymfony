@@ -1914,15 +1914,20 @@ class StringInput(ArgvInput):
         @param string          inputString      A string of parameters from the CLI
         @param InputDefinition definition A InputDefinition instance
 
+        @deprecated The second argument is deprecated as it does not work (will be removed in 3.0), use 'bind' method instead
+
         @api
 
         """
         if definition is not None:
             assert isinstance(definition, InputDefinition);
 
-        ArgvInput.__init__(self, list(), definition);
+        ArgvInput.__init__(self, list(), None);
 
         self._setTokens(self.__tokenize(inputString));
+
+        if None is not definition :
+            self.bind(definition);
 
 
     def __tokenize(self, inputString):

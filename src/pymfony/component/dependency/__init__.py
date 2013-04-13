@@ -858,14 +858,13 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        if self.isFrozen():
-            if identifier not in self.__definitions or \
-            not self.__definitions[identifier].isSynthetic():
-                raise BadMethodCallException(
-                    'Setting service on a frozen container is not allowed'
-                );
-
         identifier = self._formatIdentifier(identifier);
+
+        if self.isFrozen():
+            # setting a synthetic service on a frozen container is alright
+            if identifier not in self.__definitions or not self.__definitions[identifier].isSynthetic():
+                raise BadMethodCallException('Setting service "{0}" on a frozen container is not allowed.'.format(identifier));
+
         self.__definitions.pop(identifier, None);
         self.__aliases.pop(identifier, None);
 
@@ -935,8 +934,15 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                 raise e;
 
             self._loading[identifier] = True;
-            service = self.__createService(definition, identifier);
+
+            try:
+                service = self.__createService(definition, identifier);
+            except Exception as e:
+                self._loading.pop(identifier, None);
+                raise e;
+
             self._loading.pop(identifier, None);
+
             return service;
 
     def merge(self, container):

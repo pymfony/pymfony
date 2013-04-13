@@ -344,7 +344,10 @@ class JsonFileLoader(FileLoader):
         if isinstance(value, list):
             value = list(map(self.__resolveServices, value));
         if isinstance(value, String) and value.startswith("@"):
-            if value.startswith("@?"):
+            if value.startswith('@@'):
+                value = value[1:];
+                invalidBehavior = None;
+            elif value.startswith("@?"):
                 value = value[2:];
                 invalidBehavior = ContainerInterface.IGNORE_ON_INVALID_REFERENCE;
             else:
@@ -357,7 +360,8 @@ class JsonFileLoader(FileLoader):
             else:
                 strict = True;
 
-            value = Reference(value, invalidBehavior, strict);
+            if None is not invalidBehavior:
+                value = Reference(value, invalidBehavior, strict);
 
         return value;
 
@@ -627,7 +631,10 @@ class YamlFileLoader(FileLoader):
         if isinstance(value, list):
             value = list(map(self.__resolveServices, value));
         if isinstance(value, String) and value.startswith("@"):
-            if value.startswith("@?"):
+            if value.startswith('@@'):
+                value = value[1:];
+                invalidBehavior = None;
+            elif value.startswith("@?"):
                 value = value[2:];
                 invalidBehavior = ContainerInterface.IGNORE_ON_INVALID_REFERENCE;
             else:
@@ -640,7 +647,8 @@ class YamlFileLoader(FileLoader):
             else:
                 strict = True;
 
-            value = Reference(value, invalidBehavior, strict);
+            if None is not invalidBehavior:
+                value = Reference(value, invalidBehavior, strict);
 
         return value;
 
