@@ -169,11 +169,11 @@ class KernelInterface(FileResourceLocatorInterface):
 
 
 class Kernel(KernelInterface):
-    VERSION = '2.2.0';
-    VERSION_ID = '20100';
+    VERSION = '2.2.1';
+    VERSION_ID = '20201';
     MAJOR_VERSION = '2';
     MINOR_VERSION = '2';
-    RELEASE_VERSION = '0';
+    RELEASE_VERSION = '1';
     EXTRA_VERSION = '';
 
     def __init__(self, environment, debug):
