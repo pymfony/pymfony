@@ -906,11 +906,6 @@ class Inline(Object):
         """
         assert isinstance(i, Ref);
 
-        # Only check the current item we're dealing with (for sequences)
-        subject = scalar[i.get():];
-        items = re.split('[\'"]\s*(?:[,:]|[}\]]\s*,)', subject);
-        subject = subject[:len(items[0]) + 1];
-
         match = re.search('^'+cls.REGEX_QUOTED_STRING, scalar[i.get():], flags=re.U);
         if not match :
             raise ParseException(
