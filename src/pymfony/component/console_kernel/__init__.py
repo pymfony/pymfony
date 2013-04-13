@@ -142,7 +142,7 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
             if (False is catch) :
                 raise e;
 
-            return self.__handleException(e, request, response, requestType);
+            return self.__handleException(e, request, requestType);
 
 
 
