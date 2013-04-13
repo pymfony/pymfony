@@ -432,13 +432,14 @@ class Response(ConsoleOutput):
     def send(self):
         """Sends content.
 
-        @param integer type The type of output
-
         @return Response
 
         @api
 
         """
+
+        if not self._content :
+            return self;
 
         if 0 != self._statusCode:
             self.getErrorOutput().writeln(self._content, self._outputType);
