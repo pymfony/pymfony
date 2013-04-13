@@ -38,6 +38,19 @@ class StringInputTest(unittest.TestCase):
             self.assertEqual(tokens, inputString._ArgvInput__tokens, message);
 
 
+    def testInputOptionWithGivenString(self):
+        definition = InputDefinition([
+            InputOption('foo', None, InputOption.VALUE_REQUIRED),
+        ]);
+
+        input_ = StringInput('--foo=bar');
+        input_.bind(definition);
+
+        actual = input_.getOption('foo');
+
+        self.assertEqual('bar', actual);
+
+
     def getTokenizeData(self):
 
         return [
