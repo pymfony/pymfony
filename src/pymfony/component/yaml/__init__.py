@@ -486,68 +486,53 @@ class Parser(Object):
 
         """
 
-        separator = "\n" if '|' == separator else ' ';
-        text = '';
-
         notEOF = self.__moveToNextLine();
-
-        while (notEOF and self.__isCurrentLineBlank()):
-            text += "\n";
-
-            notEOF = self.__moveToNextLine();
-
 
         if ( not notEOF) :
             return '';
 
-        matches = re.search('^(?P<indent>'+((' ' * indentation) if indentation else ' +')+')(?P<text>.*)$', self.__currentLine, re.U);
-        if not matches :
+        # determine indentation if not specified
+        if 0 == indentation :
+            matches = re.search('^ +', self.__currentLine);
+            if matches:
+                indentation = len(matches.group(0));
+
+        text = '';
+        if indentation > 0:
+            pattern = '^ {%d}(.*)$' % (indentation);
+
+            isCurrentLineBlank = self.__isCurrentLineBlank();
+            matches = re.search(pattern, self.__currentLine);
+            while notEOF and (isCurrentLineBlank or matches) :
+                if isCurrentLineBlank:
+                    text += self.__currentLine[indentation:];
+                else:
+                    text += matches.group(1);
+
+                # newline only if not EOF
+                notEOF = self.__moveToNextLine();
+                if notEOF:
+                    text += "\n";
+                    isCurrentLineBlank = self.__isCurrentLineBlank();
+                    matches = re.search(pattern, self.__currentLine);
+
+        elif notEOF:
+            text += "\n";
+
+        if notEOF:
             self.__moveToPreviousLine();
 
-            return '';
+        # replace all non-trailing single newlines with spaces in folded blocks
+        if '>' == separator:
+            matches = re.search('(\n*)$', text);
+            text = re.sub('(?<!\n)\n(?!\n)', ' ', text.rstrip("\n"));
+            text += matches.group(1);
 
-
-        textIndent = matches.group('indent');
-        previousIndent = textIndent;
-
-        text += matches.group('text')+separator;
-        while (self.__currentLineNb + 1 < len(self.__lines)):
-            self.__moveToNextLine();
-            matches = re.search('^(?P<indent> {'+str(len(textIndent))+',})(?P<text>.+)$', self.__currentLine, re.U)
-            if matches :
-                if ' ' == separator and previousIndent != matches.group('indent') :
-                    text = text[0:-1]+"\n";
-
-                previousIndent = matches.group('indent');
-
-                diff = len(matches.group('indent')) - len(textIndent);
-                text += (' ' * diff)+matches.group('text')+("\n" if diff else separator);
-
-                continue;
-
-            matches = re.search('^(?P<text> *)$', self.__currentLine);
-            if matches:
-                text += re.sub('^ {1,'+str(len(textIndent))+'}', '', matches.group('text'))+"\n";
-            else :
-                self.__moveToPreviousLine();
-
-                break;
-
-
-
-        if (' ' == separator) :
-            # replace last separator by a newline
-            text = re.sub(' (\n*)$', "\n\\1", text);
-
-
-        if indicator == '':
-            pattern = re.compile('\n+$', re.S)
-            text = pattern.sub("\n", text);
-        elif indicator == '+':
-            pass;
-        elif indicator == '-':
-            pattern = re.compile('\n+$', re.S)
-            text = pattern.sub('', text);
+        # deal with trailing newlines as indicated
+        if '' == indicator:
+            text = re.compile('\n+$', re.DOTALL).sub("\n", text);
+        elif '-' == indicator:
+            text = re.compile('\n+$', re.DOTALL).sub("", text);
 
         return text;
 
