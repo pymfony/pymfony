@@ -1914,6 +1914,8 @@ class StringInput(ArgvInput):
         @param string          inputString      A string of parameters from the CLI
         @param InputDefinition definition A InputDefinition instance
 
+        @deprecated The second argument is deprecated as it does not work (will be removed in 3.0), use 'bind' method instead
+
         @api
 
         """
