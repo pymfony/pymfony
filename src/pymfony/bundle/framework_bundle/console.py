@@ -59,7 +59,9 @@ class ConsoleKernel(ContainerAwareConsoleKernel):
         subRequest = clone(self._container.get('request'));
         subRequest.attributes.replace(attributes);
 
-        return self.handle(subRequest, ConsoleKernelInterface.SUB_REQUEST);
+        response = self._container.get('response');
+
+        return self.handle(subRequest, response, ConsoleKernelInterface.SUB_REQUEST);
 
 
 class ControllerNameParser(BaseControllerNameParser):

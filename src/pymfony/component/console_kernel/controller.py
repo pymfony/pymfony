@@ -22,6 +22,7 @@ from pymfony.component.system.reflection import ReflectionFunction;
 from pymfony.component.system.reflection import ReflectionParameter;
 
 from pymfony.component.console import Request;
+from pymfony.component.console import Response;
 
 """
 """
@@ -63,11 +64,12 @@ class ControllerResolverInterface(Object):
         """
         assert isinstance(request, Request);
 
-    def getArguments(self, request, controller):
+    def getArguments(self, request, controller, response = None):
         """Returns the arguments to pass to the controller.
 
         @param Request request    A Request instance
         @param mixed   controller A PHP callable
+        @param Response response  A Response instance
 
         @return array An array of arguments to pass to the controller
 
@@ -77,6 +79,8 @@ class ControllerResolverInterface(Object):
 
         """
         assert isinstance(request, Request);
+        if None is not response :
+            assert isinstance(response, Response);
 
 
 
@@ -153,11 +157,12 @@ class ControllerResolver(ControllerResolverInterface):
         return getattr(controller, method);
 
 
-    def getArguments(self, request, controller):
+    def getArguments(self, request, controller, response = None):
         """Returns the arguments to pass to the controller.
 
         @param Request request    A Request instance
         @param mixed   controller A PYTHON callable
+        @param Response response  A Response instance
 
         @return list
 
@@ -167,6 +172,10 @@ class ControllerResolver(ControllerResolverInterface):
 
         """
         assert isinstance(request, Request);
+        if None is response :
+            response = Response();
+        else:
+            assert isinstance(response, Response);
 
         if inspect.ismethod(controller):
             r = ReflectionMethod(controller);
@@ -176,11 +185,12 @@ class ControllerResolver(ControllerResolverInterface):
             r = ReflectionObject(controller);
             r = r.getMethod('__call__');
 
-        return self._doGetArguments(request, controller, r.getParameters());
+        return self._doGetArguments(request, controller, r.getParameters(), response);
 
-    def _doGetArguments(self, request, controller, parameters):
+    def _doGetArguments(self, request, controller, parameters, response):
         assert isinstance(request, Request);
         assert isinstance(parameters, list);
+        assert isinstance(response, Response);
 
         attributes = request.attributes.all();
         arguments = list();
@@ -202,6 +212,8 @@ class ControllerResolver(ControllerResolverInterface):
 
             if arg[0] == 'request':
                 arguments.append(request);
+            elif arg[0] == 'response':
+                arguments.append(response);
             elif arg[1] in attributes:
                 arguments.append(attributes[arg[1]]);
             elif request.hasOption(arg[1]):

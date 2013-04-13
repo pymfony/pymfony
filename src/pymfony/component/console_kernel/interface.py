@@ -55,13 +55,14 @@ class ConsoleKernelInterface(Object):
     MASTER_REQUEST = 1;
     SUB_REQUEST = 2;
 
-    def handle(self, request, requestType = MASTER_REQUEST, catch = True):
+    def handle(self, request, response = None, requestType = MASTER_REQUEST, catch = True):
         """Handles a Request to convert it to a Response.
 
         When catch is True, the implementation must catch all exceptions
         and do its best to convert them to a Response instance.
 
         @param Request   request   A Request instance
+        @param Response response   A Response instance
         @param integer   type      The type of the request
                                    (one of ConsoleKernelInterface.MASTER_REQUEST
                                   or ConsoleKernelInterface.SUB_REQUEST)

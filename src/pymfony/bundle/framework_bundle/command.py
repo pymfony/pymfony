@@ -145,7 +145,9 @@ class ListCommand(ContainerAware):
         subRequest = clone(self._container.get('request'));
         subRequest.attributes.replace(attributes);
 
-        return self._container.get('console_kernel').handle(subRequest, ConsoleKernelInterface.SUB_REQUEST);
+        response = self._container.get('response');
+
+        return self._container.get('console_kernel').handle(subRequest, response, ConsoleKernelInterface.SUB_REQUEST);
 
 
 
@@ -290,7 +292,9 @@ class HelpCommand(ContainerAware):
 
 
 class CacheCommand(ContainerAware):
-    def clearAction(self, _o_no_warmup, _o_no_optional_warmers):
+    def clearAction(self, _o_no_warmup, _o_no_optional_warmers, response):
+        assert isinstance(response, Response);
+
         realCacheDir = self._container.getParameter('kernel.cache_dir');
         oldCacheDir = realCacheDir + '_old';
 
@@ -298,6 +302,8 @@ class CacheCommand(ContainerAware):
             raise RuntimeException('Unable to write in the "{0}" directory'.format(realCacheDir));
 
         kernel = self._container.get('kernel');
+
+        response.writeln('Clearing the cache for the <info>{0}</info> environment with debug <info>{1}</info>'.format(kernel.getEnvironment(), kernel.isDebug()));
 
         self._container.get('cache_clearer').clear(realCacheDir);
 
@@ -313,7 +319,7 @@ class CacheCommand(ContainerAware):
 
         shutil.rmtree(oldCacheDir, True);
 
-        return Response('Clearing the cache for the <info>{0}</info> environment with debug <info>{1}</info>'.format(kernel.getEnvironment(), kernel.isDebug()));
+        return response;
 
 
     def _warmup(self, warmupDir, enableOptionalWarmers = True):
@@ -335,9 +341,12 @@ class CacheCommand(ContainerAware):
         warmer.warmUp(warmupDir);
 
 
-    def warmupAction(self, _o_no_optional_warmers):
+    def warmupAction(self, _o_no_optional_warmers, response):
+        assert isinstance(response, Response);
 
         kernel = self._container.get('kernel');
+
+        response.writeln('Warming up the cache for the <info>{0}</info> environment with debug <info>{1}</info>'.format(kernel.getEnvironment(), kernel.isDebug()));
 
         warmer = self._container.get('cache_warmer');
 
@@ -346,4 +355,4 @@ class CacheCommand(ContainerAware):
 
         warmer.warmUp(self._container.getParameter('kernel.cache_dir'));
 
-        return Response('Warming up the cache for the <info>{0}</info> environment with debug <info>{1}</info>'.format(kernel.getEnvironment(), kernel.isDebug()));
+        return response;

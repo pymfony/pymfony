@@ -141,7 +141,7 @@ class ExceptionListener(EventSubscriberInterface):
         request.attributes.replace(attributes);
 
         try:
-            response = event.getKernel().handle(request, ConsoleKernelInterface.SUB_REQUEST, True);
+            response = event.getKernel().handle(request, None, ConsoleKernelInterface.SUB_REQUEST, True);
         except Exception:
             # set handling to false otherwise it wont be able to handle further more
             self.__handling = False;

@@ -9,6 +9,7 @@
 from __future__ import absolute_import;
 
 from pymfony.component.console import Request;
+from pymfony.component.console import Response;
 from pymfony.component.console_kernel import ConsoleKernel;
 from pymfony.component.console_kernel.controller import ControllerResolverInterface;
 from pymfony.component.console_kernel.interface import ConsoleKernelInterface;
@@ -46,15 +47,21 @@ class ContainerAwareConsoleKernel(ConsoleKernel):
         self._container = container;
 
 
-    def handle(self, request, requestType = ConsoleKernelInterface.MASTER_REQUEST, catch = True):
+    def handle(self, request, response = None, requestType = ConsoleKernelInterface.MASTER_REQUEST, catch = True):
         assert isinstance(request, Request);
+
+        if None is response :
+            response = Response();
+
+        assert isinstance(response, Response);
 
         if not self._container.isScopeActive('request'):
             self._container.enterScope('request');
             self._container.set('request', request, 'request');
+            self._container.set('response', response, 'request');
 
         try:
-            response = ConsoleKernel.handle(self, request, requestType, catch);
+            response = ConsoleKernel.handle(self, request, response, requestType, catch);
         finally:
             if self._container.isScopeActive('request'):
                 self._container.leaveScope('request');

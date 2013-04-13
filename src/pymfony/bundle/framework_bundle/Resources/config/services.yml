@@ -35,3 +35,7 @@ services:
     request:
         scope:      request
         synthetic:  true
+
+    response:
+        scope:      request
+        synthetic:  true

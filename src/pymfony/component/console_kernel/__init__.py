@@ -109,13 +109,14 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
         self._dispatcher = dispatcher;
         self._resolver = resolver;
 
-    def handle(self, request, requestType = ConsoleKernelInterface.MASTER_REQUEST, catch = True):
+    def handle(self, request, response = None, requestType = ConsoleKernelInterface.MASTER_REQUEST, catch = True):
         """Handles a Request to convert it to a Response.
 
         When catch is True, the implementation must catch all exceptions
         and do its best to convert them to a Response instance.
 
         @param Request request   A Request instance
+        @param Response response  A Response instance
         @param integer   type      The type of the request
                                    (one of ConsoleKernelInterface.MASTER_REQUEST
                                   or ConsoleKernelInterface.SUB_REQUEST)
@@ -130,14 +131,18 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
         """
         assert isinstance(request, Request);
 
+        if None is response :
+            response = Response();
+
+        assert isinstance(response, Response);
+
         try:
-            return self.__handleRaw(request, requestType);
+            return self.__handleRaw(request, response, requestType);
         except Exception as e:
             if (False is catch) :
                 raise e;
 
-
-            return self.__handleException(e, request, requestType);
+            return self.__handleException(e, request, response, requestType);
 
 
 
@@ -154,12 +159,13 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
         );
 
 
-    def __handleRaw(self, request, requestType = ConsoleKernelInterface.MASTER_REQUEST):
+    def __handleRaw(self, request, response, requestType = ConsoleKernelInterface.MASTER_REQUEST):
         """Handles a request to convert it to a response.
 
         Exceptions are not caught.
 
         @param Request request A Request instance
+        @param Response response A Response instance
         @param integer type    The type of the request (one of ConsoleKernelInterface.MASTER_REQUEST or ConsoleKernelInterface.SUB_REQUEST)
 
         @return Response A Response instance
@@ -169,6 +175,7 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
         """
         assert isinstance(request, Request);
+        assert isinstance(response, Response);
 
         # request
         event = GetResponseEvent(self, request, requestType);
@@ -176,6 +183,8 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
 
         if (event.hasResponse()) :
             return self.__filterResponse(event.getResponse(), request, requestType);
+        else:
+            response = self.__filterResponse(response, request, requestType);
 
 
         # load controller
@@ -193,7 +202,7 @@ class ConsoleKernel(ConsoleKernelInterface, ConsoleTerminableInterface):
         controller = event.getController();
 
         # controller arguments
-        arguments = self._resolver.getArguments(request, controller);
+        arguments = self._resolver.getArguments(request, controller, response);
 
         # call controller
         response = controller(*arguments);
