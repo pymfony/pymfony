@@ -449,6 +449,39 @@ class Response(ConsoleOutput):
         return self;
 
 
+    def write(self, messages, newline = False, outputType = None):
+        """Writes a message to the output.
+
+        @param string|list messages The message as a list of lines or a single string
+        @param Boolean      newline  Whether to add a newline or not
+        @param integer      type     The type of output
+
+        @raise InvalidArgumentException When unknown output type is given
+
+        @api
+
+        """
+        if None is outputType :
+            outputType = self._outputType;
+
+        return ConsoleOutput.write(self, messages, newline, outputType);
+
+
+    def writeln(self, messages, outputType = None):
+        """Writes a message to the output and adds a newline at the end.
+
+        @param string|list messages    The message as an array of lines or a
+                                      single string
+        @param integer     outputType  The type of output
+
+        @api
+
+        """
+        if None is outputType :
+            outputType = self._outputType;
+
+        return ConsoleOutput.writeln(self, messages, outputType);
+
 
     def setContent(self, content):
         """Sets the response content.
