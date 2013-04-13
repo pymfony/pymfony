@@ -935,8 +935,15 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                 raise e;
 
             self._loading[identifier] = True;
-            service = self.__createService(definition, identifier);
+
+            try:
+                service = self.__createService(definition, identifier);
+            except Exception as e:
+                self._loading.pop(identifier, None);
+                raise e;
+
             self._loading.pop(identifier, None);
+
             return service;
 
     def merge(self, container):
