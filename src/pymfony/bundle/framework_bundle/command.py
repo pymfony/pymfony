@@ -301,21 +301,18 @@ class CacheCommand(ContainerAware):
         if not os.access(realCacheDir, os.W_OK) :
             raise RuntimeException('Unable to write in the "{0}" directory'.format(realCacheDir));
 
+        shutil.rmtree(oldCacheDir, True);
+
         kernel = self._container.get('kernel');
-
         response.writeln('Clearing the cache for the <info>{0}</info> environment with debug <info>{1}</info>'.format(kernel.getEnvironment(), kernel.isDebug()));
-
         self._container.get('cache_clearer').clear(realCacheDir);
 
         if os.path.isdir(realCacheDir) :
-            shutil.rmtree(oldCacheDir, True);
             shutil.copytree(realCacheDir, oldCacheDir, symlinks=True);
             shutil.rmtree(realCacheDir);
 
         if not _o_no_warmup :
-            warmupDir = realCacheDir;
-            self._warmup(warmupDir, not _o_no_optional_warmers);
-
+            self._warmup(realCacheDir, not _o_no_optional_warmers);
 
         shutil.rmtree(oldCacheDir, True);
 
@@ -323,21 +320,20 @@ class CacheCommand(ContainerAware):
 
 
     def _warmup(self, warmupDir, enableOptionalWarmers = True):
-
-        if os.path.isdir(warmupDir) :
-            shutil.rmtree(warmupDir, True);
-
-        parent = self._container.get('kernel');
-        classKernel = parent.__class__;
-
-        kernel = classKernel(parent.getEnvironment(), parent.isDebug());
+        """
+        @param warmupDir:             string
+        @param enableOptionalWarmers: boolean
+        """
+        # create a temporary kernel
+        realKernel = self._container.get('kernel');
+        realKernelClass = realKernel.__class__;
+        kernel = realKernelClass(realKernel.getEnvironment(), realKernel.isDebug());
         kernel.boot();
 
+        # warmup temporary dir
         warmer = self._container.get('cache_warmer');
-
         if enableOptionalWarmers :
             warmer.enableOptionalWarmers();
-
         warmer.warmUp(warmupDir);
 
 
