@@ -128,7 +128,7 @@ class Router(BaseRouter, WarmableInterface):
 
     @author Fabien Potencier <fabien@symfony.com>
     """
-    def __init__(self, container, resource, options = None):
+    def __init__(self, container, resource, options = None, autoRegistration = True):
         """Constructor.
 
         @param: ContainerInterface container  A ContainerInterface instance
@@ -142,6 +142,7 @@ class Router(BaseRouter, WarmableInterface):
         loader  = container.get('console.routing.loader');
         BaseRouter.__init__(self, loader, resource, options);
 
+        self.__autoRegistration = autoRegistration;
         self.__container = container;
         self.__defaultRouteName = container.getParameter('console.router.default_route');
         environment = container.getParameter('kernel.environment');
@@ -174,12 +175,13 @@ class Router(BaseRouter, WarmableInterface):
 
         collection = BaseRouter._doGetRouteCollection(self);
 
-        for bundle in self.__container.get('kernel').getBundles().values() :
-            if isinstance(bundle, Bundle) :
-                bundleCollection = RouteCollection();
-                bundleCollection.addObjectResource(bundle);
-                bundle.registerCommands(bundleCollection);
-                collection.addCollection(bundleCollection);
+        if self.__autoRegistration :
+            for bundle in self.__container.get('kernel').getBundles().values() :
+                if isinstance(bundle, Bundle) :
+                    bundleCollection = RouteCollection();
+                    bundleCollection.addObjectResource(bundle);
+                    bundle.registerCommands(bundleCollection);
+                    collection.addCollection(bundleCollection);
 
         self.__resolveParameters(collection);
 

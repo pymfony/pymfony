@@ -83,6 +83,7 @@ class FrameworkExtension(Extension):
 
         container.setParameter('console.router.resource', config['resource']);
         container.setParameter('console.router.default_route', config['default_route']);
+        container.setParameter('console.router.auto_regitration', config['auto_regitration']);
 
 
 
@@ -128,6 +129,7 @@ class Configuration(ConfigurationInterface):
         n =                         n.scalarNode('resource').isRequired().end();
         n =                         n.scalarNode('type').end();
         n =                         n.scalarNode('default_route').defaultValue('framework_list').end();
+        n =                         n.booleanNode('auto_regitration').defaultTrue().end();
         n =                     n.end();
         n =                 n.end();
         n =                 n.scalarNode('exception_controller');

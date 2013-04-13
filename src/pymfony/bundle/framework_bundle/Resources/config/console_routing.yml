@@ -50,6 +50,7 @@ services:
                 debug:                  %kernel.debug%
                 request_matcher_class:  %console.router.options.request_matcher_class%
                 routes_cache_class:     %console.router.options.routes.cache_class%
+            - %console.router.auto_regitration%
 
     console.router:
         alias: console.router.default
