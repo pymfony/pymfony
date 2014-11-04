@@ -9,15 +9,76 @@
 from __future__ import absolute_import;
 
 import unittest;
+import tempfile;
 import os;
 import shutil;
-import tempfile;
 
-from pymfony.component.kernel.cache_warmer import CacheWarmerInterface;
-from pymfony.component.kernel.cache_warmer import CacheWarmerAggregate;
+from pymfony.component.http_kernel.cache_warmer import CacheWarmer;
+from pymfony.component.http_kernel.cache_warmer import CacheWarmerInterface;
+from pymfony.component.http_kernel.cache_warmer import CacheWarmerAggregate;
+from pymfony.component.system.exception import RuntimeException
 
 """
 """
+
+
+class CacheWarmerTest(unittest.TestCase):
+
+    def setUp(self):
+
+        self._cacheFile = tempfile.gettempdir() + '/sf2_cache_warmer_dir';
+        suffix = 0;
+        while os.path.exists(self._cacheFile+str(suffix)):
+            suffix += 1;
+        self._cacheFile = self._cacheFile+str(suffix);
+
+    def tearDown(self):
+
+        try:
+            os.unlink(self._cacheFile);
+        except Exception:
+            pass;
+
+    def testWriteCacheFileCreatesTheFile(self):
+
+        warmer = TestCacheWarmer(self._cacheFile);
+        warmer.warmUp(os.path.dirname(self._cacheFile));
+
+        self.assertTrue(os.path.exists(self._cacheFile));
+
+
+    def testWriteNonWritableCacheFileThrowsARuntimeException(self):
+        """@expectedException RuntimeException
+
+        """
+        try:
+            nonWritableFile = '/this/file/is/very/probably/not/writable';
+            warmer = TestCacheWarmer(nonWritableFile);
+            warmer.warmUp(os.path.dirname(nonWritableFile));
+
+            self.fail()
+        except Exception as e:
+            self.assertTrue(isinstance(e, RuntimeException));
+
+
+
+
+class TestCacheWarmer(CacheWarmer):
+
+    def __init__(self, filename):
+
+        self._file = filename;
+
+
+    def warmUp(self, cacheDir):
+
+        self._writeCacheFile(self._file, 'content');
+
+
+    def isOptional(self):
+
+        return False;
+
 
 
 class CacheWarmerAggregateTest(unittest.TestCase):
@@ -85,20 +146,28 @@ class CacheWarmerAggregateTest(unittest.TestCase):
 class CacheWarmerInterfaceMock1(CacheWarmerInterface):
     def isOptional(self):
         pass;
+
     def warmUp(self, cacheDir):
         pass;
+
+
 
 class CacheWarmerInterfaceMock2(CacheWarmerInterface):
     def isOptional(self):
         return True;
+
     def warmUp(self, cacheDir):
         raise Exception();
+
+
 
 class CacheWarmerInterfaceMock3(CacheWarmerInterface):
     def isOptional(self):
         raise Exception();
+
     def warmUp(self, cacheDir):
         pass;
+
 
 
 if __name__ == '__main__':

@@ -29,26 +29,6 @@ from pymfony.component.yaml.exception import DumpException;
 """
 """
 
-class Ref(Object):
-    def __init__(self, i = 0):
-        self.__i = i;
-
-    def __str__(self):
-        return str(self.__i);
-
-    def get(self):
-        return self.__i;
-
-    def set(self, v):
-        self.__i = v;
-
-    def add(self, y):
-        self.__i += y;
-
-    def sub(self, y):
-        self.__i -= y;
-
-
 class Parser(Object):
     """Parser parses YAML strings to convert them to PHP arrays.
 
@@ -611,7 +591,7 @@ class Parser(Object):
         value = value.replace("\r", "\n");
 
         # strip YAML header
-        count = Ref(0);
+        count = _Ref(0);
         def callback(match):
             count.add(1);
             return '';
@@ -723,7 +703,7 @@ class Inline(Object):
             return '';
 
 
-        i = Ref(0);
+        i = _Ref(0);
         if value[0] == '[':
             result = cls.__parseSequence(value, i);
             i.add(1);
@@ -836,8 +816,8 @@ class Inline(Object):
         if stringDelimiters is None:
             stringDelimiters = ['"', "'"];
         if i is None:
-            i = Ref(0);
-        assert isinstance(i, Ref);
+            i = _Ref(0);
+        assert isinstance(i, _Ref);
 
         if scalar[i.get()] in stringDelimiters :
             # quoted scalar
@@ -889,7 +869,7 @@ class Inline(Object):
         @raise ParseException When malformed inline YAML string is parsed
 
         """
-        assert isinstance(i, Ref);
+        assert isinstance(i, _Ref);
 
         match = re.search('^'+cls.REGEX_QUOTED_STRING, scalar[i.get():], flags=re.U);
         if not match :
@@ -925,8 +905,8 @@ class Inline(Object):
 
         """
         if i is None:
-            i = Ref(0);
-        assert isinstance(i, Ref);
+            i = _Ref(0);
+        assert isinstance(i, _Ref);
 
         output = list();
         lenght = len(sequence);
@@ -982,8 +962,8 @@ class Inline(Object):
 
         """
         if i is None:
-            i = Ref(0);
-        assert isinstance(i, Ref);
+            i = _Ref(0);
+        assert isinstance(i, _Ref);
 
         output = OrderedDict();
         lenght = len(mapping);
@@ -1586,3 +1566,24 @@ class Yaml(Object):
         yaml.setIndentation(indent);
 
         return yaml.dump(array, inline, 0, exceptionOnInvalidType, objectSupport);
+
+
+
+class _Ref(Object):
+    def __init__(self, i = 0):
+        self.__i = i;
+
+    def __str__(self):
+        return str(self.__i);
+
+    def get(self):
+        return self.__i;
+
+    def set(self, v):
+        self.__i = v;
+
+    def add(self, y):
+        self.__i += y;
+
+    def sub(self, y):
+        self.__i -= y;

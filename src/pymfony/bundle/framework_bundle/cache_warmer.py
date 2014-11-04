@@ -15,7 +15,7 @@ from pymfony.component.kernel.cache_warmer import WarmableInterface
 """
 """
 
-class ConsoleRouterCacheWarmer(CacheWarmerInterface):
+class RouterCacheWarmer(CacheWarmerInterface):
     """Generates the router matcher and generator classes.
 
     @author Fabien Potencier <fabien@symfony.com>

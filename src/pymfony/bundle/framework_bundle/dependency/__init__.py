@@ -15,7 +15,6 @@ from pymfony.component.dependency.loader import YamlFileLoader;
 from pymfony.component.config import FileLocator;
 from pymfony.component.config.definition import ConfigurationInterface;
 from pymfony.component.config.definition.builder import TreeBuilder;
-from pymfony.component.config.definition.builder import ArrayNodeDefinition;
 
 from pymfony.component.kernel.dependency import Extension;
 
@@ -47,9 +46,6 @@ class FrameworkExtension(Extension):
         config = self._processConfiguration(configuration, configs);
 
         container.setParameter('kernel.default_locale', config['default_locale']);
-
-        if 'console' in config:
-            self.__registerConsoleConfiguration(config['console'], container, loader);
 
 
     def __registerConsoleConfiguration(self, config, container, loader):
@@ -103,38 +99,7 @@ class Configuration(ConfigurationInterface):
         rootNode = treeBuilder.root('framework');
 
         node =  rootNode.children();
-        node =      node.scalarNode('default_locale');
-        node =          node.defaultValue("en");
-        node =      node.end();
+        node =      node.scalarNode('default_locale').defaultValue("en").end();
         node =  node.end();
 
-        self.__addConsoleSection(rootNode);
-
         return treeBuilder;
-
-    def __addConsoleSection(self, rootNode):
-        assert isinstance(rootNode, ArrayNodeDefinition);
-
-        n = rootNode;
-        n =     n.children();
-        n =         n.arrayNode('console');
-        n =             n.info('console configuration');
-        n =             n.canBeUnset();
-        n =             n.addDefaultsIfNotSet();
-        n =             n.children();
-        n =                 n.arrayNode('router');
-        n =                     n.info('console router configuration');
-        n =                     n.canBeUnset();
-        n =                     n.children();
-        n =                         n.scalarNode('resource').isRequired().end();
-        n =                         n.scalarNode('type').end();
-        n =                         n.scalarNode('default_route').defaultValue('framework_list').end();
-        n =                         n.booleanNode('auto_regitration').defaultTrue().end();
-        n =                     n.end();
-        n =                 n.end();
-        n =                 n.scalarNode('exception_controller');
-        n =                     n.defaultValue('FrameworkBundle:Exception:show');
-        n =                 n.end();
-        n =             n.end();
-        n =         n.end();
-        n =     n.end();

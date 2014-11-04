@@ -23,7 +23,7 @@ f.close();
 
 def find_packages():
     return [
-        'pymfony.component.kernel',
+        'pymfony.component.http_kernel',
     ];
 
 def find_package_data():
@@ -31,15 +31,15 @@ def find_package_data():
     };
 
 setup(
-    name="pymfony.kernel",
+    name="pymfony.http_kernel",
     version="0.1.0",
-    package_dir={'pymfony.component.kernel': ''},
+    package_dir={'pymfony.component.http_kernel': ''},
     packages=find_packages(),
     package_data=find_package_data(),
     author="Alexandre Quercia",
     author_email="alquerci@email.com",
-    url="http://github.com/pymfony/kernel",
-    description='Pymfony Kernel Component',
+    url="http://github.com/pymfony/http_kernel",
+    description='Pymfony HttpKernel Component',
     long_description=long_description,
     license="MIT",
     classifiers=[

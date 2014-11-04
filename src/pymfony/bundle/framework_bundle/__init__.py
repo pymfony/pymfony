@@ -15,16 +15,10 @@ from pymfony.component.dependency import Scope;
 from pymfony.component.dependency.compiler import PassConfig;
 
 from pymfony.bundle.framework_bundle.dependency.compiler import RegisterKernelListenersPass;
-from pymfony.bundle.framework_bundle.dependency.compiler import ConsoleRoutingResolverPass;
 from pymfony.bundle.framework_bundle.dependency.compiler import AddCacheWarmerPass;
 from pymfony.bundle.framework_bundle.dependency.compiler import AddCacheClearerPass;
 from pymfony.bundle.framework_bundle.dependency.compiler import CompilerDebugDumpPass;
-
-from pymfony.component.console_routing import RouteCollection;
-from pymfony.component.console_routing import Route;
-
-from pymfony.component.console.input import InputArgument;
-from pymfony.component.console.input import InputOption;
+from pymfony.bundle.framework_bundle.dependency.compiler import RoutingResolverPass;
 
 """
 Pymfony FrameworkBundle
@@ -44,43 +38,10 @@ class FrameworkBundle(Bundle):
 
         container.addScope(Scope('request'));
 
-        container.addCompilerPass(ConsoleRoutingResolverPass());
+        container.addCompilerPass(RoutingResolverPass());
         container.addCompilerPass(RegisterKernelListenersPass(), PassConfig.TYPE_AFTER_REMOVING);
         container.addCompilerPass(AddCacheWarmerPass());
         container.addCompilerPass(AddCacheClearerPass());
 
         if container.getParameter('kernel.debug') :
             container.addCompilerPass(CompilerDebugDumpPass(), PassConfig.TYPE_AFTER_REMOVING);
-
-
-    def registerCommands(self, collection):
-        assert isinstance(collection, RouteCollection);
-
-        collection\
-            .add('framework_list', Route("list", "Lists commands", {
-                '_controller': "FrameworkBundle:List:show",
-            }, [
-                InputArgument('namespace', InputArgument.OPTIONAL, 'The namespace name'),
-                InputOption('raw', None, InputOption.VALUE_NONE, 'To output raw command list'),
-            ]))\
-            .add('framework_version', Route("_fragment:framework:version", "Show application version", {
-                '_controller': "FrameworkBundle:Version:long",
-            }))\
-            .add('framework_help', Route("help", "Displays help for a command", {
-                '_controller': "FrameworkBundle:Help:show",
-            }, [
-                InputArgument('command_name', InputArgument.OPTIONAL, 'The command name', 'help'),
-                InputOption('xml', None, InputOption.VALUE_NONE, 'To output help as XML'),
-            ]))\
-            .add('framework_cache_clear', Route('cache:clear', 'Clears the cache', {
-                '_controller': "FrameworkBundle:Cache:clear",
-            }, [
-                InputOption('no-warmup', '', InputOption.VALUE_NONE, 'Do not warm up the cache'),
-                InputOption('no-optional-warmers', '', InputOption.VALUE_NONE, 'Skip optional cache warmers (faster)'),
-            ]))\
-            .add('framework_cache_warmup', Route('cache:warmup', 'Warms up an empty cache', {
-                '_controller': "FrameworkBundle:Cache:warmup",
-            }, [
-                InputOption('no-optional-warmers', '', InputOption.VALUE_NONE, 'Skip optional cache warmers (faster)'),
-            ]))\
-        ;
