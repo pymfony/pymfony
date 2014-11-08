@@ -115,9 +115,6 @@ class ParameterBag(ParameterBagInterface):
 
         self.add(parameters);
 
-    def _formatName(self, name):
-        return str(name).lower();
-
     def clear(self):
         self._parameters = dict();
 
@@ -125,14 +122,14 @@ class ParameterBag(ParameterBagInterface):
         assert isinstance(parameters, dict);
 
         for name, value in parameters.items():
-            name = self._formatName(name);
+            name = str(name).lower();
             self._parameters[name] = value;
 
     def all(self):
         return self._parameters;
 
     def get(self, name):
-        name = self._formatName(name);
+        name = str(name).lower();
 
         if not self.has(name):
             raise ParameterNotFoundException(name);
@@ -140,15 +137,15 @@ class ParameterBag(ParameterBagInterface):
         return self._parameters[name];
 
     def set(self, name, value):
-        name = self._formatName(name);
+        name = str(name).lower();
         self._parameters[name] = value;
 
     def has(self, name):
-        name = self._formatName(name);
+        name = str(name).lower();
         return name in self._parameters.keys();
 
     def remove(self, name):
-        name = self._formatName(name);
+        name = str(name).lower();
         del self._parameters[name];
 
     def resolve(self):

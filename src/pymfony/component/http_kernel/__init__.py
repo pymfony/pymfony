@@ -12,6 +12,8 @@ import os;
 from time import time;
 import re;
 
+from pymfony.component.system import Object;
+from pymfony.component.system.oop import final;
 from pymfony.component.system.oop import interface;
 from pymfony.component.system.types import Array;
 from pymfony.component.system.reflection import ReflectionObject;
@@ -33,11 +35,11 @@ from pymfony.component.dependency.loader import IniFileLoader;
 from pymfony.component.dependency.loader import JsonFileLoader;
 from pymfony.component.dependency.loader import YamlFileLoader;
 
-from pymfony.component.kernel.bundle import BundleInterface;
-from pymfony.component.kernel.config import FileLocator;
-from pymfony.component.kernel.config import FileResourceLocatorInterface;
-from pymfony.component.kernel.dependency import MergeExtensionConfigurationPass;
-from pymfony.component.kernel.debug import ExceptionHandler;
+from pymfony.component.http_kernel.bundle import BundleInterface;
+from pymfony.component.http_kernel.config import FileLocator;
+from pymfony.component.http_kernel.config import FileResourceLocatorInterface;
+from pymfony.component.http_kernel.dependency import MergeExtensionConfigurationPass;
+from pymfony.component.http_kernel.debug import ExceptionHandler;
 
 """
 """
@@ -91,13 +93,6 @@ class KernelInterface(FileResourceLocatorInterface):
         """Gets the request start time (not available if debug is disabled).
 
         @return: float The request start timestamp
-        """
-        pass;
-
-    def getNamespace(self):
-        """Gets the Kernel namespace.
-
-        @return: string The Bundle namespace
         """
         pass;
 
@@ -166,6 +161,55 @@ class KernelInterface(FileResourceLocatorInterface):
         @return: string The application root dir
         """
         pass;
+
+
+@final
+class HttpKernelEvents(Object):
+    # The REQUEST event occurs at the very beginning of request dispatching
+    #
+    # This event allows you to create a response for a request before any
+    # other code in the framework is executed. The event listener method
+    # receives a pymfony.component.httpkernel.event.GetResponseEvent instance.
+    REQUEST = 'http_kernel.request';
+
+    # The EXCEPTION event occurs when an uncaught exception appears
+    #
+    # This event allows you to create a response for a thrown exception or
+    # to modify the thrown exception. The event listener method receives
+    # a pymfony.component.httpkernel.event.GetResponseForExceptionEvent instance.
+    EXCEPTION = 'http_kernel.exception';
+
+    # The VIEW event occurs when the return value of a controller
+    # is not a Response instance.
+    #
+    # This event allows you to create a response for the return value of the
+    # controller. The event listener method receives a
+    # pymfony.component.httpkernel.event.GetResponseForControllerResultEvent
+    # instance.
+    VIEW = 'http_kernel.view';
+
+    # The CONTROLLER event occurs once a controller was found for
+    # handling a request
+    #
+    # This event allows you to change the controller that will handle the
+    # request. The event listener method receives a
+    # pymfony.component.httpkernel.event.FilterControllerEvent instance.
+    CONTROLLER = 'http_kernel.controller';
+
+    # The RESPONSE event occurs once a response was created for
+    # replying to a request
+    #
+    # This event allows you to modify or replace the response that will be
+    # replied. The event listener method receives a
+    # pymfony.component.httpkernel.event.FilterResponseEvent instance.
+    RESPONSE = 'http_kernel.response';
+
+    # The TERMINATE event occurs once a response was sent
+    #
+    # This event allows you to run expensive post-response jobs.
+    # The event listener method receives a
+    # pymfony.component.httpkernel.event.PostResponseEvent instance.
+    TERMINATE = 'http_kernel.terminate';
 
 
 class Kernel(KernelInterface):
@@ -442,9 +486,6 @@ class Kernel(KernelInterface):
 
         return container;
 
-    def getNamespace(self):
-        return str(type(self).__module__);
-
     def _getContainerLoader(self, container):
         assert isinstance(container, ContainerInterface);
         locator = FileLocator(self);
@@ -517,9 +558,6 @@ class Kernel(KernelInterface):
         if self._name is None:
             self._name = re.sub(r"[^a-zA-Z0-9_]+", "", os.path.basename(self._rootDir));
         return self._name;
-
-    def getVersion(self):
-        return self.VERSION+' - '+self.getEnvironment()+('/debug' if self.isDebug() else '');
 
     def getEnvironment(self):
         return self._environment;
@@ -656,8 +694,3 @@ class Kernel(KernelInterface):
 
     def getCharset(self):
         return 'UTF-8';
-
-    def getConsoleKernel(self):
-        if not self._booted:
-            self.boot();
-        return self._container.get('console_kernel');

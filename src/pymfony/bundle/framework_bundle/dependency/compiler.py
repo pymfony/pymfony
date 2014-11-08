@@ -95,26 +95,6 @@ class RoutingResolverPass(CompilerPassInterface):
         for identifier, attributes in container.findTaggedServiceIds('routing.loader').items():
             definition.addMethodCall('addLoader', [Reference(identifier)]);
 
-class ConsoleRoutingResolverPass(CompilerPassInterface):
-    """Adds tagged console.routing.loader services to console.routing.resolver
-    service
-
-    @author: Alexandre Quercia <alquerci@email.com>
-    """
-
-    def process(self, container):
-        assert isinstance(container, ContainerBuilder);
-
-        if (False is container.hasDefinition('console.routing.resolver')) :
-            return;
-
-
-        definition = container.getDefinition('console.routing.resolver');
-
-        for identifier, attributes in container.findTaggedServiceIds('console.routing.loader').items():
-            definition.addMethodCall('addLoader', [Reference(identifier)]);
-
-
 
 
 class AddCacheClearerPass(CompilerPassInterface):

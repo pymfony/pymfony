@@ -252,7 +252,7 @@ class Container(IntrospectableContainerInterface):
                 ''.format(identifier)
             );
 
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
 
         if (self.SCOPE_CONTAINER  != scope) :
             if not scope in self._scopedServices :
@@ -276,7 +276,7 @@ class Container(IntrospectableContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         method = 'get'+self.camelize(identifier)+'Service';
         return identifier in self._services.keys() or (hasattr(self, method) and isinstance(getattr(self, method), type(self.has)));
 
@@ -300,7 +300,7 @@ class Container(IntrospectableContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         if identifier in self._services.keys():
             return self._services[identifier];
 
@@ -335,7 +335,7 @@ class Container(IntrospectableContainerInterface):
         @return Boolean True if service has already been initialized, False otherwise:
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         return identifier in self._services;
 
     def getServiceIds(self):
@@ -562,9 +562,6 @@ class Container(IntrospectableContainerInterface):
             value = re.sub(patterns[i], repls[i], value);
 
         return value.lower();
-
-    def _formatIdentifier(self, identifier):
-        return str(identifier).lower();
 
 
 
@@ -858,7 +855,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
 
         if self.isFrozen():
             # setting a synthetic service on a frozen container is alright
@@ -878,7 +875,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         self.__definitions.pop(identifier, None);
 
     def has(self, identifier):
@@ -891,7 +888,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         return identifier in self.__definitions\
             or identifier in self.__aliases\
             or Container.has(self, identifier);
@@ -912,7 +909,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         try:
             return Container.get(self, identifier, ContainerInterface.EXCEPTION_ON_INVALID_REFERENCE);
         except InvalidArgumentException as e:
@@ -1111,7 +1108,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        alias = self.__formatAlias(alias);
+        alias = str(alias).lower();
 
         if isinstance(identifier, str):
             identifier = Alias(identifier);
@@ -1138,7 +1135,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        alias = self.__formatAlias(alias);
+        alias = str(alias).lower();
         self.__aliases.pop(alias, None);
 
 
@@ -1152,7 +1149,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        alias = self.__formatAlias(identifier);
+        alias = str(identifier).lower();
         return alias in self.__aliases;
 
 
@@ -1178,7 +1175,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        identifier = self.__formatAlias(identifier);
+        identifier = str(identifier).lower();
 
         if not self.hasAlias(identifier):
             raise InvalidArgumentException(
@@ -1206,7 +1203,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         return self.setDefinition(identifier, Definition(className));
 
 
@@ -1268,7 +1265,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                 'Adding definition to a frozen container is not allowed'
             );
 
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         self.__aliases.pop(identifier, None);
 
         self.__definitions[identifier] = definition;
@@ -1286,7 +1283,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
         return identifier in self.__definitions;
 
     def getDefinition(self, identifier):
@@ -1301,7 +1298,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
         @api
 
         """
-        identifier = self._formatIdentifier(identifier);
+        identifier = str(identifier).lower();
 
         if not self.hasDefinition(identifier):
             raise InvalidArgumentException(
@@ -1402,7 +1399,7 @@ class ContainerBuilder(Container, TaggedContainerInterface):
                     'scope.'.format(identifier)
                 );
 
-            lowerId = self._formatIdentifier(identifier);
+            lowerId = str(identifier).lower();
             self._services[lowerId] = service;
 
             if (self.SCOPE_CONTAINER != scope) :
@@ -1519,7 +1516,3 @@ class ContainerBuilder(Container, TaggedContainerInterface):
             services.append(str(value));
 
         return services;
-
-
-    def __formatAlias(self, identifer):
-        return self._formatIdentifier(identifer);

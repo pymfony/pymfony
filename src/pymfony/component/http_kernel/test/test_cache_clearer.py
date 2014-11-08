@@ -13,8 +13,8 @@ import tempfile;
 import os;
 import shutil;
 
-from pymfony.component.kernel.cache_clearer import ChainCacheClearer;
-from pymfony.component.kernel.cache_clearer import CacheClearerInterface;
+from pymfony.component.http_kernel.cache_clearer import ChainCacheClearer;
+from pymfony.component.http_kernel.cache_clearer import CacheClearerInterface;
 
 """
 """
